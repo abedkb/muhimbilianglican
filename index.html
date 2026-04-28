@@ -265,7 +265,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="pastor-pending"><div id="pending-list"></div></div>
     <div id="pastor-leo" style="display:none;"><div id="pastor-leo-content"></div></div>
     <div id="pastor-fedha" style="display:none;"><div id="pastor-fedha-content"></div></div>
-    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title">👥 Orodha ya Waumini</div><div class="table-wrapper"><table><thead><tr><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div></div></div>
+    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('pastor')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="pastor-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterPastorWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div><div id="pastor-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="pastor-ripoti" style="display:none;"><div class="stats-grid" id="pastor-report-stats"></div><div class="alert alert-info">Ripoti kamili inapatikana kwenye sehemu ya Mweka Hazina.</div></div>
     <div id="pastor-mipangilio" style="display:none;">
       <div class="card"><div class="card-title">⚙ Mipangilio ya Kanisa</div><div id="pastor-settings-alert"></div>
@@ -297,7 +297,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="secretary-tab-fedha" onclick="secretaryTab('fedha')">💰 Fedha</div>
     </div>
     <div id="secretary-reg"><div id="reg-requests-list"></div></div>
-    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title">👥 Waumini Wote</div><div class="table-wrapper"><table><thead><tr><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div></div></div>
+    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="secretary-announce" style="display:none;">
       <div class="card"><div class="card-title">📢 Unda Tangazo Jipya</div><div id="announce-alert"></div>
         <div class="fg"><label>Kichwa cha Tangazo</label><input type="text" class="fi" id="announce-title"></div>
@@ -324,6 +324,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="treasurer-tab-leo" onclick="treasurerTab('leo')">📅 Leo</div>
       <div class="tab" id="treasurer-tab-fedha" onclick="treasurerTab('fedha')">💰 Fedha</div>
       <div class="tab" id="treasurer-tab-historia" onclick="treasurerTab('historia')">📋 Historia</div>
+      <div class="tab" id="treasurer-tab-waumini" onclick="treasurerTab('waumini')">👥 Waumini</div>
       <div class="tab" id="treasurer-tab-ripoti" onclick="treasurerTab('ripoti')">📄 Ripoti</div>
     </div>
     <div id="treasurer-ingiza">
@@ -374,6 +375,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="treasurer-leo" style="display:none;"><div id="treasurer-leo-content"></div></div>
     <div id="treasurer-fedha" style="display:none;"><div id="treasurer-fedha-content"></div></div>
     <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
+    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="treasurer-ripoti" style="display:none;"><div class="card"><div class="card-title">📄 Ripoti za Fedha</div><div id="treasurer-report-stats"></div><div class="alert alert-info">Ripoti kamili inaweza kuchapishwa kutoka kwenye historia.</div></div></div>
   </div>
 </div>
@@ -417,8 +419,8 @@ function setPW(role, pw) { localStorage.setItem('mac_pw_' + role, pw); }
 function showLoading(v) { el('loading-overlay').style.display = v ? 'flex' : 'none'; }
 
 // ==================== LOAD DATA ====================
-async function loadAllData() {
-  showLoading(true);
+async function loadAllData(silent = false) {
+  if (!silent) showLoading(true);
   try {
     const [
       { data: members },
@@ -479,9 +481,9 @@ async function loadAllData() {
     }
   } catch (e) {
     console.error(e);
-    toast('⚠ Hitilafu ya kuunganisha database');
+    if (!silent) toast('⚠ Hitilafu ya kuunganisha database');
   }
-  showLoading(false);
+  if (!silent) showLoading(false);
 }
 
 // ==================== AUTH ====================
@@ -520,15 +522,18 @@ async function memberRegister() {
 
 async function pastorLogin() {
   if (el('pastor-pw').value.trim() !== getPW('pastor')) { el('pastor-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
-  currentRole = 'pastor'; await loadAllData(); loadPastorDashboard(); show('s-pastor');
+  currentRole = 'pastor'; loadPastorDashboard(); show('s-pastor');
+  loadAllData(true).then(() => loadPastorDashboard());
 }
 async function secretaryLogin() {
   if (el('secretary-pw').value.trim() !== getPW('secretary')) { el('secretary-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
-  currentRole = 'secretary'; await loadAllData(); loadSecretaryDashboard(); show('s-secretary');
+  currentRole = 'secretary'; loadSecretaryDashboard(); show('s-secretary');
+  loadAllData(true).then(() => loadSecretaryDashboard());
 }
 async function treasurerLogin() {
   if (el('treasurer-pw').value.trim() !== getPW('treasurer')) { el('treasurer-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
-  currentRole = 'treasurer'; await loadAllData(); loadTreasurerDashboard(); show('s-treasurer');
+  currentRole = 'treasurer'; loadTreasurerDashboard(); show('s-treasurer');
+  loadAllData(true).then(() => loadTreasurerDashboard());
 }
 function logout() { currentUser = null; currentRole = ""; show('s-welcome'); }
 
@@ -638,7 +643,7 @@ function loadPastorDashboard() {
   el('pending-list').innerHTML = pending.length ? pending.map(ap => `<div class="card"><div class="card-title">${ap.aina === 'contribution' ? '💰 MCHANGO' : '📢 TANGAZO'}</div><div class="finance-row"><span>${ap.kichwa}</span><span class="badge badge-gold">Inasubiri</span></div><div class="finance-row"><span>${ap.aina === 'contribution' ? `Muumini: ${ap.muumini_jina} · Kiasi: ${formatMoney(ap.kiasi)}` : `Tarehe: ${formatDate(ap.tarehe_tangazo)}`}</span></div>${ap.maelezo_ap ? `<div class="alert alert-info">${ap.maelezo_ap}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="approveItem('${ap.id}')">✅ Idhinisha</button><button class="btn btn-red btn-sm" onclick="rejectItem('${ap.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">🎉 Hakuna kinachosubiri idhini yako</div>';
   renderIbadaLeo('pastor-leo-content');
   renderFedhaViongozi('pastor-fedha-content');
-  el('pastor-members-list').innerHTML = allMembers.map(m => `<tr><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('');
+  renderPastorWaumini();
   el('pastor-report-stats').innerHTML = `<div class="stat-card"><div class="stat-number">${allMembers.filter(m => m.hali === 'hai').length}</div><div class="stat-label">Waumini Hai</div></div><div class="stat-card"><div class="stat-number">${allContributions.filter(c => c.hali === 'approved').length}</div><div class="stat-label">Michango</div></div><div class="stat-card"><div class="stat-number">${allApprovals.filter(a => a.hali === 'pending').length}</div><div class="stat-label">Inasubiri</div></div>`;
   el('pastor-kanisa-jina').value = kanisaSettings.jina_kanisa || '';
   el('pastor-kanisa-mahali').value = kanisaSettings.mahali || '';
@@ -710,7 +715,7 @@ function loadSecretaryDashboard() {
   const pendingRegs = allRequests.filter(r => r.aina === 'registration' && r.hali === 'pending');
   el('reg-pending-count').textContent = pendingRegs.length;
   el('reg-requests-list').innerHTML = pendingRegs.length ? pendingRegs.map(r => `<div class="card"><div class="card-title">🆕 OMBI LA USAJILI</div><div class="finance-row"><span>${r.muumini_jina}</span><span>📱 ${r.muumini_simu}</span></div><div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="approveRegistration('${r.id}', '${r.muumini_id}')">✅ Kubali</button><button class="btn btn-red btn-sm" onclick="rejectRegistration('${r.id}', '${r.muumini_id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi ya usajili</div>';
-  el('secretary-members-list').innerHTML = allMembers.map(m => `<tr><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td><button class="btn btn-sm ${m.hali === 'hai' ? 'btn-outline' : 'btn-green'}" onclick="toggleMemberStatus('${m.id}')">${m.hali === 'hai' ? '🔴 Si Hai' : '🟢 Weka Hai'}</button> <button class="btn btn-red btn-sm" onclick="deleteMember('${m.id}')">🗑</button></td></tr>`).join('');
+  renderSecretaryWaumini();
   const pastAnns = allAnnouncements.filter(a => a.hali === 'approved' || a.hali === 'rejected');
   el('past-announcements').innerHTML = pastAnns.length ? pastAnns.map(a => `<div class="tangazo-card"><div class="tangazo-title">${a.kichwa}</div><div class="tangazo-body">${a.maelezo}</div><div style="font-size:11px;color:#666;margin-top:8px;">📅 ${formatDate(a.tarehe_tangazo)} · <span class="badge ${a.hali === 'approved' ? 'badge-green' : 'badge-red'}">${a.hali === 'approved' ? 'Imeidhinishwa' : 'Imekataliwa'}</span></div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna matangazo</div>';
   el('announce-date').value = leo();
@@ -878,13 +883,14 @@ function renderJumlaHistoria() {
 }
 
 function treasurerTab(tab) {
-  ['ingiza', 'jumla', 'maombi', 'matumizi', 'aina', 'leo', 'fedha', 'historia', 'ripoti'].forEach(t => {
+  ['ingiza', 'jumla', 'maombi', 'matumizi', 'aina', 'leo', 'fedha', 'historia', 'waumini', 'ripoti'].forEach(t => {
     const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
   if (tab === 'leo') renderIbadaLeo('treasurer-leo-content');
   if (tab === 'fedha') renderFedhaViongozi('treasurer-fedha-content');
   if (tab === 'historia') loadTreasurerDashboard();
+  if (tab === 'waumini') renderTreasurerWaumini();
 }
 
 // ==================== FINANCE HELPERS ====================
@@ -959,6 +965,66 @@ function renderFedhaViongozi(containerId) {
     : '<div style="text-align:center;padding:16px;color:#6B7280;">Hakuna michango ya mwezi huu</div>';
 
   container.innerHTML = `<div class="card"><div class="card-title">📊 Jumla ya Michango kwa Mwezi (${mwezi})</div>${typeRowsHTML}<div style="background:#1B4D3E;border-radius:12px;padding:16px;display:flex;justify-content:space-between;color:white;margin-top:12px;"><span style="font-weight:700;">JUMLA YOTE</span><span style="font-size:20px;color:#C6A43F;">${formatMoney(grandTotal)}</span></div></div><div class="card"><div class="card-title">💸 Mapato vs Matumizi ya Mwezi</div><div class="fin-grid"><div class="fin-card green"><div class="fin-label">📈 Mapato</div><div class="fin-amount">${formatMoney(grandTotal)}</div></div><div class="fin-card red"><div class="fin-label">📉 Matumizi</div><div class="fin-amount">${formatMoney(matMwezi)}</div></div></div><div style="border-radius:12px;padding:16px;display:flex;justify-content:space-between;background:${grandTotal - matMwezi >= 0 ? '#E6F7EC' : '#FEE2E2'};border:1px solid ${grandTotal - matMwezi >= 0 ? '#9AE6B4' : '#FCA5A5'};"><span style="font-weight:700;">SALIO LA MWEZI</span><span style="font-size:18px;font-weight:700;color:${grandTotal - matMwezi >= 0 ? '#2F855A' : '#B83B3B'};">${formatMoney(grandTotal - matMwezi)}</span></div></div>`;
+}
+
+// ==================== WAUMINI RENDER & SEARCH ====================
+function renderPastorWaumini(filter = '') {
+  const lc = filter.toLowerCase();
+  const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
+  el('pastor-members-list').innerHTML = filtered.length
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
+  const c = el('pastor-waumini-count');
+  if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
+}
+function filterPastorWaumini() {
+  renderPastorWaumini(el('pastor-waumini-search').value.trim());
+}
+
+function renderSecretaryWaumini(filter = '') {
+  const lc = filter.toLowerCase();
+  const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
+  el('secretary-members-list').innerHTML = filtered.length
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td><button class="btn btn-sm ${m.hali === 'hai' ? 'btn-outline' : 'btn-green'}" onclick="toggleMemberStatus('${m.id}')">${m.hali === 'hai' ? '🔴 Si Hai' : '🟢 Weka Hai'}</button> <button class="btn btn-red btn-sm" onclick="deleteMember('${m.id}')">🗑</button></td></tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
+  const c = el('secretary-waumini-count');
+  if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
+}
+function filterSecretaryWaumini() {
+  renderSecretaryWaumini(el('secretary-waumini-search').value.trim());
+}
+
+function renderTreasurerWaumini(filter = '') {
+  const lc = filter.toLowerCase();
+  const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
+  el('treasurer-members-list').innerHTML = filtered.length
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td>${m.jinsia || '—'}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
+  const c = el('treasurer-waumini-count');
+  if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
+}
+function filterTreasurerWaumini() {
+  renderTreasurerWaumini(el('treasurer-waumini-search').value.trim());
+}
+
+function downloadWauminiCSV(role) {
+  const headers = ['#', 'Jina Kamili', 'Namba ya Simu', 'Namba ya Muumini', 'Jinsia', 'Hali', 'Tarehe ya Kujiunga'];
+  const rows = allMembers.map((m, i) => [
+    i + 1,
+    `"${(m.jina_kamili || '').replace(/"/g, '""')}"`,
+    m.namba_simu || '',
+    m.namba_muumini || '',
+    m.jinsia || '',
+    m.hali === 'hai' ? 'Hai' : m.hali === 'si_hai' ? 'Si Hai' : 'Pending',
+    m.tarehe_kujiunga || ''
+  ]);
+  const csv = '﻿' + [headers, ...rows].map(r => r.join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `waumini_${role}_${leo()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Orodha imepakiwa!');
 }
 
 // ==================== INIT ====================
