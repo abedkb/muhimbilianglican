@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhimbili Anglican Church | Mfumo Kamili wa Kanisa</title>
+<!-- SUPABASE CDN — FIX KUU: Library lazima ipakiwe kwanza -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#F5F3EF;color:#1E2A2E;font-size:14px;line-height:1.5;}
+:root{
+  --anglican-green:#1B4D3E;
+  --anglican-gold:#C6A43F;
+  --anglican-cream:#F9F6EF;
+  --anglican-dark:#2C3A2F;
+  --anglican-light:#E8E2D4;
+  --anglican-red:#B83B3B;
+  --anglican-blue:#2C5282;
+  --shadow:0 4px 12px rgba(0,0,0,0.08);
+  --radius:12px;
+}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
+.welcome{
+  min-height:100vh;
+  background:linear-gradient(135deg, #1B4D3E 0%, #2C5A4A 50%, #1B4D3E 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;text-align:center;position:relative;
+}
+.w-logo{background:white;border-radius:20px;padding:8px 24px;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.w-logo h1{font-size:28px;letter-spacing:1px;color:#1B4D3E;font-family:'Cormorant Garamond',serif;}
+.w-logo p{font-size:11px;color:#666;letter-spacing:2px;}
+.w-verse{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:30px;font-style:italic;}
+.w-btns{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;}
+.wb{
+  padding:14px 20px;border-radius:40px;font-weight:600;font-size:14px;
+  cursor:pointer;border:none;display:flex;align-items:center;gap:12px;
+  transition:all 0.2s;background:white;color:#1B4D3E;box-shadow:var(--shadow);
+}
+.wb:hover{transform:translateY(-2px);}
+.wb-icon{font-size:20px;}
+.wb-text{flex:1;text-align:left;}
+.wb-label{display:block;font-weight:700;font-size:14px;}
+.wb-desc{font-size:11px;opacity:0.7;}
+.topbar{background:#1B4D3E;color:white;position:sticky;top:0;z-index:100;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.topbar h2{font-size:18px;letter-spacing:1px;font-family:'Cormorant Garamond',serif;}
+.topbar .role{font-size:11px;opacity:0.7;}
+.logout-btn{background:rgba(255,255,255,0.1);border:none;color:white;padding:6px 14px;border-radius:30px;cursor:pointer;font-size:12px;font-weight:500;}
+.pw{padding:20px;max-width:600px;margin:0 auto;}
+.aw{padding:20px;max-width:1200px;margin:0 auto;}
+.card{background:white;border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-size:12px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:6px;}
+.fi{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;transition:all 0.2s;}
+.fi:focus{outline:none;border-color:#C6A43F;box-shadow:0 0 0 3px rgba(198,164,63,0.1);}
+.fsel{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;background:white;}
+.btn{padding:12px 20px;border:none;border-radius:40px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;justify-content:center;}
+.btn-block{width:100%;}
+.btn-primary{background:#1B4D3E;color:white;}
+.btn-gold{background:#C6A43F;color:#1B4D3E;}
+.btn-green{background:#2F855A;color:white;}
+.btn-red{background:#B83B3B;color:white;}
+.btn-blue{background:#2C5282;color:white;}
+.btn-outline{background:white;border:1.5px solid #E2E8F0;color:#4A5568;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.tabs{display:flex;gap:4px;background:#F1EFEA;border-radius:50px;padding:4px;margin-bottom:20px;overflow-x:auto;}
+.tab{flex:1;padding:10px 16px;text-align:center;border-radius:40px;cursor:pointer;font-size:13px;font-weight:600;color:#6B7280;transition:all 0.2s;white-space:nowrap;}
+.tab.active{background:#1B4D3E;color:white;box-shadow:var(--shadow);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:white;border-radius:var(--radius);padding:16px;text-align:center;border:1px solid #E2E8F0;}
+.stat-number{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1B4D3E;}
+.stat-label{font-size:11px;color:#6B7280;margin-top:4px;font-weight:500;}
+.contrib-card{background:white;border-radius:12px;border:1px solid #E2E8F0;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.contrib-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.contrib-info{flex:1;}
+.contrib-type{font-weight:700;font-size:14px;color:#1B4D3E;}
+.contrib-date{font-size:11px;color:#6B7280;margin-top:2px;}
+.contrib-amount{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#2F855A;}
+.tangazo-card{background:white;border-radius:12px;border-left:4px solid #C6A43F;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.tangazo-title{font-weight:700;font-size:15px;color:#1B4D3E;margin-bottom:6px;}
+.tangazo-body{font-size:13px;color:#4A5568;line-height:1.6;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:30px;font-size:11px;font-weight:600;}
+.badge-green{background:#E6F7EC;color:#2F855A;}
+.badge-gold{background:#FEF3C7;color:#C6A43F;}
+.badge-red{background:#FEE2E2;color:#B83B3B;}
+.badge-blue{background:#E0F2FE;color:#2C5282;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:white;border-radius:20px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#6B7280;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#1B4D3E;color:white;padding:12px 24px;border-radius:40px;font-size:13px;font-weight:500;transition:transform 0.3s;z-index:1000;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.table-wrapper{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:12px;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;background:#F9F6EF;border-bottom:2px solid #E2E8F0;}
+td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
+.alert{padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:500;}
+.alert-info{background:#E0F2FE;color:#2C5282;border:1px solid #BAE6FD;}
+.alert-success{background:#E6F7EC;color:#2F855A;border:1px solid #C6F6D5;}
+.alert-error{background:#FEE2E2;color:#B83B3B;border:1px solid #FECACA;}
+.alert-warning{background:#FEF3C7;color:#C6A43F;border:1px solid #FDE68A;}
+.ibada-card{background:linear-gradient(135deg,#1B4D3E,#2C5A4A);border-radius:16px;padding:20px;margin-bottom:16px;color:white;}
+.ibada-header{display:flex;justify-content:space-between;margin-bottom:14px;}
+.ibada-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:#C6A43F;font-weight:700;}
+.ibada-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+.ibada-key{font-size:12px;opacity:0.8;}
+.ibada-val{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;color:#C6A43F;}
+.ibada-total{display:flex;justify-content:space-between;padding:12px 0 0;margin-top:6px;border-top:2px solid rgba(198,164,63,0.4);}
+.ibada-total .ibada-key{color:white;font-weight:700;}
+.ibada-total .ibada-val{font-size:18px;}
+.finance-card{background:white;border-radius:12px;padding:16px;border:1px solid #E2E8F0;margin-bottom:12px;}
+.finance-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;}
+.finance-row:last-child{border-bottom:none;}
+.member-header{background:linear-gradient(135deg,#1B4D3E,#2C5A4A);border-radius:16px;padding:24px;margin-bottom:20px;color:white;}
+.member-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#C6A43F;}
+.member-id{font-size:11px;opacity:0.6;margin-top:2px;font-family:monospace;}
+.fin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
+.fin-card{padding:16px;border-radius:12px;}
+.fin-card.green{background:linear-gradient(135deg,#E6F7EC,#C6F6D5);border:1px solid #9AE6B4;}
+.fin-card.gold{background:linear-gradient(135deg,#FEF3C7,#FDE68A);border:1px solid #FCD34D;}
+.fin-card.navy{background:linear-gradient(135deg,#1B4D3E,#2C5A4A);color:white;}
+.fin-card.red{background:linear-gradient(135deg,#FEE2E2,#FECACA);border:1px solid #FCA5A5;}
+.fin-card.purple{background:linear-gradient(135deg,#EDE9FE,#DDD6FE);border:1px solid #C4B5FD;}
+.fin-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.fin-card.navy .fin-label{color:rgba(255,255,255,0.6);}
+.fin-amount{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;}
+.fin-card.navy .fin-amount{color:#C6A43F;}
+.jumla-card{background:linear-gradient(135deg,#1B4D3E,#2C5A4A);border-radius:16px;padding:20px;margin-bottom:16px;color:white;}
+.jc-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:#C6A43F;font-weight:700;margin-bottom:12px;}
+.jc-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+.jc-total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid rgba(198,164,63,0.4);}
+.loading-overlay{position:fixed;inset:0;background:rgba(27,77,62,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;}
+.loading-spinner{width:48px;height:48px;border:4px solid rgba(198,164,63,0.3);border-top:4px solid #C6A43F;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr;}.fin-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#C6A43F;">Inapakia...</div>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen" id="s-welcome">
+  <div class="welcome">
+    <div class="w-logo"><h1>MUHIMBILI<br>ANGLICAN CHURCH</h1><p>DIOCESE OF DAR ES SALAAM</p></div>
+    <p class="w-verse">"Kwa maana wawili au watatu wamekusanyika pamoja kwa jina langu, niko hapo katikati yao" — Mt. 18:20</p>
+    <div class="w-btns">
+      <button class="wb" onclick="show('s-member-login')"><span class="wb-icon">🙏</span><span class="wb-text"><span class="wb-label">Muumini — Login</span><span class="wb-desc">Akaunti yako binafsi</span></span></button>
+      <button class="wb" onclick="show('s-pastor-login')"><span class="wb-icon">⛪</span><span class="wb-text"><span class="wb-label">Mchungaji</span><span class="wb-desc">Idhini & taarifa</span></span></button>
+      <button class="wb" onclick="show('s-secretary-login')"><span class="wb-icon">📋</span><span class="wb-text"><span class="wb-label">Katibu</span><span class="wb-desc">Waumini & matangazo</span></span></button>
+      <button class="wb" onclick="show('s-treasurer-login')"><span class="wb-icon">💰</span><span class="wb-text"><span class="wb-label">Mweka Hazina</span><span class="wb-desc">Michango & matumizi</span></span></button>
+    </div>
+    <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:40px;">© Muhimbili Anglican Church | ICR 2026</p>
+  </div>
+</div>
+
+<!-- MEMBER LOGIN -->
+<div class="screen" id="s-member-login">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">🔑 INGIA KWA MUUMINI</div><div id="member-login-alert"></div>
+    <div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="member-phone" placeholder="0712345678"></div>
+    <div class="fg"><label>Nenosiri</label><input type="password" class="fi" id="member-password" placeholder="Nenosiri lako"></div>
+    <button class="btn btn-primary btn-block" onclick="memberLogin()">🙏 Ingia</button>
+    <div style="text-align:center;margin-top:16px;"><button class="btn btn-outline" onclick="show('s-member-register')">📝 Jisajili kama Muumini Mpya</button></div>
+    <div style="text-align:center;margin-top:8px;"><button class="btn btn-outline" style="font-size:12px;color:#C6A43F;border-color:#C6A43F;" onclick="show('s-member-forgot-pw')">🔑 Sahau Nenosiri?</button></div>
+  </div></div>
+</div>
+
+<!-- MEMBER FORGOT PASSWORD -->
+<div class="screen" id="s-member-forgot-pw">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-member-login')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">🔑 WEKA NENOSIRI JIPYA</div>
+    <div id="forgot-pw-alert"></div>
+    <div class="alert alert-info">Ingiza namba yako ya simu iliyosajiliwa ili ubadilishe nenosiri.</div>
+    <div class="fg"><label>Namba ya Simu (iliyosajiliwa)</label><input type="tel" class="fi" id="forgot-phone" placeholder="0712345678"></div>
+    <div class="fg"><label>Nenosiri Jipya</label><input type="password" class="fi" id="forgot-new-pw" placeholder="Angalau herufi 6"></div>
+    <div class="fg"><label>Thibitisha Nenosiri Jipya</label><input type="password" class="fi" id="forgot-new-pw2"></div>
+    <button class="btn btn-primary btn-block" onclick="forgotMemberPassword()">🔑 Badilisha Nenosiri</button>
+    <div style="text-align:center;margin-top:12px;"><button class="btn btn-outline" onclick="show('s-member-login')">← Rudi Kuingia</button></div>
+  </div></div>
+</div>
+
+<!-- MEMBER REGISTER -->
+<div class="screen" id="s-member-register">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-member-login')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">📝 USAJILI MPYA</div><div id="member-reg-alert"></div>
+    <div class="alert alert-warning">Ombi lako litapelekwa kwa Katibu kwa idhini kabla ya kutumia akaunti.</div>
+    <div class="fg"><label>Jina Kamili</label><input type="text" class="fi" id="reg-name" placeholder="Jina la kwanza na la familia"></div>
+    <div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="reg-phone" placeholder="0712345678"></div>
+    <div class="fg"><label>Jinsia</label><select class="fsel" id="reg-gender"><option>Kiume</option><option>Kike</option></select></div>
+    <div class="fg"><label>Barua Pepe (hiari)</label><input type="email" class="fi" id="reg-email"></div>
+    <div class="fg"><label>Nenosiri</label><input type="password" class="fi" id="reg-pw" placeholder="Angalau herufi 6"></div>
+    <div class="fg"><label>Thibitisha Nenosiri</label><input type="password" class="fi" id="reg-pw2"></div>
+    <button class="btn btn-primary btn-block" onclick="memberRegister()">✝ Tuma Ombi la Usajili</button>
+  </div></div>
+</div>
+
+<!-- PASTOR LOGIN -->
+<div class="screen" id="s-pastor-login">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">⛪ INGIA KAMA MCHUNGAJI</div><div id="pastor-login-alert"></div>
+    <div class="fg"><label>Nenosiri la Mchungaji</label><input type="password" class="fi" id="pastor-pw"></div>
+    <button class="btn btn-primary btn-block" onclick="pastorLogin()">Ingia</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn btn-outline" style="font-size:12px;color:#C6A43F;border-color:#C6A43F;" onclick="showForgotStaff('pastor')">🔑 Sahau Nenosiri?</button></div>
+  </div></div>
+</div>
+
+<!-- SECRETARY LOGIN -->
+<div class="screen" id="s-secretary-login">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">📋 INGIA KAMA KATIBU</div><div id="secretary-login-alert"></div>
+    <div class="fg"><label>Nenosiri la Katibu</label><input type="password" class="fi" id="secretary-pw"></div>
+    <button class="btn btn-primary btn-block" onclick="secretaryLogin()">Ingia</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn btn-outline" style="font-size:12px;color:#C6A43F;border-color:#C6A43F;" onclick="showForgotStaff('secretary')">🔑 Sahau Nenosiri?</button></div>
+  </div></div>
+</div>
+
+<!-- TREASURER LOGIN -->
+<div class="screen" id="s-treasurer-login">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">💰 INGIA KAMA MWEKA HAZINA</div><div id="treasurer-login-alert"></div>
+    <div class="fg"><label>Nenosiri la Mweka Hazina</label><input type="password" class="fi" id="treasurer-pw"></div>
+    <button class="btn btn-primary btn-block" onclick="treasurerLogin()">Ingia</button>
+    <div style="text-align:center;margin-top:8px;"><button class="btn btn-outline" style="font-size:12px;color:#C6A43F;border-color:#C6A43F;" onclick="showForgotStaff('treasurer')">🔑 Sahau Nenosiri?</button></div>
+  </div></div>
+</div>
+
+<!-- MEMBER DASHBOARD -->
+<div class="screen" id="s-member">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><div><span class="role" id="member-role">Muumini</span><button class="logout-btn" onclick="logout()">Toka</button></div></div>
+  <div class="pw">
+    <div class="member-header"><div class="member-name" id="member-name">—</div><div class="member-id" id="member-number">#—</div><div class="badge badge-green" id="member-status" style="margin-top:12px;">✓ Muumini Hai</div></div>
+    <div class="tabs">
+      <div class="tab active" id="tab-account" onclick="memberTab('account')">📊 Akaunti</div>
+      <div class="tab" id="tab-request" onclick="memberTab('request')">🤲 Ombi</div>
+      <div class="tab" id="tab-announcements" onclick="memberTab('announcements')">📢 Matangazo</div>
+      <div class="tab" id="tab-profile" onclick="memberTab('profile')">👤 Profaili</div>
+    </div>
+    <div id="member-account"><div id="member-stats" class="stats-grid"></div><div class="card"><div class="card-title">📜 Historia ya Michango</div><div id="member-contributions"></div></div></div>
+    <div id="member-request" style="display:none;"><div class="card"><div class="card-title">🤲 Wasilisha Ombi la Mchango</div><div id="request-alert"></div><div class="fg"><label>Aina ya Mchango</label><select class="fsel" id="request-type"></select></div><div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="request-amount" placeholder="5000"></div><div class="fg"><label>Ujumbe (hiari)</label><input type="text" class="fi" id="request-message"></div><button class="btn btn-primary btn-block" onclick="submitRequest()">🤲 Tuma Ombi</button></div><div class="card"><div class="card-title">📋 Maombi Yangu</div><div id="my-requests"></div></div></div>
+    <div id="member-announcements" style="display:none;"><div id="member-announcements-list"></div></div>
+    <div id="member-profile" style="display:none;"><div class="card"><div class="card-title">👤 Taarifa Zangu</div><div id="profile-info"></div><div style="margin-top:20px;"><div class="card-title">🔒 Badilisha Nenosiri</div><div id="profile-pw-alert"></div><div class="fg"><label>Nenosiri la Zamani</label><input type="password" class="fi" id="old-pw"></div><div class="fg"><label>Nenosiri Jipya</label><input type="password" class="fi" id="new-pw"></div><div class="fg"><label>Thibitisha</label><input type="password" class="fi" id="new-pw2"></div><button class="btn btn-primary btn-block" onclick="changePassword()">🔒 Badilisha</button></div></div></div>
+  </div>
+</div>
+
+<!-- PASTOR DASHBOARD -->
+<div class="screen" id="s-pastor">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><div><span class="role">Mchungaji</span><button class="logout-btn" onclick="logout()">Toka</button></div></div>
+  <div class="aw">
+    <div class="tabs">
+      <div class="tab active" id="pastor-tab-pending" onclick="pastorTab('pending')">🔔 Idhini <span id="pending-count" class="badge" style="background:#B83B3B;color:white;margin-left:6px;">0</span></div>
+      <div class="tab" id="pastor-tab-leo" onclick="pastorTab('leo')">📅 Leo</div>
+      <div class="tab" id="pastor-tab-fedha" onclick="pastorTab('fedha')">💰 Fedha</div>
+      <div class="tab" id="pastor-tab-waumini" onclick="pastorTab('waumini')">👥 Waumini</div>
+      <div class="tab" id="pastor-tab-ripoti" onclick="pastorTab('ripoti')">📊 Ripoti</div>
+      <div class="tab" id="pastor-tab-mipangilio" onclick="pastorTab('mipangilio')">⚙ Mipangilio</div>
+    </div>
+    <div id="pastor-pending"><div id="pending-list"></div></div>
+    <div id="pastor-leo" style="display:none;"><div id="pastor-leo-content"></div></div>
+    <div id="pastor-fedha" style="display:none;"><div id="pastor-fedha-content"></div></div>
+    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title">👥 Orodha ya Waumini</div><div class="table-wrapper"><table><thead><tr><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div></div></div>
+    <div id="pastor-ripoti" style="display:none;"><div class="stats-grid" id="pastor-report-stats"></div><div class="alert alert-info">Ripoti kamili inapatikana kwenye sehemu ya Mweka Hazina.</div></div>
+    <div id="pastor-mipangilio" style="display:none;">
+      <div class="card"><div class="card-title">⚙ Mipangilio ya Kanisa</div><div id="pastor-settings-alert"></div>
+        <div class="fg"><label>Jina la Kanisa</label><input type="text" class="fi" id="pastor-kanisa-jina"></div>
+        <div class="fg"><label>Mahali</label><input type="text" class="fi" id="pastor-kanisa-mahali"></div>
+        <div class="fg"><label>Simu ya Kanisa</label><input type="tel" class="fi" id="pastor-kanisa-simu"></div>
+        <button class="btn btn-primary btn-block" onclick="saveKanisaInfo()">💾 Hifadhi Mipangilio</button>
+      </div>
+      <div class="card"><div class="card-title">🔒 Badilisha Nenosiri za Viongozi</div><div id="pastor-pw-alert"></div>
+        <div class="fg"><label>Nenosiri la Mchungaji (sasa)</label><input type="password" class="fi" id="pastor-old-pw"></div>
+        <div class="fg"><label>Nenosiri Jipya la Mchungaji</label><input type="password" class="fi" id="pastor-new-pw"></div>
+        <div class="fg"><label>Nenosiri la Katibu</label><input type="password" class="fi" id="pastor-katibu-pw"></div>
+        <div class="fg"><label>Nenosiri la Mweka Hazina</label><input type="password" class="fi" id="pastor-hazina-pw"></div>
+        <div class="fg"><label>🔑 Namba ya Usalama (Recovery Code — kwa kusahau nenosiri)</label><input type="text" class="fi" id="pastor-recovery-code" placeholder="mfano: MUHIMBILI2026"></div>
+        <button class="btn btn-primary btn-block" onclick="saveNenosiria()">🔒 Hifadhi Nenosiri</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECRETARY DASHBOARD -->
+<div class="screen" id="s-secretary">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><div><span class="role">Katibu</span><button class="logout-btn" onclick="logout()">Toka</button></div></div>
+  <div class="aw">
+    <div class="tabs">
+      <div class="tab active" id="secretary-tab-reg" onclick="secretaryTab('reg')">🆕 Maombi <span id="reg-pending-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
+      <div class="tab" id="secretary-tab-members" onclick="secretaryTab('members')">👥 Waumini</div>
+      <div class="tab" id="secretary-tab-announce" onclick="secretaryTab('announce')">📢 Tangazo</div>
+      <div class="tab" id="secretary-tab-fedha" onclick="secretaryTab('fedha')">💰 Fedha</div>
+    </div>
+    <div id="secretary-reg"><div id="reg-requests-list"></div></div>
+    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title">👥 Waumini Wote</div><div class="table-wrapper"><table><thead><tr><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div></div></div>
+    <div id="secretary-announce" style="display:none;">
+      <div class="card"><div class="card-title">📢 Unda Tangazo Jipya</div><div id="announce-alert"></div>
+        <div class="fg"><label>Kichwa cha Tangazo</label><input type="text" class="fi" id="announce-title"></div>
+        <div class="fg"><label>Maelezo</label><textarea class="fi" id="announce-body" rows="3"></textarea></div>
+        <div class="fg"><label>Tarehe ya Tangazo</label><input type="date" class="fi" id="announce-date"></div>
+        <button class="btn btn-primary btn-block" onclick="createAnnouncement()">📤 Tuma kwa Mchungaji kwa Idhini</button>
+      </div>
+      <div class="card"><div class="card-title">📋 Matangazo Yaliyopita</div><div id="past-announcements"></div></div>
+    </div>
+    <div id="secretary-fedha" style="display:none;"><div id="secretary-fedha-content"></div></div>
+  </div>
+</div>
+
+<!-- TREASURER DASHBOARD -->
+<div class="screen" id="s-treasurer">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><div><span class="role">Mweka Hazina</span><button class="logout-btn" onclick="logout()">Toka</button></div></div>
+  <div class="aw">
+    <div class="tabs">
+      <div class="tab active" id="treasurer-tab-ingiza" onclick="treasurerTab('ingiza')">➕ Mchango</div>
+      <div class="tab" id="treasurer-tab-jumla" onclick="treasurerTab('jumla')">📊 Jumla</div>
+      <div class="tab" id="treasurer-tab-maombi" onclick="treasurerTab('maombi')">🤲 Maombi <span id="treasurer-requests-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
+      <div class="tab" id="treasurer-tab-matumizi" onclick="treasurerTab('matumizi')">💸 Matumizi</div>
+      <div class="tab" id="treasurer-tab-aina" onclick="treasurerTab('aina')">🏷 Aina</div>
+      <div class="tab" id="treasurer-tab-leo" onclick="treasurerTab('leo')">📅 Leo</div>
+      <div class="tab" id="treasurer-tab-fedha" onclick="treasurerTab('fedha')">💰 Fedha</div>
+      <div class="tab" id="treasurer-tab-historia" onclick="treasurerTab('historia')">📋 Historia</div>
+      <div class="tab" id="treasurer-tab-ripoti" onclick="treasurerTab('ripoti')">📄 Ripoti</div>
+    </div>
+    <div id="treasurer-ingiza">
+      <div class="card"><div class="card-title">➕ Ingiza Mchango wa Muumini</div><div id="contrib-alert"></div>
+        <div class="fg"><label>Chagua Muumini</label><select class="fsel" id="contrib-member"></select></div>
+        <div class="fg"><label>Aina ya Mchango</label><select class="fsel" id="contrib-type"></select></div>
+        <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="contrib-date"></div>
+        <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="contrib-amount"></div>
+        <div class="fg"><label>Maelezo (hiari)</label><input type="text" class="fi" id="contrib-note"></div>
+        <button class="btn btn-primary btn-block" onclick="addContribution()">💾 Hifadhi (Tuma kwa Mchungaji)</button>
+      </div>
+    </div>
+    <div id="treasurer-jumla" style="display:none;">
+      <div class="card"><div class="card-title">📊 Ingiza Jumla ya Michango ya Ibada</div><div id="jumla-alert"></div>
+        <div class="fg"><label>Tarehe ya Ibada</label><input type="date" class="fi" id="jumla-tarehe"></div>
+        <div class="fg"><label>Aina ya Ibada</label><input type="text" class="fi" id="jumla-aina" placeholder="Jumapili, Jumatano..."></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg"><label>🙏 Sadaka</label><input type="number" class="fi" id="jumla-sadaka" placeholder="0"></div>
+          <div class="fg"><label>💰 Fungu la Kumi</label><input type="number" class="fi" id="jumla-zaka" placeholder="0"></div>
+          <div class="fg"><label>🌟 Shukrani</label><input type="number" class="fi" id="jumla-shukrani" placeholder="0"></div>
+          <div class="fg"><label>👶 Watoto</label><input type="number" class="fi" id="jumla-watoto" placeholder="0"></div>
+          <div class="fg"><label>🏗 Ujenzi</label><input type="number" class="fi" id="jumla-ujenzi" placeholder="0"></div>
+          <div class="fg"><label>✝ Nyingine</label><input type="number" class="fi" id="jumla-nyingine" placeholder="0"></div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="saveJumla()">💾 Hifadhi Jumla</button>
+      </div>
+      <div class="card"><div class="card-title">📋 Historia ya Jumla za Ibada</div><div id="jumla-historia"></div></div>
+    </div>
+    <div id="treasurer-maombi" style="display:none;"><div id="treasurer-requests-list"></div></div>
+    <div id="treasurer-matumizi" style="display:none;">
+      <div class="card"><div class="card-title">💸 Ingiza Matumizi</div><div id="expense-alert"></div>
+        <div class="fg"><label>Kichwa cha Matumizi</label><input type="text" class="fi" id="expense-title"></div>
+        <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="expense-amount"></div>
+        <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="expense-date"></div>
+        <div class="fg"><label>Aina ya Matumizi</label><select class="fsel" id="expense-category"><option>Umeme</option><option>Maji</option><option>Karatasi</option><option>Usafiri</option><option>Ujenzi</option><option>Nyingine</option></select></div>
+        <button class="btn btn-primary btn-block" onclick="addExpense()">💾 Hifadhi Matumizi</button>
+      </div>
+      <div class="card"><div class="card-title">📋 Matumizi ya Hivi Karibuni</div><div id="expense-list"></div></div>
+    </div>
+    <div id="treasurer-aina" style="display:none;">
+      <div class="card"><div class="card-title">🏷 Ongeza Aina Mpya ya Mchango</div><div id="type-alert"></div>
+        <div class="fg"><label>Jina la Aina</label><input type="text" class="fi" id="type-name" placeholder="mfano: Sadaka ya Maombi"></div>
+        <div class="fg"><label>Ikoni</label><select class="fsel" id="type-icon"><option value="🙏">🙏 Sadaka</option><option value="💰">💰 Fungu la Kumi</option><option value="🌟">🌟 Shukrani</option><option value="🌾">🌾 Mavuno</option><option value="🤝">🤝 Ahadi</option><option value="🏗">🏗 Ujenzi</option><option value="👶">👶 Sunday School</option><option value="🛒">🛒 Mnada</option><option value="✝">✝ Maziko</option><option value="💧">💧 Ubatizo</option><option value="🕊">🕊 Kipaimara</option><option value="💍">💍 Ndoa</option><option value="👥">👥 Jumuiya</option><option value="🤲">🤲 Msaada</option></select></div>
+        <button class="btn btn-primary btn-block" onclick="addContributionType()">➕ Ongeza Aina</button>
+      </div>
+      <div class="card"><div class="card-title">📋 Aina Zilizopo</div><div id="type-list"></div></div>
+    </div>
+    <div id="treasurer-leo" style="display:none;"><div id="treasurer-leo-content"></div></div>
+    <div id="treasurer-fedha" style="display:none;"><div id="treasurer-fedha-content"></div></div>
+    <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
+    <div id="treasurer-ripoti" style="display:none;"><div class="card"><div class="card-title">📄 Ripoti za Fedha</div><div id="treasurer-report-stats"></div><div class="alert alert-info">Ripoti kamili inaweza kuchapishwa kutoka kwenye historia.</div></div></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal"><div class="modal-box"><div class="modal-title"><span id="modal-title"></span><button class="modal-close" onclick="closeModal()">✕</button></div><div id="modal-body"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== SUPABASE INIT (FIX: supabaseJs.createClient, si supabase.createClient) ====================
+const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
+
+// FIX: CDN ya v2 inatumia window.supabase.createClient
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ==================== GLOBAL STATE ====================
+let currentUser = null;
+let currentRole = "";
+let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [];
+let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
+
+// ==================== HELPERS ====================
+function el(id) { return document.getElementById(id); }
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function toast(msg) {
+  let t = el('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+function closeModal() { el('modal').classList.remove('open'); }
+function openModal(title, body) { el('modal-title').innerHTML = title; el('modal-body').innerHTML = body; el('modal').classList.add('open'); }
+function formatDate(d) { if (!d) return '—'; try { return new Date(d + 'T00:00:00').toLocaleDateString('sw'); } catch(e) { return d; } }
+function formatMoney(n) { return 'TZS ' + (n || 0).toLocaleString() + '/='; }
+function generateMemberNumber() { return 'MAC' + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 3).toUpperCase(); }
+function leo() { return new Date().toISOString().slice(0, 10); }
+function getPW(role) { return localStorage.getItem('mac_pw_' + role) || (role === 'pastor' ? 'PASTOR2026' : role === 'secretary' ? 'KATIBU2026' : role === 'recovery' ? 'MUHIMBILI2026' : 'HAZINA2026'); }
+function setPW(role, pw) { localStorage.setItem('mac_pw_' + role, pw); }
+function showLoading(v) { el('loading-overlay').style.display = v ? 'flex' : 'none'; }
+
+// ==================== LOAD DATA ====================
+async function loadAllData() {
+  showLoading(true);
+  try {
+    const [
+      { data: members },
+      { data: contribs },
+      { data: types },
+      { data: anns },
+      { data: apps },
+      { data: exps },
+      { data: reqs },
+      { data: jumla },
+      { data: settings }
+    ] = await Promise.all([
+      db.from('waumini').select('*').order('created_at', { ascending: false }),
+      db.from('michango').select('*').order('created_at', { ascending: false }),
+      db.from('michango_aina').select('*').order('created_at', { ascending: true }),
+      db.from('matangazo').select('*').order('created_at', { ascending: false }),
+      db.from('approvals').select('*').order('created_at', { ascending: false }),
+      db.from('matumizi').select('*').order('created_at', { ascending: false }),
+      db.from('ombi_michango').select('*').order('created_at', { ascending: false }),
+      db.from('jumla_ibada').select('*').order('tarehe', { ascending: false }),
+      db.from('kanisa_settings').select('*').limit(1)
+    ]);
+    allMembers = members || [];
+    allContributions = contribs || [];
+    allContributionTypes = (types && types.length > 0) ? types : [];
+    allAnnouncements = anns || [];
+    allApprovals = apps || [];
+    allExpenses = exps || [];
+    allRequests = reqs || [];
+    allJumla = jumla || [];
+    if (settings && settings.length > 0) kanisaSettings = settings[0];
+
+    const newDefaults = [
+      { icon: '💰', name: 'Fungu la kumi (zaka)', jina: 'Fungu la kumi (zaka)' },
+      { icon: '🌾', name: 'Mavuno', jina: 'Mavuno' },
+      { icon: '🤝', name: 'Ahadi', jina: 'Ahadi' },
+      { icon: '🙏', name: 'Kawaida', jina: 'Kawaida' },
+      { icon: '🌟', name: 'Shukrani', jina: 'Shukrani' },
+      { icon: '🏗', name: 'Ujenzi', jina: 'Ujenzi' },
+      { icon: '👶', name: 'Sunday school', jina: 'Sunday school' },
+      { icon: '🛒', name: 'Mnada', jina: 'Mnada' },
+      { icon: '✝', name: 'Maziko', jina: 'Maziko' },
+      { icon: '💧', name: 'Ubatizo', jina: 'Ubatizo' },
+      { icon: '🕊', name: 'Kipaimara', jina: 'Kipaimara' },
+      { icon: '💍', name: 'Ndoa', jina: 'Ndoa' },
+      { icon: '👥', name: 'Jumuiya', jina: 'Jumuiya' },
+      { icon: '🤲', name: 'Msaada - TTM', jina: 'Msaada - TTM' }
+    ];
+    const oldDefaultNames = ['Sadaka ya Kawaida','Fungu la Kumi (Zaka)','Sadaka ya Shukrani','Sadaka ya Watoto','Mchango wa Ujenzi'];
+    const hasOldDefaults = allContributionTypes.length === 5 && allContributionTypes.every(t => oldDefaultNames.includes(t.name || t.jina));
+    if (allContributionTypes.length === 0 || hasOldDefaults) {
+      if (hasOldDefaults) {
+        for (const t of allContributionTypes) await db.from('michango_aina').delete().eq('id', t.id);
+      }
+      for (const t of newDefaults) await db.from('michango_aina').insert(t);
+      const { data: freshTypes } = await db.from('michango_aina').select('*').order('created_at', { ascending: true });
+      allContributionTypes = freshTypes || newDefaults;
+    }
+  } catch (e) {
+    console.error(e);
+    toast('⚠ Hitilafu ya kuunganisha database');
+  }
+  showLoading(false);
+}
+
+// ==================== AUTH ====================
+async function memberLogin() {
+  const phone = el('member-phone').value.trim();
+  const pw = el('member-password').value.trim();
+  await loadAllData();
+  const member = allMembers.find(m => m.namba_simu === phone && m.nenosiri === pw);
+  if (!member) { el('member-login-alert').innerHTML = '<div class="alert alert-error">Simu au nenosiri si sahihi</div>'; return; }
+  if (member.hali === 'pending') { el('member-login-alert').innerHTML = '<div class="alert alert-warning">Akaunti yako bado haijakubaliwa na Katibu.</div>'; return; }
+  currentUser = member; currentRole = 'member';
+  loadMemberDashboard(); show('s-member');
+}
+
+async function memberRegister() {
+  const name = el('reg-name').value.trim(), phone = el('reg-phone').value.trim();
+  const gender = el('reg-gender').value, email = el('reg-email').value.trim();
+  const pw = el('reg-pw').value, pw2 = el('reg-pw2').value;
+  if (!name || !phone || !pw) { el('member-reg-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote zinazohitajika</div>'; return; }
+  if (pw !== pw2) { el('member-reg-alert').innerHTML = '<div class="alert alert-error">Nenosiri hazifanani</div>'; return; }
+  if (pw.length < 6) { el('member-reg-alert').innerHTML = '<div class="alert alert-error">Nenosiri lazima iwe angalau herufi 6</div>'; return; }
+  if (allMembers.find(m => m.namba_simu === phone)) { el('member-reg-alert').innerHTML = '<div class="alert alert-error">Namba hii tayari imesajiliwa</div>'; return; }
+  showLoading(true);
+  const { data, error } = await db.from('waumini').insert({
+    jina_kamili: name, namba_simu: phone, jinsia: gender,
+    barua_pepe: email || null, nenosiri: pw,
+    namba_muumini: generateMemberNumber(), hali: 'pending',
+    tarehe_kujiunga: leo()
+  }).select();
+  if (error) { showLoading(false); el('member-reg-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
+  await db.from('ombi_michango').insert({ muumini_id: data[0].id, muumini_jina: name, muumini_simu: phone, aina: 'registration', hali: 'pending' });
+  await loadAllData();
+  el('member-reg-alert').innerHTML = '<div class="alert alert-success">✅ Ombi lako limepelekwa kwa Katibu kwa idhini!</div>';
+  setTimeout(() => show('s-member-login'), 2000);
+}
+
+async function pastorLogin() {
+  if (el('pastor-pw').value.trim() !== getPW('pastor')) { el('pastor-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
+  currentRole = 'pastor'; await loadAllData(); loadPastorDashboard(); show('s-pastor');
+}
+async function secretaryLogin() {
+  if (el('secretary-pw').value.trim() !== getPW('secretary')) { el('secretary-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
+  currentRole = 'secretary'; await loadAllData(); loadSecretaryDashboard(); show('s-secretary');
+}
+async function treasurerLogin() {
+  if (el('treasurer-pw').value.trim() !== getPW('treasurer')) { el('treasurer-login-alert').innerHTML = '<div class="alert alert-error">Nenosiri si sahihi</div>'; return; }
+  currentRole = 'treasurer'; await loadAllData(); loadTreasurerDashboard(); show('s-treasurer');
+}
+function logout() { currentUser = null; currentRole = ""; show('s-welcome'); }
+
+// ==================== MEMBER DASHBOARD ====================
+function loadMemberDashboard() {
+  el('member-name').textContent = currentUser.jina_kamili;
+  el('member-number').textContent = '#' + currentUser.namba_muumini;
+  el('member-status').textContent = currentUser.hali === 'hai' ? '✓ Muumini Hai' : '⚠ Si Muumini Hai';
+  el('member-status').className = currentUser.hali === 'hai' ? 'badge badge-green' : 'badge badge-red';
+  const mc = allContributions.filter(c => c.muumini_id === currentUser.id && c.hali === 'approved');
+  const total = mc.reduce((s, c) => s + c.kiasi, 0);
+  const kawaida = mc.filter(c => c.aina_jina && (c.aina_jina === 'Kawaida' || c.aina_jina.toLowerCase().includes('kawaida'))).reduce((s, c) => s + c.kiasi, 0);
+  el('member-stats').innerHTML = `<div class="stat-card"><div class="stat-number">${formatMoney(total)}</div><div class="stat-label">Jumla Yangu</div></div><div class="stat-card"><div class="stat-number">${mc.length}</div><div class="stat-label">Idadi ya Michango</div></div>`;
+  el('member-contributions').innerHTML = mc.length ? mc.map(c => `<div class="contrib-card"><div class="contrib-icon" style="background:#E8F0FE;">${c.aina_icon || '🙏'}</div><div class="contrib-info"><div class="contrib-type">${c.aina_jina}</div><div class="contrib-date">${formatDate(c.tarehe_mchango)}</div>${c.maelezo ? `<div style="font-size:11px;color:#666;">${c.maelezo}</div>` : ''}</div><div class="contrib-amount">${formatMoney(c.kiasi)}</div></div>`).join('') : '<div style="text-align:center;padding:30px;color:#666;">Hakuna michango bado</div>';
+  const anns = allAnnouncements.filter(a => a.hali === 'approved');
+  el('member-announcements-list').innerHTML = anns.length ? anns.map(a => `<div class="tangazo-card"><div class="tangazo-title">${a.kichwa}</div><div class="tangazo-body">${a.maelezo}</div><div style="font-size:11px;color:#666;margin-top:8px;">📅 ${formatDate(a.tarehe_tangazo)}</div></div>`).join('') : '<div style="text-align:center;padding:30px;color:#666;">Hakuna matangazo kwa sasa</div>';
+  el('profile-info').innerHTML = `<div style="display:grid;gap:12px;"><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Jina Kamili</span><span>${currentUser.jina_kamili}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Namba ya Simu</span><span>${currentUser.namba_simu}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Namba ya Muumini</span><span>${currentUser.namba_muumini}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="font-weight:600;">Tarehe ya Kujiunga</span><span>${formatDate(currentUser.tarehe_kujiunga)}</span></div></div>`;
+  el('request-type').innerHTML = '<option value="">— Chagua aina —</option>' + allContributionTypes.map(t => `<option value="${t.id}">${t.icon} ${t.name || t.jina}</option>`).join('');
+  const myReqs = allRequests.filter(r => r.muumini_id === currentUser.id && r.aina === 'contribution');
+  el('my-requests').innerHTML = myReqs.length ? myReqs.map(r => `<div class="contrib-card"><div class="contrib-info"><div class="contrib-type">${r.aina_jina}</div><div class="contrib-date">📅 ${formatDate(r.created_at)} · Kiasi: ${formatMoney(r.kiasi)}</div>${r.maelezo_muumini ? `<div style="font-size:11px;color:#666;">${r.maelezo_muumini}</div>` : ''}</div><div><span class="badge ${r.hali === 'approved' ? 'badge-green' : r.hali === 'rejected' ? 'badge-red' : 'badge-gold'}">${r.hali === 'approved' ? '✅ Imekubaliwa' : r.hali === 'rejected' ? '❌ Imekataliwa' : '⏳ Inasubiri'}</span></div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi yaliyotumwa</div>';
+}
+
+async function submitRequest() {
+  const typeId = el('request-type').value, amount = parseInt(el('request-amount').value), message = el('request-message').value.trim();
+  if (!typeId || !amount || amount <= 0) { el('request-alert').innerHTML = '<div class="alert alert-error">Chagua aina na weka kiasi sahihi</div>'; return; }
+  const type = allContributionTypes.find(t => t.id === typeId);
+  showLoading(true);
+  const { error } = await db.from('ombi_michango').insert({ muumini_id: currentUser.id, muumini_jina: currentUser.jina_kamili, muumini_simu: currentUser.namba_simu, aina: 'contribution', aina_id: typeId, aina_jina: type.name || type.jina, aina_icon: type.icon, kiasi: amount, maelezo_muumini: message, hali: 'pending' });
+  showLoading(false);
+  if (error) { el('request-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
+  el('request-alert').innerHTML = '<div class="alert alert-success">✅ Ombi limepelekwa kwa Mweka Hazina!</div>';
+  el('request-amount').value = ''; el('request-message').value = '';
+  await loadAllData(); loadMemberDashboard(); memberTab('request');
+}
+
+async function changePassword() {
+  const old = el('old-pw').value.trim(), nw = el('new-pw').value.trim(), nw2 = el('new-pw2').value.trim();
+  if (!old || !nw) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
+  if (old !== currentUser.nenosiri) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Nenosiri la zamani si sahihi</div>'; return; }
+  if (nw !== nw2) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Nenosiri mpya hazifanani</div>'; return; }
+  if (nw.length < 6) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Angalau herufi 6</div>'; return; }
+  const { error } = await db.from('waumini').update({ nenosiri: nw }).eq('id', currentUser.id);
+  if (error) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
+  currentUser.nenosiri = nw;
+  el('profile-pw-alert').innerHTML = '<div class="alert alert-success">✅ Nenosiri imebadilishwa!</div>';
+}
+
+async function forgotMemberPassword() {
+  const phone = el('forgot-phone').value.trim();
+  const nw = el('forgot-new-pw').value.trim(), nw2 = el('forgot-new-pw2').value.trim();
+  if (!phone || !nw) { el('forgot-pw-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
+  if (nw !== nw2) { el('forgot-pw-alert').innerHTML = '<div class="alert alert-error">Nenosiri hazifanani</div>'; return; }
+  if (nw.length < 6) { el('forgot-pw-alert').innerHTML = '<div class="alert alert-error">Angalau herufi 6</div>'; return; }
+  showLoading(true);
+  const { data: members } = await db.from('waumini').select('*').eq('namba_simu', phone);
+  showLoading(false);
+  if (!members || members.length === 0) { el('forgot-pw-alert').innerHTML = '<div class="alert alert-error">Namba hii haijapatikana kwenye mfumo</div>'; return; }
+  const member = members[0];
+  if (member.hali === 'pending') { el('forgot-pw-alert').innerHTML = '<div class="alert alert-warning">Akaunti yako bado haijakubaliwa na Katibu</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('waumini').update({ nenosiri: nw }).eq('id', member.id);
+  showLoading(false);
+  if (error) { el('forgot-pw-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
+  el('forgot-pw-alert').innerHTML = '<div class="alert alert-success">✅ Nenosiri imebadilishwa! Unaweza kuingia sasa.</div>';
+  el('forgot-phone').value = ''; el('forgot-new-pw').value = ''; el('forgot-new-pw2').value = '';
+  setTimeout(() => show('s-member-login'), 2000);
+}
+
+function showForgotStaff(role) {
+  const labels = { pastor: 'Mchungaji', secretary: 'Katibu', treasurer: 'Mweka Hazina' };
+  openModal('🔑 Badilisha Nenosiri — ' + labels[role], `
+    <div class="alert alert-info">Ingiza Namba ya Usalama (Recovery Code) iliyowekwa na Mchungaji, kisha weka nenosiri jipya.</div>
+    <div class="fg"><label>Namba ya Usalama</label><input type="text" class="fi" id="staff-recovery-code" placeholder="mfano: MUHIMBILI2026"></div>
+    <div class="fg"><label>Nenosiri Jipya</label><input type="password" class="fi" id="staff-new-pw" placeholder="Angalau herufi 6"></div>
+    <div class="fg"><label>Thibitisha Nenosiri Jipya</label><input type="password" class="fi" id="staff-new-pw2"></div>
+    <div id="staff-forgot-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-primary" onclick="resetStaffPassword('${role}')">🔑 Badilisha</button>
+      <button class="btn btn-outline" onclick="closeModal()">Rudi</button>
+    </div>`);
+}
+
+function resetStaffPassword(role) {
+  const code = el('staff-recovery-code').value.trim();
+  const nw = el('staff-new-pw').value.trim(), nw2 = el('staff-new-pw2').value.trim();
+  const expected = getPW('recovery');
+  if (!code || !nw) { el('staff-forgot-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
+  if (code !== expected) { el('staff-forgot-alert').innerHTML = '<div class="alert alert-error">Namba ya Usalama si sahihi</div>'; return; }
+  if (nw !== nw2) { el('staff-forgot-alert').innerHTML = '<div class="alert alert-error">Nenosiri hazifanani</div>'; return; }
+  if (nw.length < 6) { el('staff-forgot-alert').innerHTML = '<div class="alert alert-error">Angalau herufi 6</div>'; return; }
+  setPW(role, nw);
+  closeModal();
+  toast('✅ Nenosiri imebadilishwa! Unaweza kuingia sasa.');
+}
+
+function memberTab(tab) {
+  ['account', 'request', 'announcements', 'profile'].forEach(t => {
+    const e = el('member-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
+    const b = el('tab-' + t); if (b) b.classList.toggle('active', t === tab);
+  });
+}
+
+// ==================== PASTOR DASHBOARD ====================
+function loadPastorDashboard() {
+  const pending = allApprovals.filter(a => a.hali === 'pending');
+  el('pending-count').textContent = pending.length;
+  el('pending-list').innerHTML = pending.length ? pending.map(ap => `<div class="card"><div class="card-title">${ap.aina === 'contribution' ? '💰 MCHANGO' : '📢 TANGAZO'}</div><div class="finance-row"><span>${ap.kichwa}</span><span class="badge badge-gold">Inasubiri</span></div><div class="finance-row"><span>${ap.aina === 'contribution' ? `Muumini: ${ap.muumini_jina} · Kiasi: ${formatMoney(ap.kiasi)}` : `Tarehe: ${formatDate(ap.tarehe_tangazo)}`}</span></div>${ap.maelezo_ap ? `<div class="alert alert-info">${ap.maelezo_ap}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="approveItem('${ap.id}')">✅ Idhinisha</button><button class="btn btn-red btn-sm" onclick="rejectItem('${ap.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">🎉 Hakuna kinachosubiri idhini yako</div>';
+  renderIbadaLeo('pastor-leo-content');
+  renderFedhaViongozi('pastor-fedha-content');
+  el('pastor-members-list').innerHTML = allMembers.map(m => `<tr><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('');
+  el('pastor-report-stats').innerHTML = `<div class="stat-card"><div class="stat-number">${allMembers.filter(m => m.hali === 'hai').length}</div><div class="stat-label">Waumini Hai</div></div><div class="stat-card"><div class="stat-number">${allContributions.filter(c => c.hali === 'approved').length}</div><div class="stat-label">Michango</div></div><div class="stat-card"><div class="stat-number">${allApprovals.filter(a => a.hali === 'pending').length}</div><div class="stat-label">Inasubiri</div></div>`;
+  el('pastor-kanisa-jina').value = kanisaSettings.jina_kanisa || '';
+  el('pastor-kanisa-mahali').value = kanisaSettings.mahali || '';
+  el('pastor-kanisa-simu').value = kanisaSettings.simu_kanisa || '';
+  el('pastor-katibu-pw').value = getPW('secretary');
+  el('pastor-hazina-pw').value = getPW('treasurer');
+  el('pastor-recovery-code').value = getPW('recovery');
+}
+
+async function approveItem(id) {
+  const ap = allApprovals.find(a => a.id == id); if (!ap) return;
+  showLoading(true);
+  await db.from('approvals').update({ hali: 'approved', tarehe_approval: leo() }).eq('id', id);
+  if (ap.aina === 'contribution') {
+    await db.from('michango').update({ hali: 'approved' }).eq('approval_id', id);
+    if (ap.request_id) await db.from('ombi_michango').update({ hali: 'approved' }).eq('id', ap.request_id);
+  } else if (ap.aina === 'announcement') {
+    await db.from('matangazo').update({ hali: 'approved' }).eq('approval_id', id);
+  }
+  await loadAllData(); loadPastorDashboard(); toast('✅ Imekubaliwa!');
+}
+
+async function rejectItem(id) {
+  const ap = allApprovals.find(a => a.id == id); if (!ap) return;
+  showLoading(true);
+  await db.from('approvals').update({ hali: 'rejected', tarehe_approval: leo() }).eq('id', id);
+  if (ap.aina === 'contribution') {
+    await db.from('michango').update({ hali: 'rejected' }).eq('approval_id', id);
+    if (ap.request_id) await db.from('ombi_michango').update({ hali: 'rejected' }).eq('id', ap.request_id);
+  } else if (ap.aina === 'announcement') {
+    await db.from('matangazo').update({ hali: 'rejected' }).eq('approval_id', id);
+  }
+  await loadAllData(); loadPastorDashboard(); toast('❌ Imekataliwa');
+}
+
+async function saveKanisaInfo() {
+  kanisaSettings.jina_kanisa = el('pastor-kanisa-jina').value.trim();
+  kanisaSettings.mahali = el('pastor-kanisa-mahali').value.trim();
+  kanisaSettings.simu_kanisa = el('pastor-kanisa-simu').value.trim();
+  await db.from('kanisa_settings').upsert(kanisaSettings);
+  el('pastor-settings-alert').innerHTML = '<div class="alert alert-success">✅ Mipangilio imehifadhiwa!</div>';
+  setTimeout(() => el('pastor-settings-alert').innerHTML = '', 3000);
+}
+
+function saveNenosiria() {
+  const oldPw = el('pastor-old-pw').value.trim(), newPw = el('pastor-new-pw').value.trim();
+  const katibuPw = el('pastor-katibu-pw').value.trim(), hazinaPw = el('pastor-hazina-pw').value.trim();
+  if (oldPw && oldPw !== getPW('pastor')) { el('pastor-pw-alert').innerHTML = '<div class="alert alert-error">Nenosiri la zamani la Mchungaji si sahihi</div>'; return; }
+  if (newPw) setPW('pastor', newPw);
+  if (katibuPw) setPW('secretary', katibuPw);
+  if (hazinaPw) setPW('treasurer', hazinaPw);
+  const recoveryCode = el('pastor-recovery-code').value.trim();
+  if (recoveryCode) setPW('recovery', recoveryCode);
+  el('pastor-pw-alert').innerHTML = '<div class="alert alert-success">✅ Nenosiri zimehifadhiwa!</div>';
+  setTimeout(() => el('pastor-pw-alert').innerHTML = '', 3000);
+}
+
+function pastorTab(tab) {
+  ['pending', 'leo', 'fedha', 'waumini', 'ripoti', 'mipangilio'].forEach(t => {
+    const e = el('pastor-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
+    const b = el('pastor-tab-' + t); if (b) b.classList.toggle('active', t === tab);
+  });
+  if (tab === 'leo') renderIbadaLeo('pastor-leo-content');
+  if (tab === 'fedha') renderFedhaViongozi('pastor-fedha-content');
+}
+
+// ==================== SECRETARY DASHBOARD ====================
+function loadSecretaryDashboard() {
+  const pendingRegs = allRequests.filter(r => r.aina === 'registration' && r.hali === 'pending');
+  el('reg-pending-count').textContent = pendingRegs.length;
+  el('reg-requests-list').innerHTML = pendingRegs.length ? pendingRegs.map(r => `<div class="card"><div class="card-title">🆕 OMBI LA USAJILI</div><div class="finance-row"><span>${r.muumini_jina}</span><span>📱 ${r.muumini_simu}</span></div><div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="approveRegistration('${r.id}', '${r.muumini_id}')">✅ Kubali</button><button class="btn btn-red btn-sm" onclick="rejectRegistration('${r.id}', '${r.muumini_id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi ya usajili</div>';
+  el('secretary-members-list').innerHTML = allMembers.map(m => `<tr><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td><button class="btn btn-sm ${m.hali === 'hai' ? 'btn-outline' : 'btn-green'}" onclick="toggleMemberStatus('${m.id}')">${m.hali === 'hai' ? '🔴 Si Hai' : '🟢 Weka Hai'}</button> <button class="btn btn-red btn-sm" onclick="deleteMember('${m.id}')">🗑</button></td></tr>`).join('');
+  const pastAnns = allAnnouncements.filter(a => a.hali === 'approved' || a.hali === 'rejected');
+  el('past-announcements').innerHTML = pastAnns.length ? pastAnns.map(a => `<div class="tangazo-card"><div class="tangazo-title">${a.kichwa}</div><div class="tangazo-body">${a.maelezo}</div><div style="font-size:11px;color:#666;margin-top:8px;">📅 ${formatDate(a.tarehe_tangazo)} · <span class="badge ${a.hali === 'approved' ? 'badge-green' : 'badge-red'}">${a.hali === 'approved' ? 'Imeidhinishwa' : 'Imekataliwa'}</span></div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna matangazo</div>';
+  el('announce-date').value = leo();
+  renderFedhaViongozi('secretary-fedha-content');
+}
+
+async function approveRegistration(reqId, memberId) {
+  showLoading(true);
+  await db.from('ombi_michango').update({ hali: 'approved' }).eq('id', reqId);
+  await db.from('waumini').update({ hali: 'hai' }).eq('id', memberId);
+  await loadAllData(); loadSecretaryDashboard(); toast('✅ Muumini amekubaliwa!');
+}
+async function rejectRegistration(reqId, memberId) {
+  if (!confirm('Futa ombi hili na muumini?')) return;
+  showLoading(true);
+  await db.from('ombi_michango').delete().eq('id', reqId);
+  await db.from('waumini').delete().eq('id', memberId);
+  await loadAllData(); loadSecretaryDashboard(); toast('❌ Muumini amefutwa');
+}
+async function toggleMemberStatus(id) {
+  const member = allMembers.find(m => m.id == id);
+  if (member) {
+    showLoading(true);
+    await db.from('waumini').update({ hali: member.hali === 'hai' ? 'si_hai' : 'hai' }).eq('id', id);
+    await loadAllData(); loadSecretaryDashboard();
+  }
+}
+async function deleteMember(id) {
+  if (!confirm('Futa muumini huyu kabisa?')) return;
+  showLoading(true);
+  await db.from('michango').delete().eq('muumini_id', id);
+  await db.from('ombi_michango').delete().eq('muumini_id', id);
+  await db.from('waumini').delete().eq('id', id);
+  await loadAllData(); loadSecretaryDashboard(); toast('🗑 Muumini amefutwa');
+}
+async function createAnnouncement() {
+  const title = el('announce-title').value.trim(), body = el('announce-body').value.trim(), date = el('announce-date').value;
+  if (!title || !body) { el('announce-alert').innerHTML = '<div class="alert alert-error">Jaza kichwa na maelezo</div>'; return; }
+  showLoading(true);
+  const { data: approvalData } = await db.from('approvals').insert({ aina: 'announcement', kichwa: title, maelezo_ap: body, tarehe_tangazo: date, hali: 'pending' }).select();
+  await db.from('matangazo').insert({ kichwa: title, maelezo: body, tarehe_tangazo: date, hali: 'pending', approval_id: approvalData[0].id });
+  await loadAllData(); loadSecretaryDashboard();
+  el('announce-alert').innerHTML = '<div class="alert alert-success">✅ Tangazo limepelekwa kwa Mchungaji!</div>';
+  el('announce-title').value = ''; el('announce-body').value = '';
+}
+function secretaryTab(tab) {
+  ['reg', 'members', 'announce', 'fedha'].forEach(t => {
+    const e = el('secretary-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
+    const b = el('secretary-tab-' + t); if (b) b.classList.toggle('active', t === tab);
+  });
+  if (tab === 'fedha') renderFedhaViongozi('secretary-fedha-content');
+}
+
+// ==================== TREASURER DASHBOARD ====================
+function loadTreasurerDashboard() {
+  el('contrib-member').innerHTML = '<option value="">— Chagua muumini —</option>' + allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${m.id}">${m.jina_kamili} (${m.namba_muumini})</option>`).join('');
+  el('contrib-type').innerHTML = allContributionTypes.map(t => `<option value="${t.id}">${t.icon} ${t.name || t.jina}</option>`).join('');
+  el('contrib-date').value = leo(); el('expense-date').value = leo(); el('jumla-tarehe').value = leo();
+  const pendingReqs = allRequests.filter(r => r.aina === 'contribution' && r.hali === 'pending');
+  el('treasurer-requests-count').textContent = pendingReqs.length;
+  el('treasurer-requests-list').innerHTML = pendingReqs.length ? pendingReqs.map(r => `<div class="card"><div class="card-title">🤲 OMBI LA MCHANGO</div><div class="finance-row"><span>${r.muumini_jina}</span><span>${r.aina_icon || ''} ${r.aina_jina} · ${formatMoney(r.kiasi)}</span></div>${r.maelezo_muumini ? `<div class="alert alert-info">${r.maelezo_muumini}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="openRequestModal('${r.id}','${r.muumini_jina}','${r.muumini_simu}','${r.aina_jina}',${r.kiasi})">✅ Kubali & Tuma Maelekezo</button><button class="btn btn-red btn-sm" onclick="rejectRequest('${r.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi yanayosubiri</div>';
+  el('history-list').innerHTML = allContributions.filter(c => c.hali !== 'pending').slice(0, 50).map(c => { const m = allMembers.find(x => x.id == c.muumini_id); return `<tr><td>${m ? m.jina_kamili : '—'}</td><td>${c.aina_icon || ''} ${c.aina_jina}</td><td><strong>${formatMoney(c.kiasi)}</strong></td><td>${formatDate(c.tarehe_mchango)}</td><td><span class="badge ${c.hali === 'approved' ? 'badge-green' : 'badge-red'}">${c.hali === 'approved' ? 'Imeidhinishwa' : 'Imekataliwa'}</span></td></tr>`; }).join('');
+  renderTypeList(); renderExpenseList(); renderJumlaHistoria();
+  renderIbadaLeo('treasurer-leo-content'); renderFedhaViongozi('treasurer-fedha-content');
+  const approved = allContributions.filter(c => c.hali === 'approved');
+  const total = approved.reduce((s, c) => s + c.kiasi, 0);
+  const totalExp = allExpenses.reduce((s, e) => s + e.kiasi, 0);
+  el('treasurer-report-stats').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-number">${formatMoney(total)}</div><div class="stat-label">Jumla Michango</div></div><div class="stat-card"><div class="stat-number">${allContributions.filter(c=>c.hali==='approved').length}</div><div class="stat-label">Idadi ya Michango</div></div><div class="stat-card"><div class="stat-number">${formatMoney(totalExp)}</div><div class="stat-label">Matumizi Yote</div></div><div class="stat-card"><div class="stat-number">${formatMoney(total - totalExp)}</div><div class="stat-label">Salio</div></div></div>`;
+}
+
+function openRequestModal(reqId, memberName, memberPhone, typeName, amount) {
+  openModal('✅ Kubali Ombi', `<div class="alert alert-info">Muumini: <strong>${memberName}</strong><br>${typeName} · ${formatMoney(amount)}</div><div class="fg"><label>📲 Maelekezo ya Malipo</label><textarea class="fi" id="modal-payment-instructions" rows="4" placeholder="Mfano: Tuma ${formatMoney(amount)} kwa M-Pesa: 0712 XXX XXX"></textarea></div><div style="display:flex;gap:10px;margin-top:16px;"><button class="btn btn-primary" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}')">📲 Thibitisha & Tuma WhatsApp</button><button class="btn btn-outline" onclick="closeModal()">Rudi</button></div>`);
+}
+
+async function approveRequestWithInstructions(reqId, memberPhone) {
+  const instructions = el('modal-payment-instructions').value.trim();
+  if (!instructions) { toast('Tafadhali andika maelekezo ya malipo'); return; }
+  const req = allRequests.find(r => r.id == reqId); if (!req) return;
+  showLoading(true);
+  await db.from('ombi_michango').update({ hali: 'approved', maelekezo_malipo: instructions }).eq('id', reqId);
+  const { data: newContrib } = await db.from('michango').insert({ muumini_id: req.muumini_id, aina_id: req.aina_id, aina_jina: req.aina_jina, aina_icon: req.aina_icon, kiasi: req.kiasi, tarehe_mchango: leo(), maelezo: req.maelezo_muumini, hali: 'pending' }).select();
+  await db.from('approvals').insert({ aina: 'contribution', kichwa: `${req.aina_jina} - ${req.muumini_jina}`, muumini_id: req.muumini_id, muumini_jina: req.muumini_jina, kiasi: req.kiasi, maelezo_ap: req.maelezo_muumini, hali: 'pending', tarehe_mchango: leo(), request_id: reqId });
+  closeModal(); await loadAllData(); loadTreasurerDashboard();
+  if (memberPhone) {
+    const phone = memberPhone.replace(/^0/, '255');
+    const msg = `✝ MUHIMBILI ANGLICAN CHURCH\n\nHabari ${req.muumini_jina},\n\nOmbi lako la mchango (${req.aina_jina} - ${formatMoney(req.kiasi)}) limekubaliwa! 🎉\n\n${instructions}\n\nMungu akubariki!`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+  toast('✅ Ombi limekubaliwa!');
+}
+
+async function rejectRequest(id) {
+  if (!confirm('Kataa ombi hili?')) return;
+  showLoading(true);
+  await db.from('ombi_michango').update({ hali: 'rejected' }).eq('id', id);
+  await loadAllData(); loadTreasurerDashboard(); toast('❌ Ombi limekataliwa');
+}
+
+async function addContribution() {
+  const memberId = el('contrib-member').value, typeId = el('contrib-type').value;
+  const date = el('contrib-date').value, amount = parseInt(el('contrib-amount').value), note = el('contrib-note').value.trim();
+  if (!memberId || !typeId || !amount || amount <= 0) { el('contrib-alert').innerHTML = '<div class="alert alert-error">Chagua muumini, aina na kiasi sahihi</div>'; return; }
+  const type = allContributionTypes.find(t => t.id === typeId);
+  const member = allMembers.find(m => m.id == memberId);
+  showLoading(true);
+  const { data: approvalData } = await db.from('approvals').insert({ aina: 'contribution', kichwa: `${type.name || type.jina} - ${member.jina_kamili}`, muumini_id: parseInt(memberId), muumini_jina: member.jina_kamili, kiasi: amount, maelezo_ap: note, hali: 'pending', tarehe_mchango: date }).select();
+  await db.from('michango').insert({ muumini_id: parseInt(memberId), aina_id: typeId, aina_jina: type.name || type.jina, aina_icon: type.icon, kiasi: amount, tarehe_mchango: date, maelezo: note, hali: 'pending', approval_id: approvalData[0].id });
+  await loadAllData(); loadTreasurerDashboard();
+  el('contrib-alert').innerHTML = '<div class="alert alert-success">✅ Mchango umehifadhiwa! Unasubiri idhini ya Mchungaji.</div>';
+  el('contrib-amount').value = ''; el('contrib-note').value = '';
+}
+
+async function addExpense() {
+  const title = el('expense-title').value.trim(), amount = parseInt(el('expense-amount').value);
+  const date = el('expense-date').value, category = el('expense-category').value;
+  if (!title || !amount || amount <= 0) { el('expense-alert').innerHTML = '<div class="alert alert-error">Jaza kichwa na kiasi sahihi</div>'; return; }
+  showLoading(true);
+  await db.from('matumizi').insert({ kichwa: title, kiasi: amount, tarehe: date, aina_matumizi: category });
+  await loadAllData(); renderExpenseList(); loadTreasurerDashboard();
+  el('expense-alert').innerHTML = '<div class="alert alert-success">💸 Matumizi yamehifadhiwa!</div>';
+  el('expense-title').value = ''; el('expense-amount').value = '';
+}
+
+function renderExpenseList() {
+  el('expense-list').innerHTML = allExpenses.slice(0, 20).length ? allExpenses.slice(0, 20).map(e => `<div class="contrib-card"><div class="contrib-info"><div class="contrib-type">${e.kichwa}</div><div class="contrib-date">📅 ${formatDate(e.tarehe)} · ${e.aina_matumizi}</div></div><div class="contrib-amount" style="color:#B83B3B;">${formatMoney(e.kiasi)}</div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna matumizi bado</div>';
+}
+
+async function addContributionType() {
+  const name = el('type-name').value.trim(), icon = el('type-icon').value;
+  if (!name) { el('type-alert').innerHTML = '<div class="alert alert-error">Weka jina la aina</div>'; return; }
+  showLoading(true);
+  await db.from('michango_aina').insert({ jina: name, name: name, icon: icon });
+  await loadAllData(); renderTypeList(); loadTreasurerDashboard();
+  el('type-name').value = ''; toast('✅ Aina imeongezwa!');
+}
+
+function renderTypeList() {
+  el('type-list').innerHTML = allContributionTypes.map(t => `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E2E8F0;"><div style="font-size:24px;">${t.icon}</div><div style="flex:1;font-weight:700;">${t.name || t.jina}</div><button class="btn btn-red btn-sm" onclick="deleteContributionType('${t.id}')">🗑</button></div>`).join('');
+}
+
+async function deleteContributionType(id) {
+  if (!confirm('Futa aina hii?')) return;
+  showLoading(true);
+  await db.from('michango_aina').delete().eq('id', id);
+  await loadAllData(); renderTypeList(); loadTreasurerDashboard(); toast('Imefutwa');
+}
+
+async function saveJumla() {
+  const tarehe = el('jumla-tarehe').value, aina = el('jumla-aina').value.trim() || 'Ibada';
+  const sadaka = parseInt(el('jumla-sadaka').value) || 0, zaka = parseInt(el('jumla-zaka').value) || 0;
+  const shukrani = parseInt(el('jumla-shukrani').value) || 0, watoto = parseInt(el('jumla-watoto').value) || 0;
+  const ujenzi = parseInt(el('jumla-ujenzi').value) || 0, nyingine = parseInt(el('jumla-nyingine').value) || 0;
+  const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
+  if (jumla <= 0) { el('jumla-alert').innerHTML = '<div class="alert alert-error">Angalau aina moja ya mchango lazima iwe zaidi ya 0</div>'; return; }
+  showLoading(true);
+  await db.from('jumla_ibada').insert({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla });
+  await loadAllData(); renderJumlaHistoria();
+  el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
+  setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
+  ['jumla-sadaka', 'jumla-zaka', 'jumla-shukrani', 'jumla-watoto', 'jumla-ujenzi', 'jumla-nyingine'].forEach(id => el(id).value = '');
+}
+
+function renderJumlaHistoria() {
+  el('jumla-historia').innerHTML = allJumla.slice(0, 20).map(j => `<div class="jumla-card"><div class="jc-title">⛪ ${j.aina_ibada} — ${formatDate(j.tarehe)}</div>${j.sadaka ? `<div class="jc-row"><span>🙏 Sadaka</span><span>${formatMoney(j.sadaka)}</span></div>` : ''}${j.zaka ? `<div class="jc-row"><span>💰 Fungu la Kumi</span><span>${formatMoney(j.zaka)}</span></div>` : ''}${j.shukrani ? `<div class="jc-row"><span>🌟 Shukrani</span><span>${formatMoney(j.shukrani)}</span></div>` : ''}${j.watoto ? `<div class="jc-row"><span>👶 Watoto</span><span>${formatMoney(j.watoto)}</span></div>` : ''}${j.ujenzi ? `<div class="jc-row"><span>🏗 Ujenzi</span><span>${formatMoney(j.ujenzi)}</span></div>` : ''}${j.nyingine ? `<div class="jc-row"><span>✝ Nyingine</span><span>${formatMoney(j.nyingine)}</span></div>` : ''}<div class="jc-total"><span>JUMLA</span><span>${formatMoney(j.jumla)}</span></div></div>`).join('');
+}
+
+function treasurerTab(tab) {
+  ['ingiza', 'jumla', 'maombi', 'matumizi', 'aina', 'leo', 'fedha', 'historia', 'ripoti'].forEach(t => {
+    const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
+    const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
+  });
+  if (tab === 'leo') renderIbadaLeo('treasurer-leo-content');
+  if (tab === 'fedha') renderFedhaViongozi('treasurer-fedha-content');
+  if (tab === 'historia') loadTreasurerDashboard();
+}
+
+// ==================== FINANCE HELPERS ====================
+function getMonthRange() {
+  const now = new Date();
+  return { start: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10), end: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10) };
+}
+function calcJumlaForRange(from, to) {
+  return allJumla.filter(j => (!from || j.tarehe >= from) && (!to || j.tarehe <= to))
+    .reduce((acc, j) => ({ sadaka: acc.sadaka + (j.sadaka || 0), zaka: acc.zaka + (j.zaka || 0), shukrani: acc.shukrani + (j.shukrani || 0), watoto: acc.watoto + (j.watoto || 0), ujenzi: acc.ujenzi + (j.ujenzi || 0), nyingine: acc.nyingine + (j.nyingine || 0) }), { sadaka: 0, zaka: 0, shukrani: 0, watoto: 0, ujenzi: 0, nyingine: 0 });
+}
+function calcCombinedSummary(contribs, from, to) {
+  const getVal = (arr, fn) => arr.filter(fn).reduce((s, c) => s + c.kiasi, 0);
+  const sadaka = getVal(contribs, c => c.aina_jina && c.aina_jina.includes('Sadaka') && !c.aina_jina.includes('Fungu'));
+  const zaka = getVal(contribs, c => c.aina_jina && c.aina_jina.includes('Fungu'));
+  const shukrani = getVal(contribs, c => c.aina_jina && c.aina_jina.includes('Shukrani'));
+  const watoto = getVal(contribs, c => c.aina_jina && c.aina_jina.includes('Watoto'));
+  const ujenzi = getVal(contribs, c => c.aina_jina && c.aina_jina.includes('Ujenzi'));
+  const nyingine = getVal(contribs, c => c.aina_jina && !c.aina_jina.includes('Sadaka') && !c.aina_jina.includes('Fungu') && !c.aina_jina.includes('Shukrani') && !c.aina_jina.includes('Watoto') && !c.aina_jina.includes('Ujenzi'));
+  const js = calcJumlaForRange(from, to);
+  const s = sadaka + js.sadaka, z = zaka + js.zaka, sh = shukrani + js.shukrani, w = watoto + js.watoto, u = ujenzi + js.ujenzi, n = nyingine + js.nyingine;
+  const jumla = s + z + sh + w + u + n, sz = s + z, a10 = Math.round(sz * 0.10), b10 = sz - a10;
+  return { sadaka: s, zaka: z, shukrani: sh, watoto: w, ujenzi: u, nyingine: n, jumla, sadakaZaka: sz, asilimia10: a10, baada10: b10, asilimia70: Math.round(b10 * 0.70), asilimia30: Math.round(b10 * 0.30) };
+}
+function calcMatumiziTotal(from, to) {
+  return allExpenses.filter(m => (!from || m.tarehe >= from) && (!to || m.tarehe <= to)).reduce((s, m) => s + m.kiasi, 0);
+}
+
+function renderIbadaLeo(containerId) {
+  const today = leo();
+  const contribs = allContributions.filter(c => c.tarehe_mchango === today && c.hali === 'approved');
+  const matTotal = calcMatumiziTotal(today, today);
+  const container = el(containerId); if (!container) return;
+  const siku = new Date().toLocaleDateString('sw', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Per-type breakdown for today
+  const byType = {};
+  for (const c of contribs) {
+    const key = c.aina_jina || 'Nyingine';
+    if (!byType[key]) byType[key] = { total: 0, icon: c.aina_icon || '🙏' };
+    byType[key].total += c.kiasi;
+  }
+  const typeEntries = Object.entries(byType).filter(([,v]) => v.total > 0).sort((a, b) => b[1].total - a[1].total);
+  const totalLeo = typeEntries.reduce((s, [, v]) => s + v.total, 0);
+  const typeRowsHTML = typeEntries.map(([name, v]) => `<div class="ibada-row"><span class="ibada-key">${v.icon} ${name}</span><span class="ibada-val">${formatMoney(v.total)}</span></div>`).join('');
+
+  container.innerHTML = `<div class="ibada-card"><div class="ibada-header"><div class="ibada-title">💰 Michango ya Leo</div><div style="font-size:11px;opacity:0.7;">${siku}</div></div>${typeRowsHTML || '<div style="opacity:0.7;padding:8px 0;">Hakuna michango leo bado</div>'}<div class="ibada-total"><span class="ibada-key">JUMLA YA MICHANGO</span><span class="ibada-val">${formatMoney(totalLeo)}</span></div></div><div style="background:linear-gradient(135deg,#B83B3B,#9B2C2C);border-radius:16px;padding:20px;margin-bottom:16px;color:white;"><div style="font-family:'Cormorant Garamond',serif;font-size:16px;margin-bottom:12px;">💸 Matumizi ya Leo</div>${matTotal > 0 ? `<div class="finance-row"><span>Jumla Matumizi</span><span style="color:#FCA5A5;">${formatMoney(matTotal)}</span></div>` : '<div style="opacity:0.7;">Hakuna matumizi leo</div>'}</div><div style="background:linear-gradient(135deg,#1B4D3E,#2C5A4A);border-radius:16px;padding:20px;color:white;"><div class="finance-row"><span>📊 Salio la Leo</span><span style="color:#C6A43F;font-size:18px;">${formatMoney(totalLeo - matTotal)}</span></div></div>`;
+}
+
+function renderFedhaViongozi(containerId) {
+  const mr = getMonthRange();
+  const contribs = allContributions.filter(c => c.tarehe_mchango >= mr.start && c.tarehe_mchango <= mr.end && c.hali === 'approved');
+  const matMwezi = calcMatumiziTotal(mr.start, mr.end);
+  const container = el(containerId); if (!container) return;
+  const mwezi = new Date().toLocaleDateString('sw', { month: 'long', year: 'numeric' });
+
+  // Build per-type totals from individual contributions
+  const byType = {};
+  for (const c of contribs) {
+    const key = c.aina_jina || 'Nyingine';
+    if (!byType[key]) byType[key] = { total: 0, icon: c.aina_icon || '🙏' };
+    byType[key].total += c.kiasi;
+  }
+  // Also fold in jumla_ibada aggregate totals (using existing 6 columns)
+  const js = calcJumlaForRange(mr.start, mr.end);
+  const jumlaTotals = js.sadaka + js.zaka + js.shukrani + js.watoto + js.ujenzi + js.nyingine;
+  const grandTotal = contribs.reduce((s, c) => s + c.kiasi, 0) + jumlaTotals;
+
+  const typeEntries = Object.entries(byType).filter(([,v]) => v.total > 0).sort((a, b) => b[1].total - a[1].total);
+  const typeRowsHTML = typeEntries.length
+    ? typeEntries.map(([name, v]) => `<div class="finance-row"><span style="font-size:14px;">${v.icon} ${name}</span><span style="font-weight:700;color:#1B4D3E;">${formatMoney(v.total)}</span></div>`).join('')
+    : '<div style="text-align:center;padding:16px;color:#6B7280;">Hakuna michango ya mwezi huu</div>';
+
+  container.innerHTML = `<div class="card"><div class="card-title">📊 Jumla ya Michango kwa Mwezi (${mwezi})</div>${typeRowsHTML}<div style="background:#1B4D3E;border-radius:12px;padding:16px;display:flex;justify-content:space-between;color:white;margin-top:12px;"><span style="font-weight:700;">JUMLA YOTE</span><span style="font-size:20px;color:#C6A43F;">${formatMoney(grandTotal)}</span></div></div><div class="card"><div class="card-title">💸 Mapato vs Matumizi ya Mwezi</div><div class="fin-grid"><div class="fin-card green"><div class="fin-label">📈 Mapato</div><div class="fin-amount">${formatMoney(grandTotal)}</div></div><div class="fin-card red"><div class="fin-label">📉 Matumizi</div><div class="fin-amount">${formatMoney(matMwezi)}</div></div></div><div style="border-radius:12px;padding:16px;display:flex;justify-content:space-between;background:${grandTotal - matMwezi >= 0 ? '#E6F7EC' : '#FEE2E2'};border:1px solid ${grandTotal - matMwezi >= 0 ? '#9AE6B4' : '#FCA5A5'};"><span style="font-weight:700;">SALIO LA MWEZI</span><span style="font-size:18px;font-weight:700;color:${grandTotal - matMwezi >= 0 ? '#2F855A' : '#B83B3B'};">${formatMoney(grandTotal - matMwezi)}</span></div></div>`;
+}
+
+// ==================== INIT ====================
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadAllData();
+  showLoading(false);
+  show('s-welcome');
+});
+</script>
+</body>
+</html>
