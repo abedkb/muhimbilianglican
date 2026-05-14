@@ -330,11 +330,86 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div class="tabs">
       <div class="tab active" id="secretary-tab-reg" onclick="secretaryTab('reg')">🆕 Maombi <span id="reg-pending-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
       <div class="tab" id="secretary-tab-members" onclick="secretaryTab('members')">👥 Waumini</div>
+      <div class="tab" id="secretary-tab-ss" onclick="secretaryTab('ss')">🧒 Sunday School</div>
+      <div class="tab" id="secretary-tab-wanafunzi" onclick="secretaryTab('wanafunzi')">🎓 Wanafunzi</div>
+      <div class="tab" id="secretary-tab-wageni" onclick="secretaryTab('wageni')">🤝 Wageni</div>
       <div class="tab" id="secretary-tab-announce" onclick="secretaryTab('announce')">📢 Tangazo</div>
       <div class="tab" id="secretary-tab-fedha" onclick="secretaryTab('fedha')">💰 Fedha</div>
     </div>
     <div id="secretary-reg"><div id="reg-requests-list"></div></div>
     <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="secretary-ss" style="display:none;">
+      <div class="card">
+        <div class="card-title">🧒 Sajili Mtoto wa Sunday School</div>
+        <div id="ss-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;"><label>Jina la Mtoto *</label><input type="text" class="fi" id="ss-jina" placeholder="Jina kamili la mtoto"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Jina la Mlezi/Mzazi *</label><input type="text" class="fi" id="ss-jina-mlezi" placeholder="Jina kamili la mlezi"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Uhusiano na Mtoto *</label>
+            <select class="fi" id="ss-uhusiano">
+              <option value="">— Chagua —</option>
+              <option value="Mama">Mama</option>
+              <option value="Baba">Baba</option>
+              <option value="Mjomba">Mjomba</option>
+              <option value="Shangazi">Shangazi</option>
+              <option value="Babu">Babu</option>
+              <option value="Bibi">Bibi</option>
+              <option value="Mwingine">Mwingine</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0;"><label>Simu ya Mlezi</label><input type="tel" class="fi" id="ss-simu" placeholder="07XX XXX XXX"></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="saveSundaySchool()">✅ Hifadhi Mtoto</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>📋 Watoto Wote (<span id="ss-count">0</span>)</span>
+          <input type="text" class="fi" id="ss-search" placeholder="🔍 Tafuta..." oninput="renderSundaySchool()" style="width:180px;margin-bottom:0;font-size:13px;">
+        </div>
+        <div class="table-wrapper"><table><thead><tr><th>#</th><th>Mtoto</th><th>Mlezi</th><th>Uhusiano</th><th>Simu</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="ss-list"></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="secretary-wanafunzi" style="display:none;">
+      <div class="card">
+        <div class="card-title">🎓 Sajili Mwanafunzi</div>
+        <div id="wanafunzi-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;"><label>Jina Kamili *</label><input type="text" class="fi" id="wf-jina" placeholder="Jina kamili"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Namba ya Simu</label><input type="tel" class="fi" id="wf-simu" placeholder="07XX XXX XXX"></div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Chuo / Shule Anayosoma *</label><input type="text" class="fi" id="wf-chuo" placeholder="mfano: MUHAS, Jangwani Secondary..."></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="saveWanafunzi()">✅ Hifadhi Mwanafunzi</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>📋 Wanafunzi Wote (<span id="wf-count">0</span>)</span>
+          <input type="text" class="fi" id="wf-search" placeholder="🔍 Tafuta..." oninput="renderWanafunzi()" style="width:180px;margin-bottom:0;font-size:13px;">
+        </div>
+        <div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Chuo / Shule</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="wf-list"></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="secretary-wageni" style="display:none;">
+      <div class="card">
+        <div class="card-title">🤝 Sajili Mgeni / Mgonjwa</div>
+        <div id="wageni-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;"><label>Jina *</label><input type="text" class="fi" id="wg-jina" placeholder="Jina kamili"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Namba ya Simu <small style="color:#888;">(si lazima)</small></label><input type="tel" class="fi" id="wg-simu" placeholder="07XX XXX XXX"></div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Mahali Anapotoka *</label><input type="text" class="fi" id="wg-mahali" placeholder="mfano: Dodoma, Mwanza, Mbeya..."></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="saveWageni()">✅ Hifadhi Mgeni</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>📋 Wageni / Wagonjwa (<span id="wg-count">0</span>)</span>
+          <input type="text" class="fi" id="wg-search" placeholder="🔍 Tafuta..." oninput="renderWageni()" style="width:180px;margin-bottom:0;font-size:13px;">
+        </div>
+        <div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Anapotoka</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="wg-list"></tbody></table></div>
+      </div>
+    </div>
+
     <div id="secretary-announce" style="display:none;">
       <div class="card"><div class="card-title">📢 Unda Tangazo Jipya</div><div id="announce-alert"></div>
         <div class="fg"><label>Kichwa cha Tangazo</label><input type="text" class="fi" id="announce-title"></div>
@@ -502,6 +577,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentRole = "";
 let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [];
+let allSundaySchool = [], allWanafunzi = [], allWageni = [];
 let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
@@ -618,6 +694,16 @@ async function loadAllData(silent = false) {
     console.error(e);
     if (!silent) toast('⚠ Hitilafu ya kuunganisha database');
   }
+  try {
+    const [{ data: ss }, { data: wf }, { data: wg }] = await Promise.all([
+      db.from('sunday_school').select('*').order('created_at', { ascending: false }),
+      db.from('wanafunzi').select('*').order('created_at', { ascending: false }),
+      db.from('wageni').select('*').order('created_at', { ascending: false })
+    ]);
+    allSundaySchool = ss || [];
+    allWanafunzi = wf || [];
+    allWageni = wg || [];
+  } catch (e) { console.warn('Jedwali za ss/wanafunzi/wageni hazijawekwa bado:', e.message); }
   if (!silent) showLoading(false);
 }
 
@@ -897,11 +983,14 @@ async function createAnnouncement() {
   el('announce-title').value = ''; el('announce-body').value = '';
 }
 function secretaryTab(tab) {
-  ['reg', 'members', 'announce', 'fedha'].forEach(t => {
+  ['reg', 'members', 'ss', 'wanafunzi', 'wageni', 'announce', 'fedha'].forEach(t => {
     const e = el('secretary-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('secretary-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
   if (tab === 'fedha') renderFedhaViongozi('secretary-fedha-content');
+  if (tab === 'ss') renderSundaySchool();
+  if (tab === 'wanafunzi') renderWanafunzi();
+  if (tab === 'wageni') renderWageni();
 }
 
 // ==================== TREASURER DASHBOARD ====================
@@ -1811,6 +1900,146 @@ function downloadWauminiCSV(role) {
   a.href = url; a.download = `waumini_${role}_${leo()}.csv`; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Orodha imepakiwa!');
+}
+
+// ==================== SUNDAY SCHOOL ====================
+async function saveSundaySchool() {
+  const jina = el('ss-jina').value.trim();
+  const jina_mlezi = el('ss-jina-mlezi').value.trim();
+  const uhusiano = el('ss-uhusiano').value;
+  const simu_mlezi = el('ss-simu').value.trim();
+  if (!jina || !jina_mlezi || !uhusiano) { el('ss-alert').innerHTML = '<div class="alert alert-error">Jaza jina la mtoto, mlezi, na uhusiano</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('sunday_school').insert({ jina_mtoto: jina, jina_mlezi, uhusiano, simu_mlezi: simu_mlezi || null, hali: 'active', tarehe_usajili: leo() });
+  if (error) { showLoading(false); el('ss-alert').innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  await loadAllData(true);
+  renderSundaySchool();
+  el('ss-alert').innerHTML = '<div class="alert alert-success">✅ Mtoto amesajiliwa!</div>';
+  el('ss-jina').value = ''; el('ss-jina-mlezi').value = ''; el('ss-uhusiano').value = ''; el('ss-simu').value = '';
+  showLoading(false);
+}
+function renderSundaySchool() {
+  const q = (el('ss-search') ? el('ss-search').value : '').toLowerCase();
+  const list = allSundaySchool.filter(r => !q || r.jina_mtoto.toLowerCase().includes(q) || (r.jina_mlezi||'').toLowerCase().includes(q));
+  el('ss-count').textContent = allSundaySchool.length;
+  el('ss-list').innerHTML = list.length ? list.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.jina_mtoto}</strong></td>
+      <td>${r.jina_mlezi || '—'}</td>
+      <td><span class="badge badge-outline">${r.uhusiano || '—'}</span></td>
+      <td>${r.simu_mlezi || '—'}</td>
+      <td><span class="badge ${r.hali === 'active' ? 'badge-green' : 'badge-red'}">${r.hali === 'active' ? 'Hai' : 'Ameacha'}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-sm ${r.hali === 'active' ? 'btn-outline' : 'btn-green'}" onclick="toggleSSStatus(${r.id})">${r.hali === 'active' ? 'Ondoa' : 'Rudisha'}</button>
+        <button class="btn btn-sm btn-red" onclick="deleteSSRecord(${r.id})">🗑</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:30px;color:#6B7280;">Hakuna watoto waliosaijiliwa</td></tr>';
+}
+async function toggleSSStatus(id) {
+  const r = allSundaySchool.find(x => x.id === id);
+  if (!r) return;
+  showLoading(true);
+  await db.from('sunday_school').update({ hali: r.hali === 'active' ? 'inactive' : 'active' }).eq('id', id);
+  await loadAllData(true); renderSundaySchool(); showLoading(false);
+}
+async function deleteSSRecord(id) {
+  if (!confirm('Futa rekodi hii?')) return;
+  showLoading(true);
+  await db.from('sunday_school').delete().eq('id', id);
+  await loadAllData(true); renderSundaySchool(); showLoading(false); toast('🗑 Imefutwa');
+}
+
+// ==================== WANAFUNZI ====================
+async function saveWanafunzi() {
+  const jina = el('wf-jina').value.trim();
+  const simu = el('wf-simu').value.trim();
+  const chuo_shule = el('wf-chuo').value.trim();
+  if (!jina || !chuo_shule) { el('wanafunzi-alert').innerHTML = '<div class="alert alert-error">Jaza jina na chuo/shule</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('wanafunzi').insert({ jina, simu: simu || null, chuo_shule, hali: 'active', tarehe_usajili: leo() });
+  if (error) { showLoading(false); el('wanafunzi-alert').innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  await loadAllData(true);
+  renderWanafunzi();
+  el('wanafunzi-alert').innerHTML = '<div class="alert alert-success">✅ Mwanafunzi amesajiliwa!</div>';
+  el('wf-jina').value = ''; el('wf-simu').value = ''; el('wf-chuo').value = '';
+  showLoading(false);
+}
+function renderWanafunzi() {
+  const q = (el('wf-search') ? el('wf-search').value : '').toLowerCase();
+  const list = allWanafunzi.filter(r => !q || r.jina.toLowerCase().includes(q) || (r.chuo_shule||'').toLowerCase().includes(q));
+  el('wf-count').textContent = allWanafunzi.length;
+  el('wf-list').innerHTML = list.length ? list.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.jina}</strong></td>
+      <td>${r.simu || '—'}</td>
+      <td>${r.chuo_shule || '—'}</td>
+      <td><span class="badge ${r.hali === 'active' ? 'badge-green' : 'badge-red'}">${r.hali === 'active' ? 'Anasoma' : 'Amehitimu'}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-sm ${r.hali === 'active' ? 'btn-outline' : 'btn-green'}" onclick="toggleWfStatus(${r.id})">${r.hali === 'active' ? 'Amehitimu' : 'Anasoma'}</button>
+        <button class="btn btn-sm btn-red" onclick="deleteWfRecord(${r.id})">🗑</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna wanafunzi waliosaijiliwa</td></tr>';
+}
+async function toggleWfStatus(id) {
+  const r = allWanafunzi.find(x => x.id === id);
+  if (!r) return;
+  showLoading(true);
+  await db.from('wanafunzi').update({ hali: r.hali === 'active' ? 'inactive' : 'active' }).eq('id', id);
+  await loadAllData(true); renderWanafunzi(); showLoading(false);
+}
+async function deleteWfRecord(id) {
+  if (!confirm('Futa rekodi hii?')) return;
+  showLoading(true);
+  await db.from('wanafunzi').delete().eq('id', id);
+  await loadAllData(true); renderWanafunzi(); showLoading(false); toast('🗑 Imefutwa');
+}
+
+// ==================== WAGENI ====================
+async function saveWageni() {
+  const jina = el('wg-jina').value.trim();
+  const simu = el('wg-simu').value.trim();
+  const mahali_anapotoka = el('wg-mahali').value.trim();
+  if (!jina || !mahali_anapotoka) { el('wageni-alert').innerHTML = '<div class="alert alert-error">Jaza jina na mahali anapotoka</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('wageni').insert({ jina, simu: simu || null, mahali_anapotoka, hali: 'active', tarehe_usajili: leo() });
+  if (error) { showLoading(false); el('wageni-alert').innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  await loadAllData(true);
+  renderWageni();
+  el('wageni-alert').innerHTML = '<div class="alert alert-success">✅ Mgeni amesajiliwa!</div>';
+  el('wg-jina').value = ''; el('wg-simu').value = ''; el('wg-mahali').value = '';
+  showLoading(false);
+}
+function renderWageni() {
+  const q = (el('wg-search') ? el('wg-search').value : '').toLowerCase();
+  const list = allWageni.filter(r => !q || r.jina.toLowerCase().includes(q) || (r.mahali_anapotoka||'').toLowerCase().includes(q));
+  el('wg-count').textContent = allWageni.length;
+  el('wg-list').innerHTML = list.length ? list.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.jina}</strong></td>
+      <td>${r.simu || '—'}</td>
+      <td>${r.mahali_anapotoka || '—'}</td>
+      <td><span class="badge ${r.hali === 'active' ? 'badge-green' : 'badge-red'}">${r.hali === 'active' ? 'Yupo' : 'Ameondoka'}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-sm ${r.hali === 'active' ? 'btn-outline' : 'btn-green'}" onclick="toggleWgStatus(${r.id})">${r.hali === 'active' ? 'Ameondoka' : 'Yupo Tena'}</button>
+        <button class="btn btn-sm btn-red" onclick="deleteWgRecord(${r.id})">🗑</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna wageni waliosaijiliwa</td></tr>';
+}
+async function toggleWgStatus(id) {
+  const r = allWageni.find(x => x.id === id);
+  if (!r) return;
+  showLoading(true);
+  await db.from('wageni').update({ hali: r.hali === 'active' ? 'inactive' : 'active' }).eq('id', id);
+  await loadAllData(true); renderWageni(); showLoading(false);
+}
+async function deleteWgRecord(id) {
+  if (!confirm('Futa rekodi hii?')) return;
+  showLoading(true);
+  await db.from('wageni').delete().eq('id', id);
+  await loadAllData(true); renderWageni(); showLoading(false); toast('🗑 Imefutwa');
 }
 
 // ==================== RIPOTI YA FEDHA ====================
