@@ -472,6 +472,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
           <div class="fg"><label>🤝 Ahadi</label><input type="number" class="fi" id="jumla-ahadi" placeholder="0"></div>
           <div class="fg"><label>🌾 Mavuno</label><input type="number" class="fi" id="jumla-mavuno" placeholder="0"></div>
           <div class="fg"><label>✝ TTM</label><input type="number" class="fi" id="jumla-ttm" placeholder="0"></div>
+          <div class="fg"><label>🛒 Mnada</label><input type="number" class="fi" id="jumla-mnada" placeholder="0"></div>
         </div>
         <div class="fg" style="margin-top:4px;"><label>⚙ Aina Maalumu</label><select class="fsel" id="jumla-aina-maalumu" onchange="onJumlaAinaMaalumuChange()"><option value="">Kawaida</option><option value="pasaka">✝ Pasaka (Easter)</option><option value="christmas">🎄 Krisimasi (Christmas)</option></select></div>
         <div id="jumla-special-note" style="display:none;" class="alert alert-warning">Ibaada Maalumu: <strong>30%</strong> ya Sadaka itatengwa — <strong>70%</strong> ndo itakuwa Sadaka halisi ya ibaada hii.</div>
@@ -1110,7 +1111,8 @@ async function saveJumla() {
   const ahadi    = parseInt(el('jumla-ahadi').value)     || 0;
   const mavuno   = parseInt(el('jumla-mavuno').value)    || 0;
   const ttm      = parseInt(el('jumla-ttm').value)       || 0;
-  const nyingine = maziko + ubatizo + umaki + tayo_maso + ahadi + mavuno + ttm;
+  const mnada    = parseInt(el('jumla-mnada').value)     || 0;
+  const nyingine = maziko + ubatizo + umaki + tayo_maso + ahadi + mavuno + ttm + mnada;
   const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
   if (jumla <= 0) { el('jumla-alert').innerHTML = '<div class="alert alert-error">Angalau aina moja ya mchango lazima iwe zaidi ya 0</div>'; return; }
   showLoading(true);
@@ -1118,7 +1120,7 @@ async function saveJumla() {
   await loadAllData(); renderJumlaHistoria();
   el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
   setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
-  ['jumla-sadaka','jumla-zaka','jumla-shukrani','jumla-watoto','jumla-ujenzi','jumla-maziko','jumla-ubatizo','jumla-umaki','jumla-tayo-maso','jumla-ahadi','jumla-mavuno','jumla-ttm'].forEach(id => { if(el(id)) el(id).value=''; });
+  ['jumla-sadaka','jumla-zaka','jumla-shukrani','jumla-watoto','jumla-ujenzi','jumla-maziko','jumla-ubatizo','jumla-umaki','jumla-tayo-maso','jumla-ahadi','jumla-mavuno','jumla-ttm','jumla-mnada'].forEach(id => { if(el(id)) el(id).value=''; });
   if (el('jumla-aina-maalumu')) el('jumla-aina-maalumu').value = '';
   if (el('jumla-kasisi-mgeni')) el('jumla-kasisi-mgeni').checked = false;
   if (el('jumla-special-note')) el('jumla-special-note').style.display = 'none';
@@ -1400,8 +1402,9 @@ function previewForm1() {
   const ahadi     = parseInt(el('jumla-ahadi').value)     || 0;
   const mavuno    = parseInt(el('jumla-mavuno').value)    || 0;
   const ttm       = parseInt(el('jumla-ttm').value)       || 0;
-  const jumla = sadaka+zaka+shukrani+watoto+ujenzi+maziko+ubatizo+umaki+tayo_maso+ahadi+mavuno+ttm;
-  _showForm1(tarehe, aina, {sadaka,zaka,shukrani,watoto,ujenzi,maziko,ubatizo,umaki,tayo_maso,ahadi,mavuno,ttm,jumla});
+  const mnada     = parseInt(el('jumla-mnada').value)     || 0;
+  const jumla = sadaka+zaka+shukrani+watoto+ujenzi+maziko+ubatizo+umaki+tayo_maso+ahadi+mavuno+ttm+mnada;
+  _showForm1(tarehe, aina, {sadaka,zaka,shukrani,watoto,ujenzi,maziko,ubatizo,umaki,tayo_maso,ahadi,mavuno,ttm,mnada,jumla});
 }
 
 function printForm1FromRecord(id) {
@@ -1418,8 +1421,8 @@ function printForm1FromRecord(id) {
 
 function _showForm1(tarehe, aina, d) {
   const denominations = [10000, 5000, 2000, 1000, 500, 200, 100, 50];
-  const cols = ['KAWAIDA','SHUKRANI','MAZIKO','UBATIZO','S/SCHOOL','UMAKI','TAYO/MASO','FUNGU LA KUMI','AHADI','MAVUNO','TTM'];
-  const totals = [d.sadaka,d.shukrani,d.maziko||0,d.ubatizo||0,d.watoto,d.umaki||0,d.tayo_maso||0,d.zaka,d.ahadi||0,d.mavuno||0,d.ttm||0];
+  const cols = ['KAWAIDA','SHUKRANI','MAZIKO','UBATIZO','S/SCHOOL','UMAKI','TAYO/MASO','FUNGU LA KUMI','AHADI','MAVUNO','TTM','MNADA'];
+  const totals = [d.sadaka,d.shukrani,d.maziko||0,d.ubatizo||0,d.watoto,d.umaki||0,d.tayo_maso||0,d.zaka,d.ahadi||0,d.mavuno||0,d.ttm||0,d.mnada||0];
   const grandJumla = totals.reduce((s,v)=>s+v,0) + (d.ujenzi||0) + (d.nyingine_note||0);
   const fmt = n => n>0 ? n.toLocaleString() : '';
 
