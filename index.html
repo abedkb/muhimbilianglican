@@ -486,6 +486,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     </div>
     <div id="treasurer-maombi" style="display:none;"><div id="treasurer-requests-list"></div></div>
     <div id="treasurer-matumizi" style="display:none;">
+      <div id="matumizi-summary"></div>
       <div class="card"><div class="card-title">💸 Ingiza Matumizi</div><div id="expense-alert"></div>
         <div class="fg"><label>Kichwa cha Matumizi</label><input type="text" class="fi" id="expense-title"></div>
         <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="expense-amount"></div>
@@ -600,7 +601,12 @@ function generateMemberNumber() { return 'MAC' + Date.now().toString().slice(-6)
 function leo() { return new Date().toISOString().slice(0, 10); }
 function getPW(role) { return localStorage.getItem('mac_pw_' + role) || (role === 'pastor' ? 'PASTOR2026' : role === 'secretary' ? 'KATIBU2026' : role === 'recovery' ? 'MUHIMBILI2026' : 'HAZINA2026'); }
 function setPW(role, pw) { localStorage.setItem('mac_pw_' + role, pw); }
-function showLoading(v) { el('loading-overlay').style.display = v ? 'flex' : 'none'; }
+let _loadingTimer = null;
+function showLoading(v) {
+  el('loading-overlay').style.display = v ? 'flex' : 'none';
+  if (v) { clearTimeout(_loadingTimer); _loadingTimer = setTimeout(() => showLoading(false), 12000); }
+  else clearTimeout(_loadingTimer);
+}
 
 // ==================== IBADA & FINANCE HELPERS ====================
 function isSpecialIbada(j) { const a = (j.aina_ibada||'').toLowerCase(); return a.includes('pasaka')||a.includes('easter')||a.includes('christmas')||a.includes('krisimasi'); }
@@ -650,7 +656,7 @@ async function loadAllData(silent = false) {
       db.from('michango_aina').select('*').order('created_at', { ascending: true }),
       db.from('matangazo').select('*').order('created_at', { ascending: false }),
       db.from('approvals').select('*').order('created_at', { ascending: false }),
-      db.from('matumizi').select('*').order('created_at', { ascending: false }),
+      db.from('matumizi').select('*').order('id', { ascending: false }),
       db.from('ombi_michango').select('*').order('created_at', { ascending: false }),
       db.from('jumla_ibada').select('*').order('tarehe', { ascending: false }),
       db.from('kanisa_settings').select('*').limit(1)
@@ -1057,17 +1063,86 @@ async function addExpense() {
   const title = el('expense-title').value.trim(), amount = parseInt(el('expense-amount').value);
   const date = el('expense-date').value, category = el('expense-category').value;
   if (!title || !amount || amount <= 0) { el('expense-alert').innerHTML = '<div class="alert alert-error">Jaza kichwa na kiasi sahihi</div>'; return; }
-  showLoading(true);
-  await db.from('matumizi').insert({ kichwa: title, kiasi: amount, tarehe: date, aina_matumizi: category });
-  await loadAllData(); renderExpenseList(); renderMatumiziBaki();
-  renderTreasurerFedha('treasurer-fedha-content');
-  el('expense-alert').innerHTML = `<div class="alert alert-success">💸 Imehifadhiwa! ${category} — ${formatMoney(amount)}</div>`;
-  el('expense-title').value = ''; el('expense-amount').value = '';
+  try {
+    const { error } = await db.from('matumizi').insert({ kichwa: title, kiasi: amount, tarehe: date, aina_matumizi: category });
+    if (error) { el('expense-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu ya kuhifadhi: ${error.message}</div>`; return; }
+    await loadAllData(true);
+    renderExpenseList(); renderMatumiziBaki(); renderTreasurerFedha('treasurer-fedha-content');
+    el('expense-alert').innerHTML = `<div class="alert alert-success">💸 Imehifadhiwa! ${category} — ${formatMoney(amount)}</div>`;
+    el('expense-title').value = ''; el('expense-amount').value = '';
+  } catch(e) { el('expense-alert').innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`; }
 }
 
 function renderExpenseList() {
-  const list = allExpenses.filter(e => e.aina_matumizi !== 'Ujenzi').slice(0, 20);
-  el('expense-list').innerHTML = list.length ? list.map(e => `<div class="contrib-card"><div class="contrib-info"><div class="contrib-type">${e.kichwa}</div><div class="contrib-date">📅 ${formatDate(e.tarehe)} · ${e.aina_matumizi}</div></div><div class="contrib-amount" style="color:#B83B3B;">${formatMoney(e.kiasi)}</div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna matumizi bado</div>';
+  renderMatumiziSummary();
+  const list = allExpenses.filter(e => e.aina_matumizi !== 'Ujenzi').slice(0, 50);
+  el('expense-list').innerHTML = list.length ? list.map(e => `
+    <div class="contrib-card" style="align-items:flex-start;">
+      <div class="contrib-info" style="flex:1;">
+        <div class="contrib-type">${e.kichwa}</div>
+        <div class="contrib-date">📅 ${formatDate(e.tarehe)} · <span class="badge badge-outline" style="font-size:10px;">${e.aina_matumizi}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <div class="contrib-amount" style="color:#B83B3B;">${formatMoney(e.kiasi)}</div>
+        <button class="btn btn-sm btn-outline" style="padding:5px 9px;" onclick="editExpense(${e.id})" title="Hariri">✏️</button>
+        <button class="btn btn-sm btn-red" style="padding:5px 9px;" onclick="deleteExpense(${e.id})" title="Futa">🗑</button>
+      </div>
+    </div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna matumizi bado</div>';
+}
+
+function renderMatumiziSummary() {
+  const cont = el('matumizi-summary'); if (!cont) return;
+  const mr = getMonthRange();
+  const today = leo();
+  const todayIbada = allJumla.filter(j => j.tarehe === today);
+  const todayMapato = todayIbada.reduce((s, j) => s + calcIbadaJumlaEffective(j), 0);
+  const todayExp = calcMatumiziTotal(today, today);
+  const todayBaki = todayMapato - todayExp;
+  const { mapato: monthMapato, matumizi: monthExp, baki: monthBaki } = calcMweziBaki(mr.start, mr.end);
+  const todayJumlaId = allJumla.find(j => j.tarehe === today);
+
+  cont.innerHTML = `
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-title">📊 Muhtasari wa Fedha</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📅 Leo — ${formatDate(today)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="background:#E6F7EC;border-radius:10px;padding:12px;text-align:center;border:1px solid #9AE6B4;">
+          <div style="font-size:10px;font-weight:700;color:#2F855A;text-transform:uppercase;margin-bottom:4px;">Mapato Leo</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">${formatMoney(todayMapato)}</div>
+        </div>
+        <div style="background:#FEE2E2;border-radius:10px;padding:12px;text-align:center;border:1px solid #FCA5A5;">
+          <div style="font-size:10px;font-weight:700;color:#B83B3B;text-transform:uppercase;margin-bottom:4px;">Matumizi Leo</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#B83B3B;">${formatMoney(todayExp)}</div>
+        </div>
+        <div style="background:${todayBaki>=0?'linear-gradient(135deg,#1B4D3E,#2C5A4A)':'linear-gradient(135deg,#7B1B1B,#9B2C2C)'};border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:4px;">Baki Leo</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatMoney(todayBaki)}</div>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #E2E8F0;padding-top:12px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📆 ${new Date().toLocaleDateString('sw',{month:'long',year:'numeric'})}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="background:#E6F7EC;border-radius:10px;padding:12px;text-align:center;border:1px solid #9AE6B4;">
+          <div style="font-size:10px;font-weight:700;color:#2F855A;text-transform:uppercase;margin-bottom:4px;">Jumla Mapato</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">${formatMoney(monthMapato)}</div>
+        </div>
+        <div style="background:#FEE2E2;border-radius:10px;padding:12px;text-align:center;border:1px solid #FCA5A5;">
+          <div style="font-size:10px;font-weight:700;color:#B83B3B;text-transform:uppercase;margin-bottom:4px;">Jumla Matumizi</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#B83B3B;">${formatMoney(monthExp)}</div>
+        </div>
+        <div style="background:${monthBaki>=0?'linear-gradient(135deg,#1B4D3E,#2C5A4A)':'linear-gradient(135deg,#7B1B1B,#9B2C2C)'};border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:4px;">Baki Mwezi</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatMoney(monthBaki)}</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      ${todayJumlaId ? `<button class="btn btn-sm btn-outline" onclick="printForm1FromRecord('${todayJumlaId.id}')">🖨 Chapisha F1 — Leo</button>` : ''}
+      <button class="btn btn-sm btn-outline" onclick="printForm2('${today}','Leo — ${formatDate(today)}')">🖨 Chapisha F2 — Leo</button>
+    </div>
+  </div>`;
 }
 
 async function addContributionType() {
@@ -1116,15 +1191,17 @@ async function saveJumla() {
   const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
   if (jumla <= 0) { el('jumla-alert').innerHTML = '<div class="alert alert-error">Angalau aina moja ya mchango lazima iwe zaidi ya 0</div>'; return; }
   showLoading(true);
-  await db.from('jumla_ibada').insert({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla });
-  await loadAllData(); renderJumlaHistoria();
-  el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
-  setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
-  ['jumla-sadaka','jumla-zaka','jumla-shukrani','jumla-watoto','jumla-ujenzi','jumla-maziko','jumla-ubatizo','jumla-umaki','jumla-tayo-maso','jumla-ahadi','jumla-mavuno','jumla-ttm','jumla-mnada'].forEach(id => { if(el(id)) el(id).value=''; });
-  if (el('jumla-aina-maalumu')) el('jumla-aina-maalumu').value = '';
-  if (el('jumla-kasisi-mgeni')) el('jumla-kasisi-mgeni').checked = false;
-  if (el('jumla-special-note')) el('jumla-special-note').style.display = 'none';
-  showLoading(false);
+  try {
+    const { error } = await db.from('jumla_ibada').insert({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla });
+    if (error) { el('jumla-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu ya kuhifadhi: ${error.message}</div>`; return; }
+    await loadAllData(true); renderJumlaHistoria();
+    el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
+    setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
+    ['jumla-sadaka','jumla-zaka','jumla-shukrani','jumla-watoto','jumla-ujenzi','jumla-maziko','jumla-ubatizo','jumla-umaki','jumla-tayo-maso','jumla-ahadi','jumla-mavuno','jumla-ttm','jumla-mnada'].forEach(id => { if(el(id)) el(id).value=''; });
+    if (el('jumla-aina-maalumu')) el('jumla-aina-maalumu').value = '';
+    if (el('jumla-kasisi-mgeni')) el('jumla-kasisi-mgeni').checked = false;
+    if (el('jumla-special-note')) el('jumla-special-note').style.display = 'none';
+  } finally { showLoading(false); }
 }
 
 function renderJumlaHistoria() {
@@ -1141,9 +1218,11 @@ function renderJumlaHistoria() {
     return `<div class="jumla-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div class="jc-title" style="margin-bottom:0;">⛪ ${getIbadaLabel(j)}${special?' ✨':''} — ${formatDate(j.tarehe)}</div>
-        <div style="display:flex;gap:4px;flex-shrink:0;margin-left:8px;">
+        <div style="display:flex;gap:4px;flex-shrink:0;margin-left:8px;flex-wrap:wrap;justify-content:flex-end;">
           <button class="btn btn-sm" style="background:rgba(198,164,63,0.2);color:#C6A43F;border:1px solid rgba(198,164,63,0.4);font-size:11px;padding:4px 8px;" onclick="printForm1FromRecord('${j.id}')">🖨 F1</button>
           <button class="btn btn-sm" style="background:rgba(198,164,63,0.2);color:#C6A43F;border:1px solid rgba(198,164,63,0.4);font-size:11px;padding:4px 8px;" onclick="printForm2('${j.tarehe}','${getIbadaLabel(j)}')">🖨 F2</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);font-size:11px;padding:4px 8px;" onclick="editJumla('${j.id}')">✏️ Hariri</button>
+          <button class="btn btn-sm" style="background:rgba(220,38,38,0.3);color:#FCA5A5;border:1px solid rgba(220,38,38,0.5);font-size:11px;padding:4px 8px;" onclick="deleteJumla('${j.id}')">🗑 Futa</button>
         </div>
       </div>
       ${special ? `<div style="background:rgba(198,164,63,0.25);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:#C6A43F;">✨ Ibaada Maalumu: 30% ya Sadaka (${formatMoney(sadakaDed)}) imetengwa kwa ajili maalumu</div>` : ''}
@@ -1155,10 +1234,17 @@ function renderJumlaHistoria() {
       ${j.nyingine ? `<div class="jc-row"><span>✝ Nyingine (Maziko/Ubatizo n.k.)</span><span>${formatMoney(j.nyingine)}</span></div>` : ''}
       <div class="jc-total"><span>JUMLA YA SADAKA</span><span>${formatMoney(jumlaEff)}</span></div>
       ${dayExps.length ? `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.25);">
-        <div style="font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">💸 Matumizi ya Siku:</div>
-        ${dayExps.map(e=>`<div class="jc-row"><span style="font-size:12px;">${e.aina_matumizi}</span><span style="color:#FCA5A5;">(${formatMoney(e.kiasi)})</span></div>`).join('')}
-        <div class="jc-total" style="border-top:2px solid rgba(198,164,63,0.5);"><span>BAKI YA IBAADA</span><span style="color:${baki>=0?'#86EFAC':'#FCA5A5'};">${formatMoney(baki)}</span></div>
-      </div>` : `<div class="jc-total" style="border-top:2px solid rgba(198,164,63,0.5);"><span>BAKI YA IBAADA</span><span style="color:#86EFAC;">${formatMoney(baki)}</span></div>`}
+        <div style="font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">💸 Matumizi ya Ibaada:</div>
+        ${dayExps.map(e=>`<div class="jc-row"><span style="font-size:12px;">${e.kichwa} <span style="opacity:0.6;">(${e.aina_matumizi})</span></span><span style="color:#FCA5A5;">${formatMoney(e.kiasi)}</span></div>`).join('')}
+      </div>` : ''}
+      <div class="jc-row" style="border-top:1px dashed rgba(255,255,255,0.3);margin-top:6px;padding-top:6px;">
+        <span style="color:#FCA5A5;font-weight:600;">💸 MATUMIZI YA IBAADA</span>
+        <span style="color:#FCA5A5;font-weight:600;">${formatMoney(totalMatumizi)}</span>
+      </div>
+      <div class="jc-total" style="border-top:2px solid rgba(198,164,63,0.5);margin-top:4px;">
+        <span>BAKI YA IBAADA</span>
+        <span style="color:${baki>=0?'#86EFAC':'#FCA5A5'};">${formatMoney(baki)}</span>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1905,6 +1991,112 @@ function downloadWauminiCSV(role) {
   toast('✅ Orodha imepakiwa!');
 }
 
+// ==================== EDIT / DELETE — MATUMIZI ====================
+function _expCatOptions(selected) {
+  return [
+    ['— Posho za Ibaada —', ['Posho ya Kasisi (Ibaada)','Posho ya Mwinjilisti (Ibaada)','Posho ya Mpiga Kinanda','Posho ya Kasisi Mgeni']],
+    ['— Posho za Mwezi —', ['Posho ya Kasisi (Mwezi)','Posho ya Mwinjilisti (Mwezi)','Posho ya Office Administrator','Posho ya Mwalimu Sunday School']],
+    ['— Malipo Mengine —', ['Encash Cheque','Commission / Bank Fees','Mshumaa wa Pasaka','Maendeleo']],
+    ['— Matumizi ya Kawaida —', ['Umeme','Maji','Karatasi','Usafiri','Ujenzi','Nyingine']]
+  ].map(([grp, opts]) =>
+    `<optgroup label="${grp}">${opts.map(o=>`<option value="${o}"${selected===o?' selected':''}>${o}</option>`).join('')}</optgroup>`
+  ).join('');
+}
+
+function editExpense(id) {
+  const e = allExpenses.find(x => x.id == id); if (!e) return;
+  openModal('✏️ Hariri Matumizi', `
+    <div class="fg"><label>Kichwa cha Matumizi</label><input type="text" class="fi" id="edit-exp-title" value="${(e.kichwa||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"></div>
+    <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="edit-exp-amount" value="${e.kiasi}"></div>
+    <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="edit-exp-date" value="${e.tarehe}"></div>
+    <div class="fg"><label>Aina</label><select class="fi" id="edit-exp-category">${_expCatOptions(e.aina_matumizi)}</select></div>
+    <div id="edit-exp-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="updateExpense(${id})">💾 Hifadhi Mabadiliko</button>
+      <button class="btn btn-outline" onclick="closeModal()">Rudi</button>
+    </div>`);
+}
+async function updateExpense(id) {
+  const title = el('edit-exp-title').value.trim();
+  const amount = parseInt(el('edit-exp-amount').value);
+  const tarehe = el('edit-exp-date').value;
+  const category = el('edit-exp-category').value;
+  if (!title || !amount || amount <= 0) { el('edit-exp-alert').innerHTML = '<div class="alert alert-error">Jaza kichwa na kiasi sahihi</div>'; return; }
+  try {
+    const { error } = await db.from('matumizi').update({ kichwa: title, kiasi: amount, tarehe, aina_matumizi: category }).eq('id', id);
+    if (error) { el('edit-exp-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    closeModal();
+    await loadAllData(true);
+    renderExpenseList(); renderMatumiziBaki(); renderTreasurerFedha('treasurer-fedha-content');
+    toast('✅ Matumizi yamesasishwa!');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+async function deleteExpense(id) {
+  if (!confirm('Futa matumizi haya kabisa? Hatua hii haiwezi kutenduliwa.')) return;
+  try {
+    const { error } = await db.from('matumizi').delete().eq('id', id);
+    if (error) { toast('❌ Hitilafu: ' + error.message); return; }
+    await loadAllData(true);
+    renderExpenseList(); renderMatumiziBaki(); renderTreasurerFedha('treasurer-fedha-content');
+    toast('🗑 Matumizi yamefutwa');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ==================== EDIT / DELETE — JUMLA IBADA ====================
+function editJumla(id) {
+  const j = allJumla.find(x => String(x.id) === String(id)); if (!j) return;
+  const safeAina = (j.aina_ibada||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  openModal('✏️ Hariri Rekodi ya Ibada', `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="edit-j-tarehe" value="${j.tarehe}"></div>
+      <div class="fg"><label>Aina ya Ibada</label><input type="text" class="fi" id="edit-j-aina" value="${safeAina}"></div>
+      <div class="fg"><label>🙏 Sadaka</label><input type="number" class="fi" id="edit-j-sadaka" value="${j.sadaka||0}"></div>
+      <div class="fg"><label>💰 Fungu la Kumi</label><input type="number" class="fi" id="edit-j-zaka" value="${j.zaka||0}"></div>
+      <div class="fg"><label>🌟 Shukrani</label><input type="number" class="fi" id="edit-j-shukrani" value="${j.shukrani||0}"></div>
+      <div class="fg"><label>👶 Watoto (S/School)</label><input type="number" class="fi" id="edit-j-watoto" value="${j.watoto||0}"></div>
+      <div class="fg"><label>🏗 Ujenzi</label><input type="number" class="fi" id="edit-j-ujenzi" value="${j.ujenzi||0}"></div>
+      <div class="fg"><label>✝ Nyingine</label><input type="number" class="fi" id="edit-j-nyingine" value="${j.nyingine||0}"></div>
+    </div>
+    <div class="alert alert-info" style="font-size:12px;margin-bottom:8px;">Jumla itahesabiwa upya baada ya kuhifadhi.</div>
+    <div id="edit-j-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="updateJumla('${id}')">💾 Hifadhi Mabadiliko</button>
+      <button class="btn btn-outline" onclick="closeModal()">Rudi</button>
+    </div>`);
+}
+async function updateJumla(id) {
+  const tarehe = el('edit-j-tarehe').value;
+  const aina = el('edit-j-aina').value.trim();
+  const sadaka = parseInt(el('edit-j-sadaka').value) || 0;
+  const zaka = parseInt(el('edit-j-zaka').value) || 0;
+  const shukrani = parseInt(el('edit-j-shukrani').value) || 0;
+  const watoto = parseInt(el('edit-j-watoto').value) || 0;
+  const ujenzi = parseInt(el('edit-j-ujenzi').value) || 0;
+  const nyingine = parseInt(el('edit-j-nyingine').value) || 0;
+  const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
+  if (!tarehe) { el('edit-j-alert').innerHTML = '<div class="alert alert-error">Weka tarehe ya ibada</div>'; return; }
+  showLoading(true);
+  try {
+    const { error } = await db.from('jumla_ibada').update({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla }).eq('id', id);
+    if (error) { el('edit-j-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    closeModal();
+    await loadAllData(true);
+    renderJumlaHistoria(); renderMatumiziSummary(); renderTreasurerFedha('treasurer-fedha-content');
+    toast('✅ Rekodi ya ibada imesasishwa!');
+  } finally { showLoading(false); }
+}
+async function deleteJumla(id) {
+  if (!confirm('Futa rekodi hii ya ibada kabisa? Hatua hii haiwezi kutenduliwa.')) return;
+  showLoading(true);
+  try {
+    const { error } = await db.from('jumla_ibada').delete().eq('id', id);
+    if (error) { toast('❌ Hitilafu: ' + error.message); return; }
+    await loadAllData(true);
+    renderJumlaHistoria(); renderMatumiziSummary(); renderTreasurerFedha('treasurer-fedha-content');
+    toast('🗑 Rekodi ya ibada imefutwa');
+  } finally { showLoading(false); }
+}
+
 // ==================== SUNDAY SCHOOL ====================
 async function saveSundaySchool() {
   const jina = el('ss-jina').value.trim();
@@ -2383,6 +2575,13 @@ function downloadRipotiCSV() {
   URL.revokeObjectURL(url);
   toast('✅ Ripoti imepakiwa!');
 }
+
+// ==================== GLOBAL ERROR HANDLER ====================
+window.addEventListener('unhandledrejection', e => {
+  showLoading(false);
+  console.error('Hitilafu isiyoshughulikiwa:', e.reason);
+  toast('⚠ Kosa la mfumo: ' + (e.reason?.message || String(e.reason) || 'Imeshindwa'));
+});
 
 // ==================== INIT ====================
 window.addEventListener('DOMContentLoaded', () => {
