@@ -277,6 +277,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div class="tabs">
       <div class="tab active" id="tab-account" onclick="memberTab('account')">📊 Akaunti</div>
       <div class="tab" id="tab-request" onclick="memberTab('request')">🤲 Ombi</div>
+      <div class="tab" id="tab-ahadi" onclick="memberTab('ahadi')">🤝 Ahadi</div>
       <div class="tab" id="tab-announcements" onclick="memberTab('announcements')">📢 Matangazo</div>
       <div class="tab" id="tab-profile" onclick="memberTab('profile')">👤 Profaili</div>
     </div>
@@ -284,6 +285,54 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="member-request" style="display:none;"><div class="card"><div class="card-title">🤲 Wasilisha Ombi la Mchango</div><div id="request-alert"></div><div class="fg"><label>Aina ya Mchango</label><select class="fsel" id="request-type"></select></div><div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="request-amount" placeholder="5000"></div><div class="fg"><label>Ujumbe (hiari)</label><input type="text" class="fi" id="request-message"></div><button class="btn btn-primary btn-block" onclick="submitRequest()">🤲 Tuma Ombi</button></div><div class="card"><div class="card-title">📋 Maombi Yangu</div><div id="my-requests"></div></div></div>
     <div id="member-announcements" style="display:none;"><div id="member-announcements-list"></div></div>
     <div id="member-profile" style="display:none;"><div class="card"><div class="card-title">👤 Taarifa Zangu</div><div id="profile-info"></div><div style="margin-top:20px;"><div class="card-title">🔒 Badilisha Nenosiri</div><div id="profile-pw-alert"></div><div class="fg"><label>Nenosiri la Zamani</label><input type="password" class="fi" id="old-pw"></div><div class="fg"><label>Nenosiri Jipya</label><input type="password" class="fi" id="new-pw"></div><div class="fg"><label>Thibitisha</label><input type="password" class="fi" id="new-pw2"></div><button class="btn btn-primary btn-block" onclick="changePassword()">🔒 Badilisha</button></div></div></div>
+    <div id="member-ahadi" style="display:none;">
+      <div class="card">
+        <div class="card-title">🤝 Wasilisha Ahadi / Malipo ya Ahadi</div>
+        <div id="ahadi-alert"></div>
+        <div class="fg">
+          <label>Chagua Kitendo</label>
+          <select class="fsel" id="ahadi-action" onchange="onAhadiActionChange()">
+            <option value="">— Chagua kitendo —</option>
+            <option value="weka">📝 Weka Ahadi</option>
+            <option value="lipa">💰 Lipa / Punguza Ahadi</option>
+          </select>
+        </div>
+        <div id="ahadi-weka-form" style="display:none;">
+          <div class="fg"><label>Aina ya Ahadi</label>
+            <select class="fsel" id="ahadi-aina">
+              <option value="">— Chagua aina —</option>
+              <option value="Mavuno">🌾 Mavuno</option>
+              <option value="Fungu la Kumi">💰 Fungu la Kumi</option>
+              <option value="Ujenzi">🏗 Ujenzi</option>
+              <option value="Ahadi">🤝 Ahadi</option>
+            </select>
+          </div>
+          <div class="fg"><label>Kiasi cha Ahadi (TZS)</label><input type="number" class="fi" id="ahadi-kiasi" placeholder="10000"></div>
+          <div class="fg"><label>Maelezo (hiari)</label><input type="text" class="fi" id="ahadi-maelezo" placeholder="Mfano: Ahadi ya Mwaka 2026"></div>
+          <button class="btn btn-primary btn-block" onclick="submitAhadi()">🤝 Tuma Ahadi kwa Mweka Hazina</button>
+        </div>
+        <div id="ahadi-lipa-form" style="display:none;">
+          <div class="fg"><label>Chagua Ahadi ya Kulipa</label>
+            <select class="fsel" id="ahadi-lipa-id">
+              <option value="">— Chagua ahadi —</option>
+            </select>
+          </div>
+          <div id="ahadi-lipa-details" style="display:none;" class="alert alert-info" style="margin-bottom:12px;"></div>
+          <div class="fg"><label>Kiasi Unacholipa (TZS)</label><input type="number" class="fi" id="ahadi-lipa-kiasi" placeholder="5000"></div>
+          <div class="fg"><label>Maelezo (hiari)</label><input type="text" class="fi" id="ahadi-lipa-maelezo" placeholder="Mfano: Malipo ya kwanza"></div>
+          <div class="fg">
+            <label>Hati ya Uthibitisho <span style="color:#C6A43F;font-weight:400;font-size:11px;">● Lazima — Picha/PDF, max 2MB</span></label>
+            <input type="file" class="fi" id="ahadi-lipa-doc" accept="image/*,application/pdf" style="padding:8px 14px;">
+            <div style="font-size:11px;color:#6B7280;margin-top:3px;">Pakia picha ya risiti au hati yoyote ya uthibitisho wa malipo</div>
+          </div>
+          <button class="btn btn-gold btn-block" onclick="submitAhadiLipa()">💰 Tuma Malipo kwa Mweka Hazina</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Ahadi Zangu</div>
+        <div id="my-ahadi-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -431,6 +480,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab active" id="treasurer-tab-ingiza" onclick="treasurerTab('ingiza')">➕ Mchango</div>
       <div class="tab" id="treasurer-tab-jumla" onclick="treasurerTab('jumla')">📊 Jumla</div>
       <div class="tab" id="treasurer-tab-maombi" onclick="treasurerTab('maombi')">🤲 Maombi <span id="treasurer-requests-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
+      <div class="tab" id="treasurer-tab-ahadi" onclick="treasurerTab('ahadi')">🤝 Ahadi <span id="treasurer-ahadi-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
       <div class="tab" id="treasurer-tab-matumizi" onclick="treasurerTab('matumizi')">💸 Matumizi</div>
       <div class="tab" id="treasurer-tab-aina" onclick="treasurerTab('aina')">🏷 Aina</div>
       <div class="tab" id="treasurer-tab-leo" onclick="treasurerTab('leo')">📅 Leo</div>
@@ -485,6 +535,99 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="card"><div class="card-title">📋 Historia ya Jumla za Ibada</div><div id="jumla-historia"></div></div>
     </div>
     <div id="treasurer-maombi" style="display:none;"><div id="treasurer-requests-list"></div></div>
+    <div id="treasurer-ahadi" style="display:none;">
+      <!-- DIRECT ENTRY CARD -->
+      <div class="card">
+        <div class="card-title">➕ Ingiza Ahadi / Malipo ya Muumini</div>
+        <div id="treas-ahadi-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+            <label>Chagua Muumini</label>
+            <select class="fsel" id="treas-ahadi-member" onchange="onTreasAhadiMemberChange()">
+              <option value="">— Chagua muumini —</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+            <label>Kitendo</label>
+            <select class="fsel" id="treas-ahadi-action" onchange="onTreasAhadiActionChange()">
+              <option value="">— Chagua kitendo —</option>
+              <option value="mpya">📝 Ahadi Mpya</option>
+              <option value="lipa">💰 Lipa / Punguza Ahadi</option>
+            </select>
+          </div>
+        </div>
+        <!-- Ahadi mpya form -->
+        <div id="treas-ahadi-mpya-form" style="display:none;margin-top:12px;border-top:1px solid #E2E8F0;padding-top:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Aina ya Ahadi</label>
+              <select class="fsel" id="treas-ahadi-aina">
+                <option value="">— Chagua aina —</option>
+                <option value="Mavuno">🌾 Mavuno</option>
+                <option value="Fungu la Kumi">💰 Fungu la Kumi</option>
+                <option value="Ujenzi">🏗 Ujenzi</option>
+                <option value="Ahadi">🤝 Ahadi</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0;"><label>Tarehe ya Ahadi</label><input type="date" class="fi" id="treas-ahadi-tarehe"></div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Kiasi cha Ahadi (TZS)</label><input type="number" class="fi" id="treas-ahadi-kiasi" placeholder="10000"></div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Maelezo (hiari)</label><input type="text" class="fi" id="treas-ahadi-maelezo"></div>
+          </div>
+          <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="treasurerSaveAhadiDirect()">💾 Hifadhi Ahadi Mpya</button>
+        </div>
+        <!-- Malipo form -->
+        <div id="treas-ahadi-lipa-form" style="display:none;margin-top:12px;border-top:1px solid #E2E8F0;padding-top:12px;">
+          <div class="fg"><label>Chagua Ahadi ya Kulipa</label>
+            <select class="fsel" id="treas-ahadi-lipa-id" onchange="onTreasAhadiLipaSelect()">
+              <option value="">— Chagua ahadi —</option>
+            </select>
+          </div>
+          <div id="treas-ahadi-lipa-info" style="display:none;" class="alert alert-info"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="fg" style="margin-bottom:0;"><label>Kiasi Kilicholipwa (TZS)</label><input type="number" class="fi" id="treas-ahadi-lipa-kiasi" placeholder="5000"></div>
+            <div class="fg" style="margin-bottom:0;"><label>Tarehe ya Malipo</label><input type="date" class="fi" id="treas-ahadi-lipa-tarehe"></div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Maelezo (hiari)</label><input type="text" class="fi" id="treas-ahadi-lipa-maelezo"></div>
+          </div>
+          <button class="btn btn-gold btn-block" style="margin-top:12px;" onclick="treasurerSaveAhadiLipaDirect()">💾 Hifadhi Malipo ya Ahadi</button>
+        </div>
+      </div>
+      <!-- PENDING NEW PLEDGES -->
+      <div class="card">
+        <div class="card-title">📥 Maombi ya Ahadi Mapya (kutoka Waumini) <span id="ahadi-new-count" class="badge badge-red" style="margin-left:6px;">0</span></div>
+        <div id="treasurer-ahadi-pending-list"><div style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya ahadi mapya</div></div>
+      </div>
+      <!-- PENDING PAYMENTS -->
+      <div class="card">
+        <div class="card-title">💰 Maombi ya Malipo ya Ahadi (kutoka Waumini) <span id="ahadi-malipo-count" class="badge badge-gold" style="margin-left:6px;">0</span></div>
+        <div id="treasurer-ahadi-malipo-pending"></div>
+      </div>
+      <!-- ALL RECORDS -->
+      <div class="card">
+        <div class="card-title">📋 Rekodi za Ahadi Zote</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Mavuno')">⬇ Mavuno</button>
+          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Fungu la Kumi')">⬇ Fungu la Kumi</button>
+          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Ujenzi')">⬇ Ujenzi</button>
+          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Ahadi')">⬇ Ahadi</button>
+          <button class="btn btn-sm btn-green" onclick="downloadAhadiCSV('')">⬇ Zote CSV</button>
+        </div>
+        <div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="ahadi-records-search" placeholder="🔍 Tafuta jina au aina..." oninput="renderAhadiRecords()" style="margin-bottom:0;"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="ahadi-filter-btns">
+          <button class="btn btn-sm btn-primary" onclick="filterAhadiType('')">Zote</button>
+          <button class="btn btn-sm btn-outline" onclick="filterAhadiType('Mavuno')">🌾 Mavuno</button>
+          <button class="btn btn-sm btn-outline" onclick="filterAhadiType('Fungu la Kumi')">💰 Fungu la Kumi</button>
+          <button class="btn btn-sm btn-outline" onclick="filterAhadiType('Ujenzi')">🏗 Ujenzi</button>
+          <button class="btn btn-sm btn-outline" onclick="filterAhadiType('Ahadi')">🤝 Ahadi</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Muumini</th><th>Aina</th><th>Ahadi</th><th>Imelipwa</th><th>Inayobaki</th><th>Hali</th></tr></thead>
+            <tbody id="treasurer-ahadi-records"></tbody>
+          </table>
+        </div>
+        <div id="ahadi-records-summary" style="margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;"></div>
+      </div>
+    </div>
     <div id="treasurer-matumizi" style="display:none;">
       <div id="matumizi-summary"></div>
       <div class="card"><div class="card-title">💸 Ingiza Matumizi</div><div id="expense-alert"></div>
@@ -580,6 +723,7 @@ let currentUser = null;
 let currentRole = "";
 let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [];
 let allSundaySchool = [], allWanafunzi = [], allWageni = [];
+let allAhadi = [], allAhadiMalipo = [];
 let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
@@ -711,6 +855,14 @@ async function loadAllData(silent = false) {
     allWanafunzi = wf || [];
     allWageni = wg || [];
   } catch (e) { console.warn('Jedwali za ss/wanafunzi/wageni hazijawekwa bado:', e.message); }
+  try {
+    const [{ data: ah }, { data: ahm }] = await Promise.all([
+      db.from('ahadi').select('*').order('created_at', { ascending: false }),
+      db.from('ahadi_malipo').select('*').order('created_at', { ascending: false })
+    ]);
+    allAhadi = ah || [];
+    allAhadiMalipo = ahm || [];
+  } catch (e) { console.warn('Jedwali za ahadi hazijawekwa bado:', e.message); }
   if (!silent) showLoading(false);
 }
 
@@ -858,10 +1010,11 @@ function resetStaffPassword(role) {
 }
 
 function memberTab(tab) {
-  ['account', 'request', 'announcements', 'profile'].forEach(t => {
+  ['account', 'request', 'ahadi', 'announcements', 'profile'].forEach(t => {
     const e = el('member-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
+  if (tab === 'ahadi') renderMemberAhadi();
 }
 
 // ==================== PASTOR DASHBOARD ====================
@@ -1007,6 +1160,8 @@ function loadTreasurerDashboard() {
   el('contrib-date').value = leo(); el('expense-date').value = leo(); el('jumla-tarehe').value = leo();
   const pendingReqs = allRequests.filter(r => r.aina === 'contribution' && r.hali === 'pending');
   el('treasurer-requests-count').textContent = pendingReqs.length;
+  const pendingAhadi = allAhadi.filter(a => a.hali === 'pending').length + allAhadiMalipo.filter(a => a.hali === 'pending').length;
+  el('treasurer-ahadi-count').textContent = pendingAhadi;
   el('treasurer-requests-list').innerHTML = pendingReqs.length ? pendingReqs.map(r => `<div class="card"><div class="card-title">🤲 OMBI LA MCHANGO</div><div class="finance-row"><span>${r.muumini_jina}</span><span>${r.aina_icon || ''} ${r.aina_jina} · ${formatMoney(r.kiasi)}</span></div>${r.maelezo_muumini ? `<div class="alert alert-info">${r.maelezo_muumini}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="openRequestModal('${r.id}','${r.muumini_jina}','${r.muumini_simu}','${r.aina_jina}',${r.kiasi})">✅ Kubali & Tuma Maelekezo</button><button class="btn btn-red btn-sm" onclick="rejectRequest('${r.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi yanayosubiri</div>';
   el('history-list').innerHTML = allContributions.filter(c => c.hali !== 'pending').slice(0, 50).map(c => { const m = allMembers.find(x => x.id == c.muumini_id); return `<tr><td>${m ? m.jina_kamili : '—'}</td><td>${c.aina_icon || ''} ${c.aina_jina}</td><td><strong>${formatMoney(c.kiasi)}</strong></td><td>${formatDate(c.tarehe_mchango)}</td><td><span class="badge ${c.hali === 'approved' ? 'badge-green' : 'badge-red'}">${c.hali === 'approved' ? 'Imeidhinishwa' : 'Imekataliwa'}</span></td></tr>`; }).join('');
   renderTypeList(); renderExpenseList(); renderJumlaHistoria(); renderMatumiziBaki();
@@ -1603,10 +1758,11 @@ function printForm2(tarehe, ainaIbada) {
 }
 
 function treasurerTab(tab) {
-  ['ingiza', 'jumla', 'maombi', 'matumizi', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti'].forEach(t => {
+  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti'].forEach(t => {
     const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
+  if (tab === 'ahadi') renderTreasurerAhadi();
   if (tab === 'leo') renderIbadaLeo('treasurer-leo-content');
   if (tab === 'fedha') renderTreasurerFedha('treasurer-fedha-content');
   if (tab === 'ujenzi') renderUjenziTab('treasurer-ujenzi-content');
@@ -2574,6 +2730,457 @@ function downloadRipotiCSV() {
   a.download = `ripoti_fedha_${d.from}_${d.to}.csv`; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Ripoti imepakiwa!');
+}
+
+// ==================== AHADI (PLEDGES) ====================
+function onAhadiActionChange() {
+  const v = el('ahadi-action').value;
+  const wekaForm = el('ahadi-weka-form');
+  const lipaForm = el('ahadi-lipa-form');
+  if (wekaForm) wekaForm.style.display = v === 'weka' ? 'block' : 'none';
+  if (lipaForm) lipaForm.style.display = v === 'lipa' ? 'block' : 'none';
+  if (v === 'lipa') populateMyAhadiDropdown();
+}
+
+function populateMyAhadiDropdown() {
+  const myApprovedAhadi = allAhadi.filter(a => a.muumini_id === currentUser.id && a.hali === 'approved');
+  const sel = el('ahadi-lipa-id');
+  sel.innerHTML = '<option value="">— Chagua ahadi —</option>' + myApprovedAhadi.map(a => {
+    const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+    const baki = a.kiasi_ahadi - kulipwa;
+    return `<option value="${a.id}">${a.aina_ahadi} — Ahadi: ${formatMoney(a.kiasi_ahadi)} | Baki: ${formatMoney(baki)}</option>`;
+  }).join('');
+  sel.onchange = function() {
+    const det = el('ahadi-lipa-details');
+    const chosen = myApprovedAhadi.find(a => a.id == sel.value);
+    if (chosen && det) {
+      const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === chosen.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+      const baki = chosen.kiasi_ahadi - kulipwa;
+      det.style.display = 'block';
+      det.innerHTML = `<strong>${chosen.aina_ahadi}</strong> — Ahadi: <strong>${formatMoney(chosen.kiasi_ahadi)}</strong> | Imelipwa: <strong>${formatMoney(kulipwa)}</strong> | Inayobaki: <strong style="color:#B83B3B;">${formatMoney(baki)}</strong>`;
+    } else if (det) { det.style.display = 'none'; }
+  };
+}
+
+async function submitAhadi() {
+  const aina = el('ahadi-aina').value;
+  const kiasi = parseInt(el('ahadi-kiasi').value);
+  const maelezo = el('ahadi-maelezo').value.trim();
+  if (!aina) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Chagua aina ya ahadi</div>'; return; }
+  if (!kiasi || kiasi <= 0) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Weka kiasi sahihi cha ahadi</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('ahadi').insert({
+    muumini_id: currentUser.id,
+    muumini_jina: currentUser.jina_kamili,
+    muumini_simu: currentUser.namba_simu,
+    aina_ahadi: aina,
+    kiasi_ahadi: kiasi,
+    kiasi_kuliwa: 0,
+    hali: 'pending',
+    tarehe_ahadi: leo(),
+    maelezo: maelezo || null
+  });
+  showLoading(false);
+  if (error) { el('ahadi-alert').innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  el('ahadi-alert').innerHTML = '<div class="alert alert-success">✅ Ahadi imepelekwa kwa Mweka Hazina!</div>';
+  el('ahadi-aina').value = ''; el('ahadi-kiasi').value = ''; el('ahadi-maelezo').value = '';
+  el('ahadi-action').value = ''; el('ahadi-weka-form').style.display = 'none';
+  await loadAllData(); renderMemberAhadi();
+}
+
+async function submitAhadiLipa() {
+  const ahadiId = el('ahadi-lipa-id').value;
+  const kiasi = parseInt(el('ahadi-lipa-kiasi').value);
+  const maelezo = el('ahadi-lipa-maelezo').value.trim();
+  const docInput = el('ahadi-lipa-doc');
+  if (!ahadiId) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Chagua ahadi unayolipa</div>'; return; }
+  if (!kiasi || kiasi <= 0) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Weka kiasi sahihi unacholipa</div>'; return; }
+  if (!docInput || !docInput.files || !docInput.files[0]) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Pakia hati ya uthibitisho wa malipo (picha/PDF)</div>'; return; }
+  const file = docInput.files[0];
+  if (file.size > 2 * 1024 * 1024) { el('ahadi-alert').innerHTML = '<div class="alert alert-error">Faili ni kubwa mno — max 2MB</div>'; return; }
+  const ahadi = allAhadi.find(a => a.id == ahadiId);
+  if (!ahadi) return;
+  showLoading(true);
+  let hati_base64 = null;
+  try {
+    hati_base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  } catch(e) { showLoading(false); el('ahadi-alert').innerHTML = '<div class="alert alert-error">Imeshindwa kusoma faili</div>'; return; }
+  const { error } = await db.from('ahadi_malipo').insert({
+    ahadi_id: parseInt(ahadiId),
+    muumini_id: currentUser.id,
+    muumini_jina: currentUser.jina_kamili,
+    aina_ahadi: ahadi.aina_ahadi,
+    kiasi_ahadi: ahadi.kiasi_ahadi,
+    kiasi_lipa: kiasi,
+    tarehe_lipa: leo(),
+    maelezo: maelezo || null,
+    hati_base64: hati_base64,
+    hali: 'pending'
+  });
+  showLoading(false);
+  if (error) { el('ahadi-alert').innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  el('ahadi-alert').innerHTML = '<div class="alert alert-success">✅ Malipo ya ahadi na hati yamepelekwa kwa Mweka Hazina!</div>';
+  el('ahadi-lipa-id').value = ''; el('ahadi-lipa-kiasi').value = ''; el('ahadi-lipa-maelezo').value = '';
+  docInput.value = '';
+  el('ahadi-action').value = ''; el('ahadi-lipa-form').style.display = 'none';
+  const det = el('ahadi-lipa-details'); if (det) det.style.display = 'none';
+  await loadAllData(); renderMemberAhadi();
+}
+
+function renderMemberAhadi() {
+  if (!currentUser) return;
+  const myAhadi = allAhadi.filter(a => a.muumini_id === currentUser.id);
+  const ahadiIcons = { 'Mavuno': '🌾', 'Fungu la Kumi': '💰', 'Ujenzi': '🏗', 'Ahadi': '🤝' };
+  el('my-ahadi-list').innerHTML = myAhadi.length ? myAhadi.map(a => {
+    const malipo = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved');
+    const kulipwa = malipo.reduce((s, m) => s + m.kiasi_lipa, 0);
+    const baki = a.kiasi_ahadi - kulipwa;
+    const icon = ahadiIcons[a.aina_ahadi] || '🤝';
+    const haliClass = a.hali === 'approved' ? 'badge-green' : a.hali === 'rejected' ? 'badge-red' : 'badge-gold';
+    const haliText = a.hali === 'approved' ? '✅ Imeidhinishwa' : a.hali === 'rejected' ? '❌ Imekataliwa' : '⏳ Inasubiri';
+    const pendingMalipo = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'pending');
+    return `<div class="contrib-card" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div class="contrib-icon" style="background:#E8F0FE;">${icon}</div>
+        <div class="contrib-info" style="flex:1;">
+          <div class="contrib-type">${a.aina_ahadi}</div>
+          <div class="contrib-date">📅 ${formatDate(a.tarehe_ahadi)}${a.maelezo ? ` · ${a.maelezo}` : ''}</div>
+        </div>
+        <span class="badge ${haliClass}">${haliText}</span>
+      </div>
+      ${a.hali === 'approved' ? `
+      <div style="width:100%;background:#F9F6EF;border-radius:8px;padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
+        <div><div style="font-size:10px;color:#6B7280;font-weight:700;text-transform:uppercase;">Ahadi</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#1B4D3E;">${formatMoney(a.kiasi_ahadi)}</div></div>
+        <div><div style="font-size:10px;color:#6B7280;font-weight:700;text-transform:uppercase;">Imelipwa</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">${formatMoney(kulipwa)}</div></div>
+        <div><div style="font-size:10px;color:#6B7280;font-weight:700;text-transform:uppercase;">Inayobaki</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:${baki > 0 ? '#B83B3B' : '#2F855A'};">${formatMoney(baki)}</div></div>
+      </div>
+      ${pendingMalipo.length ? `<div class="alert alert-warning" style="width:100%;margin:0;font-size:12px;">⏳ Malipo ${pendingMalipo.length} yanayosubiri idhini ya Mweka Hazina</div>` : ''}
+      ` : ''}
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:30px;color:#666;">Huna ahadi zilizotumwa bado</div>';
+}
+
+// ==================== TREASURER AHADI FUNCTIONS ====================
+function renderTreasurerAhadi() {
+  const sel = el('treas-ahadi-member');
+  if (sel) {
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Chagua muumini —</option>' + allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${m.id}">${m.jina_kamili} (${m.namba_muumini})</option>`).join('');
+    if (prev) sel.value = prev;
+  }
+  if (el('treas-ahadi-tarehe') && !el('treas-ahadi-tarehe').value) el('treas-ahadi-tarehe').value = leo();
+  if (el('treas-ahadi-lipa-tarehe') && !el('treas-ahadi-lipa-tarehe').value) el('treas-ahadi-lipa-tarehe').value = leo();
+  renderTreasurerAhadiPending();
+  renderTreasurerAhadiMalipoPending();
+  renderAhadiRecords();
+}
+
+function onTreasAhadiActionChange() {
+  const v = el('treas-ahadi-action').value;
+  const mpya = el('treas-ahadi-mpya-form');
+  const lipa = el('treas-ahadi-lipa-form');
+  if (mpya) mpya.style.display = v === 'mpya' ? 'block' : 'none';
+  if (lipa) lipa.style.display = v === 'lipa' ? 'block' : 'none';
+  if (v === 'lipa') populateTreasAhadiDropdown();
+}
+
+function onTreasAhadiMemberChange() {
+  const v = el('treas-ahadi-action').value;
+  if (v === 'lipa') populateTreasAhadiDropdown();
+}
+
+function populateTreasAhadiDropdown() {
+  const memberId = el('treas-ahadi-member').value;
+  const memberAhadi = memberId ? allAhadi.filter(a => a.muumini_id == memberId && a.hali === 'approved') : allAhadi.filter(a => a.hali === 'approved');
+  const sel = el('treas-ahadi-lipa-id');
+  sel.innerHTML = '<option value="">— Chagua ahadi —</option>' + memberAhadi.map(a => {
+    const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+    const baki = a.kiasi_ahadi - kulipwa;
+    const mem = allMembers.find(x => x.id == a.muumini_id);
+    return `<option value="${a.id}">${mem ? mem.jina_kamili + ' — ' : ''}${a.aina_ahadi} | Ahadi: ${formatMoney(a.kiasi_ahadi)} | Baki: ${formatMoney(baki)}</option>`;
+  }).join('');
+  const info = el('treas-ahadi-lipa-info'); if (info) info.style.display = 'none';
+}
+
+function onTreasAhadiLipaSelect() {
+  const ahadiId = el('treas-ahadi-lipa-id').value;
+  const info = el('treas-ahadi-lipa-info');
+  if (!ahadiId || !info) { if (info) info.style.display = 'none'; return; }
+  const a = allAhadi.find(x => x.id == ahadiId);
+  if (!a) { info.style.display = 'none'; return; }
+  const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+  const baki = a.kiasi_ahadi - kulipwa;
+  info.style.display = 'block';
+  info.innerHTML = `<strong>${a.muumini_jina}</strong> — ${a.aina_ahadi} | Ahadi: <strong>${formatMoney(a.kiasi_ahadi)}</strong> | Imelipwa: <strong>${formatMoney(kulipwa)}</strong> | Inayobaki: <strong style="color:#B83B3B;">${formatMoney(baki)}</strong>`;
+}
+
+async function treasurerSaveAhadiDirect() {
+  const memberId = el('treas-ahadi-member').value;
+  const aina = el('treas-ahadi-aina').value;
+  const kiasi = parseInt(el('treas-ahadi-kiasi').value);
+  const tarehe = el('treas-ahadi-tarehe').value || leo();
+  const maelezo = el('treas-ahadi-maelezo').value.trim();
+  const alert = el('treas-ahadi-alert');
+  if (!memberId) { alert.innerHTML = '<div class="alert alert-error">Chagua muumini</div>'; return; }
+  if (!aina) { alert.innerHTML = '<div class="alert alert-error">Chagua aina ya ahadi</div>'; return; }
+  if (!kiasi || kiasi <= 0) { alert.innerHTML = '<div class="alert alert-error">Weka kiasi sahihi cha ahadi</div>'; return; }
+  const member = allMembers.find(m => m.id == memberId);
+  if (!member) return;
+  showLoading(true);
+  const { error } = await db.from('ahadi').insert({
+    muumini_id: parseInt(memberId),
+    muumini_jina: member.jina_kamili,
+    muumini_simu: member.namba_simu,
+    aina_ahadi: aina,
+    kiasi_ahadi: kiasi,
+    kiasi_kuliwa: 0,
+    hali: 'approved',
+    tarehe_ahadi: tarehe,
+    maelezo: maelezo || null
+  });
+  showLoading(false);
+  if (error) { alert.innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  alert.innerHTML = '<div class="alert alert-success">✅ Ahadi mpya imehifadhiwa!</div>';
+  setTimeout(() => { if (alert) alert.innerHTML = ''; }, 3000);
+  el('treas-ahadi-aina').value = ''; el('treas-ahadi-kiasi').value = ''; el('treas-ahadi-maelezo').value = '';
+  el('treas-ahadi-action').value = ''; el('treas-ahadi-mpya-form').style.display = 'none';
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+}
+
+async function treasurerSaveAhadiLipaDirect() {
+  const ahadiId = el('treas-ahadi-lipa-id').value;
+  const kiasi = parseInt(el('treas-ahadi-lipa-kiasi').value);
+  const tarehe = el('treas-ahadi-lipa-tarehe').value || leo();
+  const maelezo = el('treas-ahadi-lipa-maelezo').value.trim();
+  const alert = el('treas-ahadi-alert');
+  if (!ahadiId) { alert.innerHTML = '<div class="alert alert-error">Chagua ahadi ya kulipa</div>'; return; }
+  if (!kiasi || kiasi <= 0) { alert.innerHTML = '<div class="alert alert-error">Weka kiasi sahihi kilicholipwa</div>'; return; }
+  const ahadi = allAhadi.find(a => a.id == ahadiId);
+  if (!ahadi) return;
+  showLoading(true);
+  const { error } = await db.from('ahadi_malipo').insert({
+    ahadi_id: parseInt(ahadiId),
+    muumini_id: ahadi.muumini_id,
+    muumini_jina: ahadi.muumini_jina,
+    aina_ahadi: ahadi.aina_ahadi,
+    kiasi_ahadi: ahadi.kiasi_ahadi,
+    kiasi_lipa: kiasi,
+    tarehe_lipa: tarehe,
+    maelezo: maelezo || null,
+    hali: 'approved'
+  });
+  if (!error) {
+    const existingKuliwa = allAhadiMalipo.filter(m => m.ahadi_id === ahadi.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+    await db.from('ahadi').update({ kiasi_kuliwa: existingKuliwa + kiasi }).eq('id', ahadi.id);
+  }
+  showLoading(false);
+  if (error) { alert.innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  alert.innerHTML = '<div class="alert alert-success">✅ Malipo ya ahadi yamehifadhiwa!</div>';
+  setTimeout(() => { if (alert) alert.innerHTML = ''; }, 3000);
+  el('treas-ahadi-lipa-id').value = ''; el('treas-ahadi-lipa-kiasi').value = ''; el('treas-ahadi-lipa-maelezo').value = '';
+  el('treas-ahadi-action').value = ''; el('treas-ahadi-lipa-form').style.display = 'none';
+  const info = el('treas-ahadi-lipa-info'); if (info) info.style.display = 'none';
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+}
+
+function renderTreasurerAhadiPending() {
+  const pending = allAhadi.filter(a => a.hali === 'pending');
+  const badgeEl = el('ahadi-new-count'); if (badgeEl) badgeEl.textContent = pending.length;
+  el('treasurer-ahadi-pending-list').innerHTML = pending.length ? pending.map(a => `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-title">🤝 AHADI MPYA</div>
+      <div class="finance-row"><span style="font-weight:700;">${a.muumini_jina}</span><span>📱 ${a.muumini_simu || '—'}</span></div>
+      <div class="finance-row"><span>Aina:</span><span><strong>${a.aina_ahadi}</strong></span></div>
+      <div class="finance-row"><span>Kiasi cha Ahadi:</span><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#1B4D3E;">${formatMoney(a.kiasi_ahadi)}</span></div>
+      ${a.maelezo ? `<div class="alert alert-info" style="margin:8px 0;">${a.maelezo}</div>` : ''}
+      <div class="finance-row"><span style="font-size:11px;color:#6B7280;">Tarehe:</span><span style="font-size:11px;">${formatDate(a.tarehe_ahadi)}</span></div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-green btn-sm" onclick="approveTreasurerAhadi(${a.id})">✅ Idhinisha Ahadi</button>
+        <button class="btn btn-red btn-sm" onclick="rejectTreasurerAhadi(${a.id})">❌ Kataa</button>
+      </div>
+    </div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya ahadi mapya</div>';
+}
+
+function renderTreasurerAhadiMalipoPending() {
+  const pending = allAhadiMalipo.filter(m => m.hali === 'pending');
+  const badgeEl = el('ahadi-malipo-count'); if (badgeEl) badgeEl.textContent = pending.length;
+  el('treasurer-ahadi-malipo-pending').innerHTML = pending.length ? pending.map(m => {
+    const ahadi = allAhadi.find(a => a.id === m.ahadi_id);
+    const kulipwaZilizoidhinishwa = ahadi ? allAhadiMalipo.filter(x => x.ahadi_id === ahadi.id && x.hali === 'approved').reduce((s, x) => s + x.kiasi_lipa, 0) : 0;
+    const baki = ahadi ? ahadi.kiasi_ahadi - kulipwaZilizoidhinishwa : 0;
+    return `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-title">💰 MALIPO YA AHADI</div>
+      <div class="finance-row"><span style="font-weight:700;">${m.muumini_jina}</span><span class="badge badge-blue">${m.aina_ahadi}</span></div>
+      ${ahadi ? `<div class="finance-row"><span>Ahadi ya Jumla:</span><span style="font-weight:700;">${formatMoney(ahadi.kiasi_ahadi)}</span></div>
+      <div class="finance-row"><span>Tayari Imelipwa:</span><span style="color:#2F855A;font-weight:700;">${formatMoney(kulipwaZilizoidhinishwa)}</span></div>
+      <div class="finance-row"><span>Inayobaki (kabla ya malipo haya):</span><span style="color:#B83B3B;font-weight:700;">${formatMoney(baki)}</span></div>` : ''}
+      <div class="finance-row"><span>Kiasi Anachosema:</span><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatMoney(m.kiasi_lipa)}</span></div>
+      ${m.maelezo ? `<div class="alert alert-info" style="margin:8px 0;">${m.maelezo}</div>` : ''}
+      <div class="finance-row"><span style="font-size:11px;color:#6B7280;">Tarehe ya Ombi:</span><span style="font-size:11px;">${formatDate(m.tarehe_lipa)}</span></div>
+      ${m.hati_base64 ? `<div style="margin:8px 0;"><button class="btn btn-sm btn-blue" onclick="viewAhadiDoc('${m.id}')">📎 Angalia Hati ya Uthibitisho</button></div>` : '<div class="alert alert-warning" style="margin:8px 0;font-size:12px;">⚠ Hakuna hati ya uthibitisho iliyopakiwa</div>'}
+      <div style="background:#F9F6EF;border-radius:8px;padding:10px;margin-top:8px;">
+        <div style="font-size:12px;font-weight:700;color:#4A5568;margin-bottom:8px;">Ingiza Kiasi Halisi Kilicholipwa:</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" class="fi" id="malipo-kiasi-${m.id}" value="${m.kiasi_lipa}" placeholder="Kiasi kilicholipwa" style="margin-bottom:0;flex:1;">
+          <input type="date" class="fi" id="malipo-tarehe-${m.id}" value="${m.tarehe_lipa || leo()}" style="margin-bottom:0;width:150px;">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-green btn-sm" onclick="approveTreasurerAhadiLipa(${m.id})">✅ Idhinisha Malipo</button>
+        <button class="btn btn-red btn-sm" onclick="rejectTreasurerAhadiLipa(${m.id})">❌ Kataa</button>
+      </div>
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya malipo yanayosubiri</div>';
+}
+
+async function approveTreasurerAhadi(id) {
+  showLoading(true);
+  await db.from('ahadi').update({ hali: 'approved' }).eq('id', id);
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+  toast('✅ Ahadi imeidhinishwa!');
+}
+
+async function rejectTreasurerAhadi(id) {
+  if (!confirm('Kataa ahadi hii?')) return;
+  showLoading(true);
+  await db.from('ahadi').update({ hali: 'rejected' }).eq('id', id);
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+  toast('❌ Ahadi imekataliwa');
+}
+
+async function approveTreasurerAhadiLipa(id) {
+  const kiasi = parseInt(el('malipo-kiasi-' + id)?.value) || 0;
+  const tarehe = el('malipo-tarehe-' + id)?.value || leo();
+  if (!kiasi || kiasi <= 0) { toast('Weka kiasi sahihi kilicholipwa'); return; }
+  const malipo = allAhadiMalipo.find(m => m.id === id);
+  if (!malipo) return;
+  showLoading(true);
+  await db.from('ahadi_malipo').update({ hali: 'approved', kiasi_lipa: kiasi, tarehe_lipa: tarehe }).eq('id', id);
+  // Sum already-approved payments (excluding this one, still 'pending' in memory) + the new kiasi
+  const existingKuliwa = allAhadiMalipo.filter(m => m.ahadi_id === malipo.ahadi_id && m.hali === 'approved' && m.id !== id).reduce((s, m) => s + m.kiasi_lipa, 0);
+  const newKuliwa = existingKuliwa + kiasi;
+  await db.from('ahadi').update({ kiasi_kuliwa: newKuliwa }).eq('id', malipo.ahadi_id);
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+  toast('✅ Malipo ya ahadi yameidhinishwa!');
+}
+
+async function rejectTreasurerAhadiLipa(id) {
+  if (!confirm('Kataa malipo haya?')) return;
+  showLoading(true);
+  await db.from('ahadi_malipo').update({ hali: 'rejected' }).eq('id', id);
+  await loadAllData(); renderTreasurerAhadi(); loadTreasurerDashboard();
+  toast('❌ Malipo yamekataliwa');
+}
+
+let _ahadiTypeFilter = '';
+function filterAhadiType(aina) {
+  _ahadiTypeFilter = aina;
+  const btns = el('ahadi-filter-btns');
+  if (btns) btns.querySelectorAll('button').forEach(b => {
+    const isActive = (aina === '' && b.textContent.trim() === 'Zote') || b.textContent.includes(aina);
+    b.className = isActive ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
+  });
+  renderAhadiRecords();
+}
+
+function renderAhadiRecords() {
+  const q = (el('ahadi-records-search')?.value || '').toLowerCase();
+  const approvedAhadi = allAhadi.filter(a =>
+    a.hali === 'approved' &&
+    (!q || a.muumini_jina.toLowerCase().includes(q) || a.aina_ahadi.toLowerCase().includes(q)) &&
+    (!_ahadiTypeFilter || a.aina_ahadi === _ahadiTypeFilter)
+  );
+  const ahadiIcons = { 'Mavuno': '🌾', 'Fungu la Kumi': '💰', 'Ujenzi': '🏗', 'Ahadi': '🤝' };
+  let totalAhadi = 0, totalKuliwa = 0;
+  const rows = approvedAhadi.map(a => {
+    const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+    const baki = a.kiasi_ahadi - kulipwa;
+    totalAhadi += a.kiasi_ahadi; totalKuliwa += kulipwa;
+    const icon = ahadiIcons[a.aina_ahadi] || '🤝';
+    const haliClass = baki <= 0 ? 'badge-green' : kulipwa > 0 ? 'badge-blue' : 'badge-gold';
+    const haliText = baki <= 0 ? '✅ Imetimizwa' : kulipwa > 0 ? '🔄 Inaendelea' : '⏳ Haijaanza';
+    return `<tr>
+      <td><strong>${a.muumini_jina}</strong><div style="font-size:10px;color:#6B7280;">${formatDate(a.tarehe_ahadi)}</div></td>
+      <td>${icon} ${a.aina_ahadi}</td>
+      <td style="font-weight:700;color:#1B4D3E;">${formatMoney(a.kiasi_ahadi)}</td>
+      <td style="font-weight:700;color:#2F855A;">${formatMoney(kulipwa)}</td>
+      <td style="font-weight:700;color:${baki > 0 ? '#B83B3B' : '#2F855A'};">${formatMoney(baki)}</td>
+      <td><span class="badge ${haliClass}">${haliText}</span></td>
+    </tr>`;
+  }).join('');
+  const tbody = el('treasurer-ahadi-records');
+  if (tbody) tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#666;">Hakuna rekodi za ahadi</td></tr>';
+  const summary = el('ahadi-records-summary');
+  if (summary && approvedAhadi.length) {
+    const totalBaki = totalAhadi - totalKuliwa;
+    const filterLabel = _ahadiTypeFilter ? ` — ${_ahadiTypeFilter}` : ' (Zote)';
+    summary.innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;margin-bottom:8px;">Muhtasari${filterLabel} · Rekodi ${approvedAhadi.length}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+      <div style="background:#E6F7EC;border-radius:8px;padding:10px;"><div style="font-size:10px;font-weight:700;color:#2F855A;text-transform:uppercase;">Jumla Ahadi</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#1B4D3E;">${formatMoney(totalAhadi)}</div></div>
+      <div style="background:#E0F2FE;border-radius:8px;padding:10px;"><div style="font-size:10px;font-weight:700;color:#2C5282;text-transform:uppercase;">Imelipwa</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">${formatMoney(totalKuliwa)}</div></div>
+      <div style="background:${totalBaki>0?'#FEE2E2':'#E6F7EC'};border-radius:8px;padding:10px;"><div style="font-size:10px;font-weight:700;color:${totalBaki>0?'#B83B3B':'#2F855A'};text-transform:uppercase;">Inayobaki</div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:${totalBaki>0?'#B83B3B':'#2F855A'};">${formatMoney(totalBaki)}</div></div>
+    </div>`;
+  } else if (summary) summary.innerHTML = '';
+}
+
+function viewAhadiDoc(malipoId) {
+  const m = allAhadiMalipo.find(x => x.id == malipoId);
+  if (!m || !m.hati_base64) { toast('Hati haipatikani'); return; }
+  try {
+    const parts = m.hati_base64.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const raw = atob(parts[1]);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch(e) { toast('Imeshindwa kufungua hati: ' + e.message); }
+}
+
+function downloadAhadiCSV(aina) {
+  const filtered = allAhadi.filter(a => a.hali === 'approved' && (!aina || a.aina_ahadi === aina));
+  if (!filtered.length) { toast(`Hakuna rekodi za ${aina || 'ahadi'}`); return; }
+  const ahadiIcons = { 'Mavuno': '🌾', 'Fungu la Kumi': '💰', 'Ujenzi': '🏗', 'Ahadi': '🤝' };
+  const rows = [
+    [`MUHIMBILI ANGLICAN CHURCH — Ripoti ya Ahadi${aina ? ': ' + aina : ' Zote'}`],
+    [`Tarehe ya Ripoti: ${new Date().toLocaleDateString('sw')}`],
+    [],
+    ['Jina la Muumini', 'Simu', 'Aina ya Ahadi', 'Tarehe ya Ahadi', 'Kiasi cha Ahadi (TZS)', 'Kiasi Kilicholipwa (TZS)', 'Kiasi Kinachobaki (TZS)', 'Hali'],
+    ...filtered.map(a => {
+      const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
+      const baki = a.kiasi_ahadi - kulipwa;
+      const hali = baki <= 0 ? 'Imetimizwa' : kulipwa > 0 ? 'Inaendelea' : 'Haijaanza';
+      return [`"${a.muumini_jina}"`, a.muumini_simu || '', a.aina_ahadi, a.tarehe_ahadi || '', a.kiasi_ahadi, kulipwa, baki, hali];
+    }),
+    [],
+    ['JUMLA', '', '', '',
+      filtered.reduce((s, a) => s + a.kiasi_ahadi, 0),
+      filtered.reduce((s, a) => { const k = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((ss, m) => ss + m.kiasi_lipa, 0); return s + k; }, 0),
+      filtered.reduce((s, a) => { const k = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((ss, m) => ss + m.kiasi_lipa, 0); return s + (a.kiasi_ahadi - k); }, 0),
+      ''
+    ]
+  ];
+  const csv = '﻿' + rows.map(r => r.join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  const filename = aina ? `ahadi_${aina.replace(/\s/g,'_').toLowerCase()}_${leo()}.csv` : `ahadi_zote_${leo()}.csv`;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  toast(`✅ Ripoti ya ${aina || 'Ahadi Zote'} imepakiwa!`);
 }
 
 // ==================== GLOBAL ERROR HANDLER ====================
