@@ -746,11 +746,7 @@ function leo() { return new Date().toISOString().slice(0, 10); }
 function getPW(role) { return localStorage.getItem('mac_pw_' + role) || (role === 'pastor' ? 'PASTOR2026' : role === 'secretary' ? 'KATIBU2026' : role === 'recovery' ? 'MUHIMBILI2026' : 'HAZINA2026'); }
 function setPW(role, pw) { localStorage.setItem('mac_pw_' + role, pw); }
 let _loadingTimer = null;
-function showLoading(v) {
-  el('loading-overlay').style.display = v ? 'flex' : 'none';
-  if (v) { clearTimeout(_loadingTimer); _loadingTimer = setTimeout(() => showLoading(false), 12000); }
-  else clearTimeout(_loadingTimer);
-}
+function showLoading(v) { /* loading overlay disabled — direct navigation */ }
 
 // ==================== IBADA & FINANCE HELPERS ====================
 function isSpecialIbada(j) { const a = (j.aina_ibada||'').toLowerCase(); return a.includes('pasaka')||a.includes('easter')||a.includes('christmas')||a.includes('krisimasi'); }
