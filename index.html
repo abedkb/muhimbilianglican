@@ -482,6 +482,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="treasurer-tab-maombi" onclick="treasurerTab('maombi')">🤲 Maombi <span id="treasurer-requests-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
       <div class="tab" id="treasurer-tab-ahadi" onclick="treasurerTab('ahadi')">🤝 Ahadi <span id="treasurer-ahadi-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
       <div class="tab" id="treasurer-tab-matumizi" onclick="treasurerTab('matumizi')">💸 Matumizi</div>
+      <div class="tab" id="treasurer-tab-benki" onclick="treasurerTab('benki')">🏦 Benki</div>
       <div class="tab" id="treasurer-tab-aina" onclick="treasurerTab('aina')">🏷 Aina</div>
       <div class="tab" id="treasurer-tab-leo" onclick="treasurerTab('leo')">📅 Leo</div>
       <div class="tab" id="treasurer-tab-fedha" onclick="treasurerTab('fedha')">📈 Mapato</div>
@@ -630,7 +631,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     </div>
     <div id="treasurer-matumizi" style="display:none;">
       <div id="matumizi-summary"></div>
-      <div class="card"><div class="card-title">💸 Ingiza Matumizi</div><div id="expense-alert"></div>
+      <div class="card"><div class="card-title">💸 Ingiza Matumizi ya Kanisa</div><div id="expense-alert"></div>
         <div class="fg"><label>Kichwa cha Matumizi</label><input type="text" class="fi" id="expense-title"></div>
         <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="expense-amount"></div>
         <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="expense-date"></div>
@@ -648,13 +649,9 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
               <option value="Posho ya Office Administrator">Posho ya Office Administrator</option>
               <option value="Posho ya Mwalimu Sunday School">Posho ya Mwalimu Sunday School</option>
             </optgroup>
-            <optgroup label="— Malipo Mengine —">
-              <option value="Encash Cheque">Encash Cheque</option>
-              <option value="Commission / Bank Fees">Commission / Bank Fees</option>
+            <optgroup label="— Matumizi ya Kawaida —">
               <option value="Mshumaa wa Pasaka">Mshumaa wa Pasaka</option>
               <option value="Maendeleo">Maendeleo</option>
-            </optgroup>
-            <optgroup label="— Matumizi ya Kawaida —">
               <option value="Umeme">Umeme</option>
               <option value="Maji">Maji</option>
               <option value="Karatasi">Karatasi</option>
@@ -668,6 +665,57 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       </div>
       <div class="card"><div class="card-title">📋 Matumizi ya Hivi Karibuni</div><div id="expense-list"></div></div>
       <div class="card"><div class="card-title">📊 Hali ya Fedha — Siku Husika</div><div id="matumizi-baki-content"></div></div>
+    </div>
+    <div id="treasurer-benki" style="display:none;">
+      <!-- AMANA (DEPOSITS) -->
+      <div class="card">
+        <div class="card-title">🏦 Ingiza Amana ya Benki</div>
+        <div id="benki-amana-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;"><label>Tarehe ya Kuweka</label><input type="date" class="fi" id="benki-tarehe"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Kiasi Kilichowekwa (TZS)</label><input type="number" class="fi" id="benki-kiasi" placeholder="0"></div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Jina la Mweka Pesa (Depositor)</label><input type="text" class="fi" id="benki-depositor" placeholder="Jina kamili la aliyeweka pesa benki"></div>
+        </div>
+        <div class="fg" style="margin-top:10px;margin-bottom:0;">
+          <label>Pakia Risiti ya Benki (picha au PDF) <span style="font-weight:400;color:#6B7280;">— hiari</span></label>
+          <input type="file" class="fi" id="benki-risiti" accept="image/*,.pdf" style="padding:8px;">
+          <div id="benki-risiti-preview" style="margin-top:6px;font-size:12px;color:#2F855A;"></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="saveBenkiAmana()">🏦 Hifadhi Amana</button>
+      </div>
+      <!-- BANK CHARGES -->
+      <div class="card">
+        <div class="card-title">💳 Ingiza Ada za Benki</div>
+        <div id="benki-ada-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg" style="margin-bottom:0;"><label>Tarehe</label><input type="date" class="fi" id="benki-ada-tarehe"></div>
+          <div class="fg" style="margin-bottom:0;"><label>Kiasi (TZS)</label><input type="number" class="fi" id="benki-ada-kiasi" placeholder="0"></div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Aina ya Ada ya Benki</label>
+            <select class="fsel" id="benki-ada-aina">
+              <option value="">— Chagua aina —</option>
+              <option value="Ada ya Taarifa (Statement Charge)">Ada ya Taarifa (Statement Charge)</option>
+              <option value="VAT / Kodi ya Benki">VAT / Kodi ya Benki (Commission)</option>
+              <option value="Encash Cheque">Encash Cheque</option>
+              <option value="Debit Arrangement Tax">Debit Arrangement Tax</option>
+              <option value="Commission / Bank Fees">Commission / Bank Fees</option>
+              <option value="Transfer Charges">Transfer Charges</option>
+              <option value="Nyingine (Benki)">Nyingine (Benki)</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:0;grid-column:1/-1;"><label>Maelezo (hiari)</label><input type="text" class="fi" id="benki-ada-maelezo" placeholder="Maelezo ya ziada"></div>
+        </div>
+        <button class="btn btn-gold btn-block" style="margin-top:12px;" onclick="saveBenkiAda()">💳 Hifadhi Ada ya Benki</button>
+      </div>
+      <!-- BENKI HISTORY -->
+      <div class="card">
+        <div class="card-title">📋 Historia ya Benki</div>
+        <div id="benki-historia"></div>
+      </div>
+      <!-- BENKI SUMMARY -->
+      <div class="card">
+        <div class="card-title">📊 Muhtasari wa Akaunti ya Benki</div>
+        <div id="benki-summary"></div>
+      </div>
     </div>
     <div id="treasurer-aina" style="display:none;">
       <div class="card"><div class="card-title">🏷 Ongeza Aina Mpya ya Mchango</div><div id="type-alert"></div>
@@ -712,6 +760,31 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
 
 <script>
 // ==================== SUPABASE INIT (FIX: supabaseJs.createClient, si supabase.createClient) ====================
+/*
+  SUPABASE — TABLES MPYA ZINAZOHITAJIKA (tekeleza kwenye Supabase SQL Editor):
+  -----------------------------------------------------------------------
+  CREATE TABLE benki_amana (
+    id bigserial primary key,
+    tarehe date not null,
+    kiasi integer not null,
+    depositor text not null,
+    risiti_base64 text,
+    created_at timestamptz default now()
+  );
+  CREATE TABLE benki_ada (
+    id bigserial primary key,
+    tarehe date not null,
+    kiasi integer not null,
+    aina_ada text not null,
+    maelezo text,
+    created_at timestamptz default now()
+  );
+  ALTER TABLE benki_amana ENABLE ROW LEVEL SECURITY;
+  ALTER TABLE benki_ada ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_benki_amana" ON benki_amana FOR ALL USING (true) WITH CHECK (true);
+  CREATE POLICY "allow_all_benki_ada"   ON benki_ada   FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
+*/
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
 
@@ -724,6 +797,7 @@ let currentRole = "";
 let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [];
 let allSundaySchool = [], allWanafunzi = [], allWageni = [];
 let allAhadi = [], allAhadiMalipo = [];
+let allBenkiAmana = [], allBenkiAda = [];
 let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
@@ -859,6 +933,14 @@ async function loadAllData(silent = false) {
     allAhadi = ah || [];
     allAhadiMalipo = ahm || [];
   } catch (e) { console.warn('Jedwali za ahadi hazijawekwa bado:', e.message); }
+  try {
+    const [{ data: ba }, { data: bada }] = await Promise.all([
+      db.from('benki_amana').select('*').order('tarehe', { ascending: false }),
+      db.from('benki_ada').select('*').order('tarehe', { ascending: false })
+    ]);
+    allBenkiAmana = ba || [];
+    allBenkiAda = bada || [];
+  } catch (e) { console.warn('Jedwali za benki hazijawekwa bado:', e.message); }
   if (!silent) showLoading(false);
 }
 
@@ -1154,6 +1236,8 @@ function loadTreasurerDashboard() {
   el('contrib-member').innerHTML = '<option value="">— Chagua muumini —</option>' + allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${m.id}">${m.jina_kamili} (${m.namba_muumini})</option>`).join('');
   el('contrib-type').innerHTML = allContributionTypes.map(t => `<option value="${t.id}">${t.icon} ${t.name || t.jina}</option>`).join('');
   el('contrib-date').value = leo(); el('expense-date').value = leo(); el('jumla-tarehe').value = leo();
+  if (el('benki-tarehe')) el('benki-tarehe').value = leo();
+  if (el('benki-ada-tarehe')) el('benki-ada-tarehe').value = leo();
   const pendingReqs = allRequests.filter(r => r.aina === 'contribution' && r.hali === 'pending');
   el('treasurer-requests-count').textContent = pendingReqs.length;
   const pendingAhadi = allAhadi.filter(a => a.hali === 'pending').length + allAhadiMalipo.filter(a => a.hali === 'pending').length;
@@ -1210,10 +1294,13 @@ async function addContribution() {
   el('contrib-amount').value = ''; el('contrib-note').value = '';
 }
 
+let _expenseSaving = false;
 async function addExpense() {
+  if (_expenseSaving) return;
   const title = el('expense-title').value.trim(), amount = parseInt(el('expense-amount').value);
   const date = el('expense-date').value, category = el('expense-category').value;
   if (!title || !amount || amount <= 0) { el('expense-alert').innerHTML = '<div class="alert alert-error">Jaza kichwa na kiasi sahihi</div>'; return; }
+  _expenseSaving = true;
   try {
     const { error } = await db.from('matumizi').insert({ kichwa: title, kiasi: amount, tarehe: date, aina_matumizi: category });
     if (error) { el('expense-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu ya kuhifadhi: ${error.message}</div>`; return; }
@@ -1222,6 +1309,7 @@ async function addExpense() {
     el('expense-alert').innerHTML = `<div class="alert alert-success">💸 Imehifadhiwa! ${category} — ${formatMoney(amount)}</div>`;
     el('expense-title').value = ''; el('expense-amount').value = '';
   } catch(e) { el('expense-alert').innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`; }
+  finally { _expenseSaving = false; }
 }
 
 function renderExpenseList() {
@@ -1754,7 +1842,7 @@ function printForm2(tarehe, ainaIbada) {
 }
 
 function treasurerTab(tab) {
-  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti'].forEach(t => {
+  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'benki', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti'].forEach(t => {
     const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
@@ -1763,6 +1851,7 @@ function treasurerTab(tab) {
   if (tab === 'fedha') renderTreasurerFedha('treasurer-fedha-content');
   if (tab === 'ujenzi') renderUjenziTab('treasurer-ujenzi-content');
   if (tab === 'matumizi') { renderExpenseList(); renderMatumiziBaki(); }
+  if (tab === 'benki') { renderBenkiHistoria(); renderBenkiSummary(); }
   if (tab === 'historia') loadTreasurerDashboard();
   if (tab === 'waumini') renderTreasurerWaumini();
   if (tab === 'ripoti') initRipotiTab();
@@ -2148,8 +2237,7 @@ function _expCatOptions(selected) {
   return [
     ['— Posho za Ibaada —', ['Posho ya Kasisi (Ibaada)','Posho ya Mwinjilisti (Ibaada)','Posho ya Mpiga Kinanda','Posho ya Kasisi Mgeni']],
     ['— Posho za Mwezi —', ['Posho ya Kasisi (Mwezi)','Posho ya Mwinjilisti (Mwezi)','Posho ya Office Administrator','Posho ya Mwalimu Sunday School']],
-    ['— Malipo Mengine —', ['Encash Cheque','Commission / Bank Fees','Mshumaa wa Pasaka','Maendeleo']],
-    ['— Matumizi ya Kawaida —', ['Umeme','Maji','Karatasi','Usafiri','Ujenzi','Nyingine']]
+    ['— Matumizi ya Kawaida —', ['Mshumaa wa Pasaka','Maendeleo','Umeme','Maji','Karatasi','Usafiri','Ujenzi','Nyingine']]
   ].map(([grp, opts]) =>
     `<optgroup label="${grp}">${opts.map(o=>`<option value="${o}"${selected===o?' selected':''}>${o}</option>`).join('')}</optgroup>`
   ).join('');
@@ -2192,6 +2280,227 @@ async function deleteExpense(id) {
     renderExpenseList(); renderMatumiziBaki(); renderTreasurerFedha('treasurer-fedha-content');
     toast('🗑 Matumizi yamefutwa');
   } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ==================== BENKI TAB ====================
+let _benkiAmanaFaili = null;
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = el('benki-risiti');
+  if (inp) inp.addEventListener('change', function() {
+    _benkiAmanaFaili = this.files[0] || null;
+    const prev = el('benki-risiti-preview');
+    if (prev) prev.textContent = _benkiAmanaFaili ? `✅ Faili: ${_benkiAmanaFaili.name} (${(_benkiAmanaFaili.size/1024).toFixed(1)} KB)` : '';
+  });
+});
+
+async function saveBenkiAmana() {
+  const tarehe = el('benki-tarehe').value;
+  const kiasi = parseInt(el('benki-kiasi').value);
+  const depositor = el('benki-depositor').value.trim();
+  if (!tarehe || !kiasi || kiasi <= 0 || !depositor) {
+    el('benki-amana-alert').innerHTML = '<div class="alert alert-error">Jaza tarehe, kiasi, na jina la mweka pesa</div>'; return;
+  }
+  showLoading(true);
+  try {
+    let risiti_base64 = null;
+    if (_benkiAmanaFaili) {
+      risiti_base64 = await new Promise((res, rej) => {
+        const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(_benkiAmanaFaili);
+      });
+    }
+    const { error } = await db.from('benki_amana').insert({ tarehe, kiasi, depositor, risiti_base64 });
+    if (error) { el('benki-amana-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    await loadAllData(true);
+    renderBenkiHistoria(); renderBenkiSummary();
+    el('benki-amana-alert').innerHTML = `<div class="alert alert-success">✅ Amana ya ${formatMoney(kiasi)} imehifadhiwa!</div>`;
+    el('benki-kiasi').value = ''; el('benki-depositor').value = '';
+    if (el('benki-risiti')) el('benki-risiti').value = '';
+    if (el('benki-risiti-preview')) el('benki-risiti-preview').textContent = '';
+    _benkiAmanaFaili = null;
+  } catch(e) { el('benki-amana-alert').innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`; }
+  finally { showLoading(false); }
+}
+
+let _benkiAdaSaving = false;
+async function saveBenkiAda() {
+  if (_benkiAdaSaving) return;
+  const tarehe = el('benki-ada-tarehe').value;
+  const kiasi = parseInt(el('benki-ada-kiasi').value);
+  const aina = el('benki-ada-aina').value;
+  const maelezo = el('benki-ada-maelezo').value.trim();
+  if (!tarehe || !kiasi || kiasi <= 0 || !aina) {
+    el('benki-ada-alert').innerHTML = '<div class="alert alert-error">Jaza tarehe, kiasi, na aina ya ada</div>'; return;
+  }
+  _benkiAdaSaving = true;
+  showLoading(true);
+  try {
+    const { error } = await db.from('benki_ada').insert({ tarehe, kiasi, aina_ada: aina, maelezo });
+    if (error) { el('benki-ada-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    await loadAllData(true);
+    renderBenkiHistoria(); renderBenkiSummary();
+    el('benki-ada-alert').innerHTML = `<div class="alert alert-success">✅ Ada ya ${formatMoney(kiasi)} imehifadhiwa!</div>`;
+    el('benki-ada-kiasi').value = ''; el('benki-ada-maelezo').value = ''; el('benki-ada-aina').value = '';
+  } catch(e) { el('benki-ada-alert').innerHTML = `<div class="alert alert-error">❌ ${e.message}</div>`; }
+  finally { _benkiAdaSaving = false; showLoading(false); }
+}
+
+function renderBenkiHistoria() {
+  const cont = el('benki-historia'); if (!cont) return;
+  if (!allBenkiAmana.length && !allBenkiAda.length) { cont.innerHTML = '<div style="text-align:center;padding:20px;color:#6B7280;">Hakuna rekodi za benki bado</div>'; return; }
+  let html = '';
+  if (allBenkiAmana.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:#2C5282;text-transform:uppercase;letter-spacing:0.5px;background:#E0F2FE;padding:8px 10px;border-radius:8px;margin-bottom:8px;">🏦 Amana Zilizowekwa</div>`;
+    allBenkiAmana.forEach(a => {
+      html += `<div class="contrib-card" style="align-items:flex-start;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#E0F2FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏦</div>
+        <div class="contrib-info" style="flex:1;">
+          <div class="contrib-type">${a.depositor}</div>
+          <div class="contrib-date">📅 ${formatDate(a.tarehe)} ${a.risiti_base64 ? '· <a href="#" onclick="viewBenkiRisiti('+a.id+')" style="color:#2C5282;font-size:11px;">📄 Ona Risiti</a>' : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <div class="contrib-amount" style="color:#2F855A;">+${formatMoney(a.kiasi)}</div>
+          <button class="btn btn-sm btn-outline" style="padding:5px 9px;" onclick="editBenkiAmana(${a.id})" title="Hariri">✏️</button>
+          <button class="btn btn-sm btn-red" style="padding:5px 9px;" onclick="deleteBenkiAmana(${a.id})" title="Futa">🗑</button>
+        </div>
+      </div>`;
+    });
+  }
+  if (allBenkiAda.length) {
+    html += `<div style="font-size:11px;font-weight:700;color:#B83B3B;text-transform:uppercase;letter-spacing:0.5px;background:#FEE2E2;padding:8px 10px;border-radius:8px;margin:12px 0 8px;">💳 Ada za Benki</div>`;
+    allBenkiAda.forEach(a => {
+      html += `<div class="contrib-card" style="align-items:flex-start;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💳</div>
+        <div class="contrib-info" style="flex:1;">
+          <div class="contrib-type">${a.aina_ada}</div>
+          <div class="contrib-date">📅 ${formatDate(a.tarehe)}${a.maelezo ? ' · ' + a.maelezo : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <div class="contrib-amount" style="color:#B83B3B;">(${formatMoney(a.kiasi)})</div>
+          <button class="btn btn-sm btn-outline" style="padding:5px 9px;" onclick="editBenkiAda(${a.id})" title="Hariri">✏️</button>
+          <button class="btn btn-sm btn-red" style="padding:5px 9px;" onclick="deleteBenkiAda(${a.id})" title="Futa">🗑</button>
+        </div>
+      </div>`;
+    });
+  }
+  cont.innerHTML = html;
+}
+
+function renderBenkiSummary() {
+  const cont = el('benki-summary'); if (!cont) return;
+  const totAmana = allBenkiAmana.reduce((s,a)=>s+a.kiasi, 0);
+  const totAda = allBenkiAda.reduce((s,a)=>s+a.kiasi, 0);
+  const baki = totAmana - totAda;
+  cont.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <div style="background:#E0F2FE;border-radius:10px;padding:12px;text-align:center;border:1px solid #BAE6FD;">
+        <div style="font-size:10px;font-weight:700;color:#2C5282;text-transform:uppercase;margin-bottom:4px;">Jumla Amana</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">+${formatMoney(totAmana)}</div>
+      </div>
+      <div style="background:#FEE2E2;border-radius:10px;padding:12px;text-align:center;border:1px solid #FCA5A5;">
+        <div style="font-size:10px;font-weight:700;color:#B83B3B;text-transform:uppercase;margin-bottom:4px;">Jumla Ada Benki</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#B83B3B;">(${formatMoney(totAda)})</div>
+      </div>
+      <div style="background:${baki>=0?'linear-gradient(135deg,#1B4D3E,#2C5A4A)':'linear-gradient(135deg,#7B1B1B,#9B2C2C)'};border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);text-transform:uppercase;margin-bottom:4px;">Baki ya Benki</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatMoney(baki)}</div>
+      </div>
+    </div>
+    <div class="alert alert-info" style="font-size:12px;">ℹ️ Hesabu hii inaonyesha akaunti ya benki peke yake — ni tofauti kabisa na Baki ya Kanisa inayoonekana kwenye kichupo cha Matumizi.</div>`;
+}
+
+function viewBenkiRisiti(id) {
+  const a = allBenkiAmana.find(x => x.id == id);
+  if (!a || !a.risiti_base64) { toast('Risiti haipatikani'); return; }
+  try {
+    const parts = a.risiti_base64.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const raw = atob(parts[1]);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.target = '_blank'; link.rel = 'noopener';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch(e) { toast('Imeshindwa kufungua risiti: ' + e.message); }
+}
+
+function editBenkiAmana(id) {
+  const a = allBenkiAmana.find(x => x.id == id); if (!a) return;
+  openModal('✏️ Hariri Amana ya Benki', `
+    <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="edit-ba-tarehe" value="${a.tarehe}"></div>
+    <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="edit-ba-kiasi" value="${a.kiasi}"></div>
+    <div class="fg"><label>Jina la Mweka Pesa</label><input type="text" class="fi" id="edit-ba-depositor" value="${(a.depositor||'').replace(/"/g,'&quot;')}"></div>
+    <div id="edit-ba-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="updateBenkiAmana(${id})">💾 Hifadhi</button>
+      <button class="btn btn-outline" onclick="closeModal()">Rudi</button>
+    </div>`);
+}
+async function updateBenkiAmana(id) {
+  const tarehe = el('edit-ba-tarehe').value;
+  const kiasi = parseInt(el('edit-ba-kiasi').value);
+  const depositor = el('edit-ba-depositor').value.trim();
+  if (!tarehe || !kiasi || !depositor) { el('edit-ba-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
+  showLoading(true);
+  try {
+    const { error } = await db.from('benki_amana').update({ tarehe, kiasi, depositor }).eq('id', id);
+    if (error) { el('edit-ba-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    closeModal(); await loadAllData(true); renderBenkiHistoria(); renderBenkiSummary();
+    toast('✅ Amana imesasishwa!');
+  } finally { showLoading(false); }
+}
+async function deleteBenkiAmana(id) {
+  const a = allBenkiAmana.find(x=>x.id==id);
+  if (!confirm(`Futa amana hii kabisa?\n\nKiasi: ${formatMoney(a?.kiasi||0)} | Depositor: ${a?.depositor||''}\n\nHatua hii haiwezi kutenduliwa.`)) return;
+  showLoading(true);
+  try {
+    const { error } = await db.from('benki_amana').delete().eq('id', id);
+    if (error) { toast('❌ ' + error.message); return; }
+    await loadAllData(true); renderBenkiHistoria(); renderBenkiSummary();
+    toast('🗑 Amana imefutwa kabisa');
+  } finally { showLoading(false); }
+}
+
+function editBenkiAda(id) {
+  const a = allBenkiAda.find(x => x.id == id); if (!a) return;
+  const adaOptions = ['Ada ya Taarifa (Statement Charge)','VAT / Kodi ya Benki','Encash Cheque','Debit Arrangement Tax','Commission / Bank Fees','Transfer Charges','Nyingine (Benki)'];
+  openModal('✏️ Hariri Ada ya Benki', `
+    <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="edit-bada-tarehe" value="${a.tarehe}"></div>
+    <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="edit-bada-kiasi" value="${a.kiasi}"></div>
+    <div class="fg"><label>Aina ya Ada</label><select class="fi" id="edit-bada-aina">${adaOptions.map(o=>`<option value="${o}"${a.aina_ada===o?' selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="fg"><label>Maelezo</label><input type="text" class="fi" id="edit-bada-maelezo" value="${(a.maelezo||'').replace(/"/g,'&quot;')}"></div>
+    <div id="edit-bada-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="updateBenkiAda(${id})">💾 Hifadhi</button>
+      <button class="btn btn-outline" onclick="closeModal()">Rudi</button>
+    </div>`);
+}
+async function updateBenkiAda(id) {
+  const tarehe = el('edit-bada-tarehe').value;
+  const kiasi = parseInt(el('edit-bada-kiasi').value);
+  const aina_ada = el('edit-bada-aina').value;
+  const maelezo = el('edit-bada-maelezo').value.trim();
+  if (!tarehe || !kiasi || !aina_ada) { el('edit-bada-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
+  showLoading(true);
+  try {
+    const { error } = await db.from('benki_ada').update({ tarehe, kiasi, aina_ada, maelezo }).eq('id', id);
+    if (error) { el('edit-bada-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
+    closeModal(); await loadAllData(true); renderBenkiHistoria(); renderBenkiSummary();
+    toast('✅ Ada imesasishwa!');
+  } finally { showLoading(false); }
+}
+async function deleteBenkiAda(id) {
+  const a = allBenkiAda.find(x=>x.id==id);
+  if (!confirm(`Futa ada hii kabisa?\n\nAina: ${a?.aina_ada||''} | Kiasi: ${formatMoney(a?.kiasi||0)}\n\nHatua hii haiwezi kutenduliwa.`)) return;
+  showLoading(true);
+  try {
+    const { error } = await db.from('benki_ada').delete().eq('id', id);
+    if (error) { toast('❌ ' + error.message); return; }
+    await loadAllData(true); renderBenkiHistoria(); renderBenkiSummary();
+    toast('🗑 Ada imefutwa kabisa');
+  } finally { showLoading(false); }
 }
 
 // ==================== EDIT / DELETE — JUMLA IBADA ====================
