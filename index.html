@@ -358,7 +358,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="pastor-pending"><div id="pending-list"></div></div>
     <div id="pastor-leo" style="display:none;"><div id="pastor-leo-content"></div></div>
     <div id="pastor-fedha" style="display:none;"><div id="pastor-fedha-content"></div></div>
-    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('pastor')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="pastor-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterPastorWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div><div id="pastor-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('pastor')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="pastor-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterPastorWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div><div id="pastor-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="pastor-ripoti" style="display:none;"><div class="stats-grid" id="pastor-report-stats"></div><div class="alert alert-info">Ripoti kamili inapatikana kwenye sehemu ya Mweka Hazina.</div></div>
     <div id="pastor-mipangilio" style="display:none;">
       <div class="card"><div class="card-title">⚙ Mipangilio ya Kanisa</div><div id="pastor-settings-alert"></div>
@@ -410,7 +410,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     </div>
     <div id="secretary-reg"><div id="reg-requests-list"></div></div>
     <div id="secretary-idhini" style="display:none;"><div id="sec-idhini-list"></div></div>
-    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="secretary-ss" style="display:none;">
       <div class="card">
         <div class="card-title">🧒 Sajili Mtoto wa Sunday School</div>
@@ -764,7 +764,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="treasurer-fedha" style="display:none;"><div id="treasurer-fedha-content"></div></div>
     <div id="treasurer-ujenzi" style="display:none;"><div id="treasurer-ujenzi-content"></div></div>
     <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
-    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="treasurer-ripoti" style="display:none;">
       <div class="card">
         <div class="card-title">📅 Chagua Kipindi cha Ripoti</div>
@@ -1415,10 +1415,11 @@ function loadTreasurerDashboard() {
 }
 
 function openRequestModal(reqId, memberName, memberPhone, typeName, amount) {
-  openModal('✅ Kubali Ombi', `<div class="alert alert-info">Muumini: <strong>${memberName}</strong><br>${typeName} · ${formatMoney(amount)}</div><div class="fg"><label>📲 Maelekezo ya Malipo</label><textarea class="fi" id="modal-payment-instructions" rows="4" placeholder="Mfano: Tuma ${formatMoney(amount)} kwa M-Pesa: 0712 XXX XXX"></textarea></div><div style="display:flex;gap:10px;margin-top:16px;"><button class="btn btn-primary" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}')">📲 Thibitisha & Tuma WhatsApp</button><button class="btn btn-outline" onclick="closeModal()">Rudi</button></div>`);
+  const template = `Bwana Yesu Asifiwe ${memberName}!\nAsante sana kwa ${typeName} yako, unaweza kutuma katika `;
+  openModal('✅ Kubali Ombi', `<div class="alert alert-info">Muumini: <strong>${memberName}</strong><br>${typeName} · ${formatMoney(amount)}</div><div class="fg"><label>📲 Maelekezo ya Malipo (Njia ya Kulipa)</label><textarea class="fi" id="modal-payment-instructions" rows="5">${template}</textarea></div><div class="alert alert-warning" style="font-size:11px;margin-bottom:10px;">📌 Jaza njia ya kulipa (mfano: M-Pesa: 0712 XXX XXX — Jina Fulani) mwishoni mwa ujumbe hapo juu.</div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-green" style="flex:1;" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}','whatsapp')">🟢 Thibitisha &amp; Tuma WhatsApp</button><button class="btn btn-blue" style="flex:1;" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}','sms')">📱 Thibitisha &amp; Tuma SMS</button><button class="btn btn-outline" onclick="closeModal()">Rudi</button></div>`);
 }
 
-async function approveRequestWithInstructions(reqId, memberPhone) {
+async function approveRequestWithInstructions(reqId, memberPhone, channel = 'whatsapp') {
   const instructions = el('modal-payment-instructions').value.trim();
   if (!instructions) { toast('Tafadhali andika maelekezo ya malipo'); return; }
   const req = allRequests.find(r => r.id == reqId); if (!req) return;
@@ -1428,9 +1429,13 @@ async function approveRequestWithInstructions(reqId, memberPhone) {
   await db.from('approvals').insert({ aina: 'contribution', kichwa: `${req.aina_jina} - ${req.muumini_jina}`, muumini_id: req.muumini_id, muumini_jina: req.muumini_jina, kiasi: req.kiasi, maelezo_ap: req.maelezo_muumini, hali: 'pending', tarehe_mchango: leo(), request_id: reqId });
   closeModal(); await loadAllData(); loadTreasurerDashboard();
   if (memberPhone) {
-    const phone = memberPhone.replace(/^0/, '255');
     const msg = `✝ MUHIMBILI ANGLICAN CHURCH\n\nHabari ${req.muumini_jina},\n\nOmbi lako la mchango (${req.aina_jina} - ${formatMoney(req.kiasi)}) limekubaliwa! 🎉\n\n${instructions}\n\nMungu akubariki!`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    if (channel === 'sms') {
+      window.open(`sms:${memberPhone}?body=${encodeURIComponent(msg)}`, '_blank');
+    } else {
+      const phone = memberPhone.replace(/^0/, '255');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
   }
   toast('✅ Ombi limekubaliwa!');
 }
@@ -2339,8 +2344,8 @@ function renderPastorWaumini(filter = '') {
   const lc = filter.toLowerCase();
   const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
   el('pastor-members-list').innerHTML = filtered.length
-    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td style="text-align:center;white-space:nowrap;"><button class="btn btn-sm" style="background:#25D366;color:white;padding:5px 8px;margin-right:3px;" onclick="openIndividualMsg(${m.id})" title="WhatsApp">🟢</button><button class="btn btn-sm btn-blue" style="padding:5px 8px;" onclick="openIndividualMsg(${m.id})" title="SMS">📱</button></td></tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
   const c = el('pastor-waumini-count');
   if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
 }
@@ -2352,7 +2357,7 @@ function renderSecretaryWaumini(filter = '') {
   const lc = filter.toLowerCase();
   const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
   el('secretary-members-list').innerHTML = filtered.length
-    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td><button class="btn btn-sm ${m.hali === 'hai' ? 'btn-outline' : 'btn-green'}" onclick="toggleMemberStatus('${m.id}')">${m.hali === 'hai' ? '🔴 Si Hai' : '🟢 Weka Hai'}</button> <button class="btn btn-red btn-sm" onclick="deleteMember('${m.id}')">🗑</button></td></tr>`).join('')
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td style="white-space:nowrap;"><button class="btn btn-sm ${m.hali === 'hai' ? 'btn-outline' : 'btn-green'}" onclick="toggleMemberStatus('${m.id}')">${m.hali === 'hai' ? '🔴 Si Hai' : '🟢 Weka Hai'}</button> <button class="btn btn-red btn-sm" onclick="deleteMember('${m.id}')">🗑</button> <button class="btn btn-sm" style="background:#25D366;color:white;padding:5px 8px;" onclick="openIndividualMsg(${m.id})" title="WhatsApp">🟢</button><button class="btn btn-sm btn-blue" style="padding:5px 8px;margin-left:2px;" onclick="openIndividualMsg(${m.id})" title="SMS">📱</button></td></tr>`).join('')
     : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
   const c = el('secretary-waumini-count');
   if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
@@ -2365,8 +2370,8 @@ function renderTreasurerWaumini(filter = '') {
   const lc = filter.toLowerCase();
   const filtered = allMembers.filter(m => !filter || m.jina_kamili.toLowerCase().includes(lc));
   el('treasurer-members-list').innerHTML = filtered.length
-    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td>${m.jinsia || '—'}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td></tr>`).join('')
-    : '<tr><td colspan="6" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
+    ? filtered.map((m, i) => `<tr><td style="color:#6B7280;font-weight:700;text-align:center;">${i + 1}</td><td><strong>${m.jina_kamili}</strong></td><td>${m.namba_simu}</td><td style="font-family:monospace;font-size:11px;">${m.namba_muumini}</td><td>${m.jinsia || '—'}</td><td><span class="badge ${m.hali === 'hai' ? 'badge-green' : m.hali === 'si_hai' ? 'badge-red' : 'badge-gold'}">${m.hali === 'hai' ? '✓ Hai' : m.hali === 'si_hai' ? '✗ Si Hai' : '⏳ Pending'}</span></td><td style="text-align:center;white-space:nowrap;"><button class="btn btn-sm" style="background:#25D366;color:white;padding:5px 8px;margin-right:3px;" onclick="openIndividualMsg(${m.id})" title="WhatsApp">🟢</button><button class="btn btn-sm btn-blue" style="padding:5px 8px;" onclick="openIndividualMsg(${m.id})" title="SMS">📱</button></td></tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;padding:30px;color:#6B7280;">Hakuna muumini anayepatikana</td></tr>';
   const c = el('treasurer-waumini-count');
   if (c) c.textContent = filter ? `Matokeo ${filtered.length} kati ya waumini ${allMembers.length}` : `Jumla waumini: ${allMembers.length}`;
 }
@@ -2392,6 +2397,163 @@ function downloadWauminiCSV(role) {
   a.href = url; a.download = `waumini_${role}_${leo()}.csv`; a.click();
   URL.revokeObjectURL(url);
   toast('✅ Orodha imepakiwa!');
+}
+
+// ==================== MESSAGING FUNCTIONS ====================
+
+function openIndividualMsg(memberId) {
+  const m = allMembers.find(x => x.id == memberId);
+  if (!m) { toast('Muumini hapatikani'); return; }
+  openModal('💬 Tuma Ujumbe — ' + m.jina_kamili, `
+    <div class="alert alert-info" style="margin-bottom:12px;">
+      Muumini: <strong>${m.jina_kamili}</strong> &nbsp;·&nbsp; 📱 ${m.namba_simu || '—'}
+    </div>
+    <div class="fg">
+      <label>Ujumbe</label>
+      <textarea class="fi" id="ind-msg-text" rows="5">Habari ${m.jina_kamili},\n\n</textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-sm" style="background:#25D366;color:white;flex:1;" onclick="sendIndividualMsg(${m.id},'whatsapp')">🟢 WhatsApp</button>
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="sendIndividualMsg(${m.id},'sms')">📱 SMS</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+function sendIndividualMsg(memberId, channel) {
+  const m = allMembers.find(x => x.id == memberId);
+  if (!m) return;
+  const msg = el('ind-msg-text')?.value || '';
+  if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
+  const phone = m.namba_simu || '';
+  closeModal();
+  if (channel === 'sms') {
+    window.open('sms:' + phone + '?body=' + encodeURIComponent(msg), '_blank');
+  } else {
+    const waPhone = phone.replace(/^0/, '255');
+    window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+}
+
+function openBulkMsgModal() {
+  const members = allMembers.filter(m => m.hali === 'hai');
+  if (!members.length) { toast('Hakuna waumini hai'); return; }
+  const memberCheckboxes = members.map(m =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F1EFEA;cursor:pointer;">
+      <input type="checkbox" class="bulk-msg-chk" data-member-id="${m.id}" checked style="width:16px;height:16px;flex-shrink:0;">
+      <span style="flex:1;font-size:13px;font-weight:500;">${m.jina_kamili}</span>
+      <span style="font-size:11px;color:#6B7280;">${m.namba_simu || '—'}</span>
+    </label>`
+  ).join('');
+  openModal('💬 Ujumbe kwa Wote — Waumini', `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.bulk-msg-chk').forEach(c=>c.checked=true)">✅ Chagua Wote</button>
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.bulk-msg-chk').forEach(c=>c.checked=false)">☐ Ondoa Wote</button>
+      <span style="font-size:12px;color:#6B7280;">${members.length} waumini hai</span>
+    </div>
+    <div style="max-height:170px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;padding:8px 12px;margin-bottom:12px;">
+      ${memberCheckboxes}
+    </div>
+    <div class="fg" style="margin-bottom:8px;">
+      <label>Ujumbe</label>
+      <textarea class="fi" id="bulk-msg-text" rows="4" placeholder="Andika ujumbe hapa...">✝ MUHIMBILI ANGLICAN CHURCH\n\nHabari Ndugu/Dada,\n\n</textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" style="background:#25D366;color:white;flex:1;" onclick="sendBulkWhatsApp()">🟢 Tuma WhatsApp (Mmoja Mmoja)</button>
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="sendBulkSMS()">📱 Tuma SMS</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+function sendBulkWhatsApp() {
+  const msg = el('bulk-msg-text')?.value || '';
+  if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
+  const selected = Array.from(document.querySelectorAll('.bulk-msg-chk:checked'))
+    .map(chk => allMembers.find(m => m.id == chk.dataset.memberId))
+    .filter(Boolean);
+  if (!selected.length) { toast('Chagua muumini angalau mmoja'); return; }
+  closeModal();
+  let i = 0;
+  function sendNext() {
+    if (i >= selected.length) { toast('✅ Ujumbe umepelekwa kwa waumini ' + selected.length); return; }
+    const m = selected[i];
+    const personalMsg = msg.replace(/Ndugu\/Dada/g, m.jina_kamili);
+    const phone = (m.namba_simu || '').replace(/^0/, '255');
+    if (phone) window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(personalMsg), '_blank');
+    i++;
+    if (i < selected.length) {
+      setTimeout(() => {
+        if (confirm('Umekwisha tuma kwa ' + m.jina_kamili + '.\nEndelea na ' + selected[i].jina_kamili + '?')) {
+          sendNext();
+        } else {
+          toast('Umesimama. Ujumbe uliotumwa: ' + i);
+        }
+      }, 800);
+    } else {
+      setTimeout(() => toast('✅ Ujumbe umepelekwa kwa waumini ' + selected.length), 1000);
+    }
+  }
+  sendNext();
+}
+
+function sendBulkSMS() {
+  const msg = el('bulk-msg-text')?.value || '';
+  if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
+  const selected = Array.from(document.querySelectorAll('.bulk-msg-chk:checked'))
+    .map(chk => allMembers.find(m => m.id == chk.dataset.memberId))
+    .filter(Boolean);
+  if (!selected.length) { toast('Chagua muumini angalau mmoja'); return; }
+  const numbers = selected.map(m => m.namba_simu || '').filter(Boolean).join(', ');
+  openModal('📱 Tuma SMS — Maelekezo', `
+    <div class="alert alert-info" style="margin-bottom:10px;">Wapokeaji: <strong>${selected.length}</strong>. Nakili namba zote, kisha fungua programu yako ya SMS na uweke wote wewe mwenyewe.</div>
+    <div class="fg" style="margin-bottom:10px;">
+      <label>Namba za Simu (Bonyeza kucha­gua, kisha nakili)</label>
+      <textarea class="fi" rows="3" readonly onclick="this.select()" style="font-size:12px;font-family:monospace;">${numbers}</textarea>
+    </div>
+    <div class="fg" style="margin-bottom:10px;">
+      <label>Ujumbe (Bonyeza kuchagua, kisha nakili)</label>
+      <textarea class="fi" id="bulk-sms-body" rows="4" readonly onclick="this.select()">${msg}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="window.open('sms:?body='+encodeURIComponent(el('bulk-sms-body').value),'_blank')">📱 Fungua SMS App</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+function openAhadiPaymentModal(ahadiId) {
+  const a = allAhadi.find(x => x.id == ahadiId);
+  if (!a) return;
+  const aina = a.aina_ahadi;
+  const template = `Bwana Yesu Asifiwe ${a.muumini_jina}!\nAsante sana kwa ${aina} yako, unaweza kutuma katika `;
+  openModal('💳 Tuma Maelekezo ya Malipo — ' + a.muumini_jina, `
+    <div class="alert alert-info" style="margin-bottom:12px;">
+      Muumini: <strong>${a.muumini_jina}</strong><br>
+      Aina: <strong>${aina}</strong> · Kiasi: <strong>${formatMoney(a.kiasi_ahadi)}</strong><br>
+      📱 ${a.muumini_simu || '—'}
+    </div>
+    <div class="fg" style="margin-bottom:6px;">
+      <label>Ujumbe wa Maelekezo ya Malipo</label>
+      <textarea class="fi" id="modal-ahadi-payment-msg" rows="5">${template}</textarea>
+    </div>
+    <div class="alert alert-warning" style="font-size:11px;margin-bottom:10px;">📌 Jaza njia ya kulipa (mfano: M-Pesa: 0712 XXX XXX — Jina Fulani) mwishoni mwa ujumbe hapo juu.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" style="background:#25D366;color:white;flex:1;" onclick="sendAhadiPaymentMsg(${a.id},'whatsapp')">🟢 Tuma WhatsApp</button>
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="sendAhadiPaymentMsg(${a.id},'sms')">📱 Tuma SMS</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+function sendAhadiPaymentMsg(ahadiId, channel) {
+  const msg = el('modal-ahadi-payment-msg')?.value || '';
+  if (!msg.trim()) { toast('Andika maelekezo ya malipo'); return; }
+  const a = allAhadi.find(x => x.id == ahadiId);
+  if (!a || !a.muumini_simu) { toast('Namba ya simu haipatikani'); return; }
+  closeModal();
+  if (channel === 'sms') {
+    window.open('sms:' + a.muumini_simu + '?body=' + encodeURIComponent(msg), '_blank');
+  } else {
+    const phone = a.muumini_simu.replace(/^0/, '255');
+    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+  }
 }
 
 // ==================== EDIT / DELETE — MATUMIZI ====================
@@ -3521,8 +3683,9 @@ function renderTreasurerAhadiPending() {
       <div class="finance-row"><span>Kiasi cha Ahadi:</span><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#1B4D3E;">${formatMoney(a.kiasi_ahadi)}</span></div>
       ${a.maelezo ? `<div class="alert alert-info" style="margin:8px 0;">${a.maelezo}</div>` : ''}
       <div class="finance-row"><span style="font-size:11px;color:#6B7280;">Tarehe:</span><span style="font-size:11px;">${formatDate(a.tarehe_ahadi)}</span></div>
-      <div style="display:flex;gap:10px;margin-top:12px;">
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
         <button class="btn btn-green btn-sm" onclick="approveTreasurerAhadi(${a.id})">✅ Idhinisha Ahadi</button>
+        <button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openAhadiPaymentModal(${a.id})">💳 Tuma Maelekezo</button>
         <button class="btn btn-red btn-sm" onclick="rejectTreasurerAhadi(${a.id})">❌ Kataa</button>
       </div>
     </div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya ahadi mapya</div>';
