@@ -819,19 +819,8 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   -- IDHINI NA KATIBU (mpya — ongeza safu hii kwenye jedwali la approvals):
   ALTER TABLE approvals ADD COLUMN IF NOT EXISTS idhiniwa_na text;
   -----------------------------------------------------------------------
-  -- JUMLA AINA EXTRA — hifadhi kiasi cha kila aina maalumu kwa kila ibada:
-  CREATE TABLE jumla_aina_extra (
-    id bigserial primary key,
-    jumla_ibada_id bigint references jumla_ibada(id) on delete cascade,
-    aina_id bigint,
-    aina_jina text,
-    aina_icon text,
-    kiasi integer default 0,
-    tarehe date,
-    created_at timestamptz default now()
-  );
-  ALTER TABLE jumla_aina_extra ENABLE ROW LEVEL SECURITY;
-  CREATE POLICY "allow_all_jumla_aina_extra" ON jumla_aina_extra FOR ALL USING (true) WITH CHECK (true);
+  -- AINA BREAKDOWN — ongeza safu hii kwenye jedwali la jumla_ibada (tekeleza mara moja):
+  ALTER TABLE jumla_ibada ADD COLUMN IF NOT EXISTS aina_breakdown jsonb DEFAULT '[]'::jsonb;
   -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
@@ -843,7 +832,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ==================== GLOBAL STATE ====================
 let currentUser = null;
 let currentRole = "";
-let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [], allJumlaAinaExtra = [];
+let allMembers = [], allContributions = [], allContributionTypes = [], allAnnouncements = [], allApprovals = [], allExpenses = [], allRequests = [], allJumla = [];
 let allSundaySchool = [], allWanafunzi = [], allWageni = [];
 let allAhadi = [], allAhadiMalipo = [];
 let allBenkiAmana = [], allBenkiAda = [];
@@ -995,10 +984,6 @@ async function loadAllData(silent = false) {
     const { data: viongozi } = await db.from('viongozi_kanisa').select('*').order('created_at', { ascending: true });
     allViongozi = viongozi || [];
   } catch (e) { console.warn('Jedwali ya viongozi_kanisa haijawekwa bado:', e.message); allViongozi = []; }
-  try {
-    const { data: jae } = await db.from('jumla_aina_extra').select('*').order('created_at', { ascending: true });
-    allJumlaAinaExtra = jae || [];
-  } catch (e) { console.warn('Jedwali ya jumla_aina_extra haijawekwa bado:', e.message); allJumlaAinaExtra = []; }
   if (!silent) showLoading(false);
 }
 
@@ -1569,19 +1554,19 @@ function renderTypeList() {
 }
 
 const JUMLA_BUILTIN = [
-  { id: 'sadaka',   icon: '🙏', label: 'Sadaka ya Kawaida' },
-  { id: 'zaka',     icon: '💰', label: 'Fungu la Kumi' },
-  { id: 'shukrani', icon: '🌟', label: 'Shukrani' },
-  { id: 'watoto',   icon: '👶', label: 'S/School (Watoto)' },
-  { id: 'ujenzi',   icon: '🏗',  label: 'Ujenzi' },
-  { id: 'maziko',   icon: '⚰',  label: 'Maziko (Misiba)' },
-  { id: 'ubatizo',  icon: '🕊', label: 'Ubatizo' },
-  { id: 'umaki',    icon: '🌊', label: 'Umaki' },
-  { id: 'tayo-maso',icon: '👁', label: 'Tayo/Maso' },
-  { id: 'ahadi',    icon: '🤝', label: 'Ahadi' },
-  { id: 'mavuno',   icon: '🌾', label: 'Mavuno' },
-  { id: 'ttm',      icon: '✝',  label: 'TTM' },
-  { id: 'mnada',    icon: '🛒', label: 'Mnada' },
+  { id: 'sadaka',   icon: '🙏', label: 'Sadaka ya Kawaida', col: 'sadaka'   },
+  { id: 'zaka',     icon: '💰', label: 'Fungu la Kumi',     col: 'zaka'     },
+  { id: 'shukrani', icon: '🌟', label: 'Shukrani',          col: 'shukrani' },
+  { id: 'watoto',   icon: '👶', label: 'S/School (Watoto)', col: 'watoto'   },
+  { id: 'ujenzi',   icon: '🏗',  label: 'Ujenzi',           col: 'ujenzi'   },
+  { id: 'maziko',   icon: '⚰',  label: 'Maziko (Misiba)',   col: null },
+  { id: 'ubatizo',  icon: '🕊', label: 'Ubatizo',           col: null },
+  { id: 'umaki',    icon: '🌊', label: 'Umaki',             col: null },
+  { id: 'tayo-maso',icon: '👁', label: 'Tayo/Maso',         col: null },
+  { id: 'ahadi',    icon: '🤝', label: 'Ahadi',             col: null },
+  { id: 'mavuno',   icon: '🌾', label: 'Mavuno',            col: null },
+  { id: 'ttm',      icon: '✝',  label: 'TTM',               col: null },
+  { id: 'mnada',    icon: '🛒', label: 'Mnada',             col: null },
 ];
 
 function renderJumlaAinaFields() {
@@ -1608,35 +1593,25 @@ async function saveJumla() {
   if (ainaMaalumu === 'pasaka' && !aina.toLowerCase().includes('pasaka') && !aina.toLowerCase().includes('easter')) aina = 'Pasaka: ' + aina;
   else if (ainaMaalumu === 'christmas' && !aina.toLowerCase().includes('christmas') && !aina.toLowerCase().includes('krisimasi')) aina = 'Krisimasi: ' + aina;
   if (kasisiMgeni) aina += '|mgeni';
-  const sadaka   = parseInt(el('jumla-sadaka').value)    || 0;
-  const zaka     = parseInt(el('jumla-zaka').value)      || 0;
-  const shukrani = parseInt(el('jumla-shukrani').value)  || 0;
-  const watoto   = parseInt(el('jumla-watoto').value)    || 0;
-  const ujenzi   = parseInt(el('jumla-ujenzi').value)    || 0;
-  const maziko   = parseInt(el('jumla-maziko').value)    || 0;
-  const ubatizo  = parseInt(el('jumla-ubatizo').value)   || 0;
-  const umaki    = parseInt(el('jumla-umaki').value)     || 0;
-  const tayo_maso= parseInt(el('jumla-tayo-maso').value) || 0;
-  const ahadi    = parseInt(el('jumla-ahadi').value)     || 0;
-  const mavuno   = parseInt(el('jumla-mavuno').value)    || 0;
-  const ttm      = parseInt(el('jumla-ttm').value)       || 0;
-  const mnada    = parseInt(el('jumla-mnada').value)     || 0;
-  const customAmounts = allContributionTypes.map(t => ({ aina_id: t.id, aina_jina: t.name || t.jina, aina_icon: t.icon, kiasi: parseInt(el('jumla-extra-' + t.id) ? el('jumla-extra-' + t.id).value : 0) || 0 })).filter(x => x.kiasi > 0);
-  const customTotal = customAmounts.reduce((s, x) => s + x.kiasi, 0);
-  const nyingine = maziko + ubatizo + umaki + tayo_maso + ahadi + mavuno + ttm + mnada + customTotal;
+  const sadaka   = parseInt(el('jumla-sadaka')?.value)   || 0;
+  const zaka     = parseInt(el('jumla-zaka')?.value)     || 0;
+  const shukrani = parseInt(el('jumla-shukrani')?.value) || 0;
+  const watoto   = parseInt(el('jumla-watoto')?.value)   || 0;
+  const ujenzi   = parseInt(el('jumla-ujenzi')?.value)   || 0;
+  const builtinExtras = JUMLA_BUILTIN.filter(t => !t.col).map(t => ({ icon: t.icon, jina: t.label, kiasi: parseInt(el('jumla-' + t.id)?.value) || 0 })).filter(x => x.kiasi > 0);
+  const customExtras = allContributionTypes.map(t => ({ icon: t.icon, jina: t.name || t.jina, kiasi: parseInt(el('jumla-extra-' + t.id)?.value) || 0 })).filter(x => x.kiasi > 0);
+  const aina_breakdown = [...builtinExtras, ...customExtras];
+  const nyingine = aina_breakdown.reduce((s, x) => s + x.kiasi, 0);
   const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
   if (jumla <= 0) { el('jumla-alert').innerHTML = '<div class="alert alert-error">Angalau aina moja ya mchango lazima iwe zaidi ya 0</div>'; return; }
   showLoading(true);
   try {
-    const { data: insertedJumla, error } = await db.from('jumla_ibada').insert({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla }).select();
+    const { error } = await db.from('jumla_ibada').insert({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla, aina_breakdown });
     if (error) { el('jumla-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu ya kuhifadhi: ${error.message}</div>`; return; }
-    if (customAmounts.length > 0 && insertedJumla && insertedJumla[0]) {
-      await db.from('jumla_aina_extra').insert(customAmounts.map(x => ({ jumla_ibada_id: insertedJumla[0].id, aina_id: x.aina_id, aina_jina: x.aina_jina, aina_icon: x.aina_icon, kiasi: x.kiasi, tarehe })));
-    }
     await loadAllData(true); renderJumlaHistoria();
     el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
     setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
-    ['jumla-sadaka','jumla-zaka','jumla-shukrani','jumla-watoto','jumla-ujenzi','jumla-maziko','jumla-ubatizo','jumla-umaki','jumla-tayo-maso','jumla-ahadi','jumla-mavuno','jumla-ttm','jumla-mnada'].forEach(id => { if(el(id)) el(id).value=''; });
+    JUMLA_BUILTIN.forEach(t => { if (el('jumla-' + t.id)) el('jumla-' + t.id).value = ''; });
     allContributionTypes.forEach(t => { if (el('jumla-extra-' + t.id)) el('jumla-extra-' + t.id).value = ''; });
     if (el('jumla-aina-maalumu')) el('jumla-aina-maalumu').value = '';
     if (el('jumla-kasisi-mgeni')) el('jumla-kasisi-mgeni').checked = false;
@@ -1671,8 +1646,7 @@ function renderJumlaHistoria() {
       ${j.shukrani ? `<div class="jc-row"><span>🌟 Shukrani</span><span>${formatMoney(j.shukrani)}</span></div>` : ''}
       ${j.watoto ? `<div class="jc-row"><span>👶 S/School (Watoto)</span><span>${formatMoney(j.watoto)}</span></div>` : ''}
       ${j.ujenzi ? `<div class="jc-row"><span>🏗 Ujenzi</span><span>${formatMoney(j.ujenzi)}</span></div>` : ''}
-      ${j.nyingine ? `<div class="jc-row"><span>✝ Nyingine (Maziko/Ubatizo n.k.)</span><span>${formatMoney(j.nyingine)}</span></div>` : ''}
-      ${(() => { const extras = allJumlaAinaExtra.filter(x => String(x.jumla_ibada_id) === String(j.id)); return extras.length ? extras.map(x => `<div class="jc-row" style="padding-left:12px;opacity:0.85;"><span style="font-size:12px;">${x.aina_icon || ''} ${x.aina_jina}</span><span style="font-size:12px;">${formatMoney(x.kiasi)}</span></div>`).join('') : ''; })()}
+      ${(() => { const bd = Array.isArray(j.aina_breakdown) ? j.aina_breakdown.filter(x => x.kiasi > 0) : []; if (bd.length) return bd.map(x => `<div class="jc-row"><span>${x.icon || ''} ${x.jina}</span><span>${formatMoney(x.kiasi)}</span></div>`).join(''); return j.nyingine ? `<div class="jc-row"><span>✝ Nyingine</span><span>${formatMoney(j.nyingine)}</span></div>` : ''; })()}
       <div class="jc-total"><span>JUMLA YA SADAKA</span><span>${formatMoney(jumlaEff)}</span></div>
       ${dayExps.length ? `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.25);">
         <div style="font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">💸 Matumizi ya Ibaada:</div>
@@ -2922,9 +2896,12 @@ async function deleteBenkiAda(id) {
 function editJumla(id) {
   const j = allJumla.find(x => String(x.id) === String(id)); if (!j) return;
   const safeAina = (j.aina_ibada||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  const existingExtras = allJumlaAinaExtra.filter(x => String(x.jumla_ibada_id) === String(id));
-  const nyingineBase = (j.nyingine || 0) - existingExtras.reduce((s, x) => s + x.kiasi, 0);
-  const customFields = allContributionTypes.length ? `<div style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;background:#EEF2FF;padding:6px 10px;border-radius:6px;margin-top:8px;margin-bottom:8px;grid-column:1/-1;">Aina Maalumu za Mchango</div>${allContributionTypes.map(t => { const ex = existingExtras.find(x => String(x.aina_id) === String(t.id)); return `<div class="fg"><label>${t.icon} ${t.name||t.jina}</label><input type="number" class="fi" id="edit-j-extra-${t.id}" value="${ex ? ex.kiasi : 0}"></div>`; }).join('')}` : '';
+  const bd = Array.isArray(j.aina_breakdown) ? j.aina_breakdown : [];
+  const getBdVal = (label) => { const e = bd.find(x => x.jina === label); return e ? e.kiasi : 0; };
+  const getCustomBdVal = (typeName) => { const e = bd.find(x => x.jina === typeName); return e ? e.kiasi : 0; };
+  const hasOldNyingine = (j.nyingine || 0) > 0 && bd.length === 0;
+  const builtinNyingineFields = JUMLA_BUILTIN.filter(t => !t.col).map(t => `<div class="fg"><label>${t.icon} ${t.label}</label><input type="number" class="fi" id="edit-j-${t.id}" value="${getBdVal(t.label)}"></div>`).join('');
+  const customFields = allContributionTypes.map(t => `<div class="fg"><label>${t.icon} ${t.name||t.jina}</label><input type="number" class="fi" id="edit-j-extra-${t.id}" value="${getCustomBdVal(t.name||t.jina)}"></div>`).join('');
   openModal('✏️ Hariri Rekodi ya Ibada', `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div class="fg"><label>Tarehe</label><input type="date" class="fi" id="edit-j-tarehe" value="${j.tarehe}"></div>
@@ -2934,7 +2911,8 @@ function editJumla(id) {
       <div class="fg"><label>🌟 Shukrani</label><input type="number" class="fi" id="edit-j-shukrani" value="${j.shukrani||0}"></div>
       <div class="fg"><label>👶 Watoto (S/School)</label><input type="number" class="fi" id="edit-j-watoto" value="${j.watoto||0}"></div>
       <div class="fg"><label>🏗 Ujenzi</label><input type="number" class="fi" id="edit-j-ujenzi" value="${j.ujenzi||0}"></div>
-      <div class="fg"><label>✝ Nyingine (Maziko/Ubatizo n.k.)</label><input type="number" class="fi" id="edit-j-nyingine" value="${nyingineBase >= 0 ? nyingineBase : (j.nyingine||0)}"></div>
+      ${hasOldNyingine ? `<div class="fg" style="grid-column:1/-1;"><label>✝ Nyingine (rekodi ya zamani — weka jumla hapa au gawanya kwa aina hapa chini)</label><input type="number" class="fi" id="edit-j-nyingine-old" value="${j.nyingine}"></div>` : ''}
+      ${builtinNyingineFields}
       ${customFields}
     </div>
     <div class="alert alert-info" style="font-size:12px;margin-bottom:8px;">Jumla itahesabiwa upya baada ya kuhifadhi.</div>
@@ -2947,25 +2925,22 @@ function editJumla(id) {
 async function updateJumla(id) {
   const tarehe = el('edit-j-tarehe').value;
   const aina = el('edit-j-aina').value.trim();
-  const sadaka = parseInt(el('edit-j-sadaka').value) || 0;
-  const zaka = parseInt(el('edit-j-zaka').value) || 0;
-  const shukrani = parseInt(el('edit-j-shukrani').value) || 0;
-  const watoto = parseInt(el('edit-j-watoto').value) || 0;
-  const ujenzi = parseInt(el('edit-j-ujenzi').value) || 0;
-  const customAmounts = allContributionTypes.map(t => ({ aina_id: t.id, aina_jina: t.name || t.jina, aina_icon: t.icon, kiasi: parseInt(el('edit-j-extra-' + t.id) ? el('edit-j-extra-' + t.id).value : 0) || 0 })).filter(x => x.kiasi > 0);
-  const customTotal = customAmounts.reduce((s, x) => s + x.kiasi, 0);
-  const nyingineBase = parseInt(el('edit-j-nyingine').value) || 0;
-  const nyingine = nyingineBase + customTotal;
+  const sadaka   = parseInt(el('edit-j-sadaka')?.value)   || 0;
+  const zaka     = parseInt(el('edit-j-zaka')?.value)     || 0;
+  const shukrani = parseInt(el('edit-j-shukrani')?.value) || 0;
+  const watoto   = parseInt(el('edit-j-watoto')?.value)   || 0;
+  const ujenzi   = parseInt(el('edit-j-ujenzi')?.value)   || 0;
+  const builtinExtras = JUMLA_BUILTIN.filter(t => !t.col).map(t => ({ icon: t.icon, jina: t.label, kiasi: parseInt(el('edit-j-' + t.id)?.value) || 0 })).filter(x => x.kiasi > 0);
+  const customExtras = allContributionTypes.map(t => ({ icon: t.icon, jina: t.name || t.jina, kiasi: parseInt(el('edit-j-extra-' + t.id)?.value) || 0 })).filter(x => x.kiasi > 0);
+  const oldNyingine = parseInt(el('edit-j-nyingine-old')?.value) || 0;
+  const aina_breakdown = [...builtinExtras, ...customExtras];
+  const nyingine = aina_breakdown.length > 0 ? aina_breakdown.reduce((s, x) => s + x.kiasi, 0) : oldNyingine;
   const jumla = sadaka + zaka + shukrani + watoto + ujenzi + nyingine;
   if (!tarehe) { el('edit-j-alert').innerHTML = '<div class="alert alert-error">Weka tarehe ya ibada</div>'; return; }
   showLoading(true);
   try {
-    const { error } = await db.from('jumla_ibada').update({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla }).eq('id', id);
+    const { error } = await db.from('jumla_ibada').update({ tarehe, aina_ibada: aina, sadaka, zaka, shukrani, watoto, ujenzi, nyingine, jumla, aina_breakdown }).eq('id', id);
     if (error) { el('edit-j-alert').innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`; return; }
-    await db.from('jumla_aina_extra').delete().eq('jumla_ibada_id', id);
-    if (customAmounts.length > 0) {
-      await db.from('jumla_aina_extra').insert(customAmounts.map(x => ({ jumla_ibada_id: parseInt(id), aina_id: x.aina_id, aina_jina: x.aina_jina, aina_icon: x.aina_icon, kiasi: x.kiasi, tarehe })));
-    }
     closeModal();
     await loadAllData(true);
     renderJumlaHistoria(); renderMatumiziSummary(); renderTreasurerFedha('treasurer-fedha-content');
