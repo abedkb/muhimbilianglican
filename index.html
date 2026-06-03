@@ -575,6 +575,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="treasurer-tab-historia" onclick="treasurerTab('historia')">📋 Historia</div>
       <div class="tab" id="treasurer-tab-waumini" onclick="treasurerTab('waumini')">👥 Waumini</div>
       <div class="tab" id="treasurer-tab-ripoti" onclick="treasurerTab('ripoti')">📄 Ripoti</div>
+      <div class="tab" id="treasurer-tab-bajeti" onclick="treasurerTab('bajeti')">📊 Bajeti</div>
     </div>
     <div id="treasurer-ingiza">
       <div class="card"><div class="card-title">➕ Ingiza Mchango wa Muumini</div><div id="contrib-alert"></div>
@@ -812,6 +813,66 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="treasurer-ujenzi" style="display:none;"><div id="treasurer-ujenzi-content"></div></div>
     <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
     <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="treasurer-bajeti" style="display:none;">
+      <!-- Year selector -->
+      <div class="card">
+        <div class="card-title">📊 BAJETI YA MWAKA — Makadirio ya Mapato na Matumizi</div>
+        <div id="bajeti-alert"></div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+          <div class="fg" style="margin-bottom:0;flex:1;min-width:120px;">
+            <label>Chagua Mwaka wa Bajeti</label>
+            <input type="number" class="fi" id="bajeti-mwaka" placeholder="2026" min="2020" max="2050">
+          </div>
+          <button class="btn btn-primary" onclick="loadBajetiMwaka()">📊 Pakia / Anza Bajeti</button>
+        </div>
+      </div>
+      <!-- Content shown after year is selected -->
+      <div id="bajeti-content" style="display:none;">
+        <!-- Mapato makadirio -->
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between;">
+            <span>📈 MAKADIRIO YA MAPATO — <span id="bajeti-mwaka-label" style="color:#C6A43F;"></span></span>
+          </div>
+          <div id="bajeti-mapato-alert"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Kichwa cha Mapato</label>
+              <input type="text" class="fi" id="bajeti-mapato-kichwa" placeholder="mfano: Sadaka ya Jumapili">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label>Kiasi cha Makadirio (TZS)</label>
+              <input type="number" class="fi" id="bajeti-mapato-kiasi" placeholder="500000">
+            </div>
+            <button class="btn btn-green" style="white-space:nowrap;" onclick="addBajetiItem('mapato')">➕ Ongeza</button>
+          </div>
+          <div id="bajeti-mapato-list"></div>
+        </div>
+        <!-- Matumizi makadirio -->
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between;">
+            <span>💸 MAKADIRIO YA MATUMIZI — <span id="bajeti-mwaka-label2" style="color:#C6A43F;"></span></span>
+          </div>
+          <div id="bajeti-matumizi-alert"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Kichwa cha Matumizi</label>
+              <input type="text" class="fi" id="bajeti-matumizi-kichwa" placeholder="mfano: Posho ya Kasisi">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label>Kiasi cha Makadirio (TZS)</label>
+              <input type="number" class="fi" id="bajeti-matumizi-kiasi" placeholder="200000">
+            </div>
+            <button class="btn btn-red" style="white-space:nowrap;" onclick="addBajetiItem('matumizi')">➕ Ongeza</button>
+          </div>
+          <div id="bajeti-matumizi-list"></div>
+        </div>
+        <!-- Summary -->
+        <div class="card">
+          <div class="card-title">📊 MUHTASARI WA BAJETI — <span id="bajeti-mwaka-label3" style="color:#C6A43F;"></span></div>
+          <div id="bajeti-summary"></div>
+        </div>
+      </div>
+    </div>
     <div id="treasurer-ripoti" style="display:none;">
       <div class="card">
         <div class="card-title">📅 Chagua Kipindi cha Ripoti</div>
@@ -898,6 +959,18 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   ALTER TABLE ratiba_jumuiya ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "allow_all_ratiba_jumuiya" ON ratiba_jumuiya FOR ALL USING (true) WITH CHECK (true);
   -----------------------------------------------------------------------
+  -- BAJETI YA MWAKA (mpya — tekeleza kwenye Supabase SQL Editor):
+  CREATE TABLE bajeti_mwaka (
+    id bigserial primary key,
+    mwaka integer not null,
+    aina text not null CHECK (aina IN ('mapato','matumizi')),
+    kichwa text not null,
+    kiasi_makadirio integer not null default 0,
+    created_at timestamptz default now()
+  );
+  ALTER TABLE bajeti_mwaka ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_bajeti_mwaka" ON bajeti_mwaka FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
@@ -914,6 +987,8 @@ let allAhadi = [], allAhadiMalipo = [];
 let allBenkiAmana = [], allBenkiAda = [];
 let allViongozi = [];
 let allRatibaJumuiya = [];
+let allBajeti = [];
+let bajetiCurrentMwaka = null;
 let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
@@ -2112,7 +2187,7 @@ function printForm2(tarehe, ainaIbada) {
 }
 
 function treasurerTab(tab) {
-  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'benki', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti'].forEach(t => {
+  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'benki', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti', 'bajeti'].forEach(t => {
     const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
@@ -2126,6 +2201,7 @@ function treasurerTab(tab) {
   if (tab === 'historia') loadTreasurerDashboard();
   if (tab === 'waumini') renderTreasurerWaumini();
   if (tab === 'ripoti') initRipotiTab();
+  if (tab === 'bajeti') initBajetiTab();
 }
 
 // ==================== MATUMIZI BAKI (Daily Status in Matumizi Tab) ====================
@@ -4240,6 +4316,227 @@ window.addEventListener('unhandledrejection', e => {
   console.error('Hitilafu isiyoshughulikiwa:', e.reason);
   toast('⚠ Kosa la mfumo: ' + (e.reason?.message || String(e.reason) || 'Imeshindwa'));
 });
+
+// ==================== BAJETI YA MWAKA ====================
+function initBajetiTab() {
+  const yr = new Date().getFullYear();
+  if (!el('bajeti-mwaka').value) el('bajeti-mwaka').value = yr;
+  if (bajetiCurrentMwaka) {
+    renderBajetiMapato();
+    renderBajetiMatumizi();
+    renderBajetiSummary();
+  }
+}
+
+async function loadBajetiMwaka() {
+  const mwaka = parseInt(el('bajeti-mwaka').value);
+  if (!mwaka || mwaka < 2020 || mwaka > 2050) {
+    el('bajeti-alert').innerHTML = '<div class="alert alert-error">⚠ Weka mwaka sahihi (mfano: 2026)</div>';
+    return;
+  }
+  el('bajeti-alert').innerHTML = '';
+  bajetiCurrentMwaka = mwaka;
+  try {
+    const { data, error } = await db.from('bajeti_mwaka').select('*').eq('mwaka', mwaka).order('aina').order('created_at', { ascending: true });
+    if (error) throw error;
+    allBajeti = data || [];
+  } catch(e) {
+    console.warn('Jedwali ya bajeti_mwaka haijawekwa bado:', e.message);
+    allBajeti = [];
+    el('bajeti-alert').innerHTML = '<div class="alert alert-warning">⚠ Jedwali ya bajeti haijawekwa bado kwenye database. Tazama maelekezo ya SQL hapa chini.</div>';
+  }
+  el('bajeti-mwaka-label').textContent = mwaka;
+  el('bajeti-mwaka-label2').textContent = mwaka;
+  el('bajeti-mwaka-label3').textContent = mwaka;
+  el('bajeti-content').style.display = 'block';
+  renderBajetiMapato();
+  renderBajetiMatumizi();
+  renderBajetiSummary();
+}
+
+async function addBajetiItem(aina) {
+  if (!bajetiCurrentMwaka) { toast('⚠ Chagua mwaka kwanza'); return; }
+  const kichwaEl = el('bajeti-' + aina + '-kichwa');
+  const kiasiEl  = el('bajeti-' + aina + '-kiasi');
+  const alertEl  = el('bajeti-' + aina + '-alert');
+  const kichwa = kichwaEl.value.trim();
+  const kiasi  = parseInt(kiasiEl.value);
+  if (!kichwa) {
+    alertEl.innerHTML = '<div class="alert alert-error">Weka kichwa cha ' + (aina === 'mapato' ? 'mapato' : 'matumizi') + '</div>';
+    return;
+  }
+  if (!kiasi || kiasi <= 0) {
+    alertEl.innerHTML = '<div class="alert alert-error">Weka kiasi halisi cha makadirio</div>';
+    return;
+  }
+  alertEl.innerHTML = '';
+  const { data, error } = await db.from('bajeti_mwaka').insert({ mwaka: bajetiCurrentMwaka, aina, kichwa, kiasi_makadirio: kiasi }).select().single();
+  if (error) {
+    alertEl.innerHTML = `<div class="alert alert-error">❌ ${error.message}</div>`;
+    return;
+  }
+  allBajeti.push(data);
+  kichwaEl.value = '';
+  kiasiEl.value = '';
+  toast('✅ Imeongezwa: ' + kichwa);
+  if (aina === 'mapato') renderBajetiMapato();
+  else renderBajetiMatumizi();
+  renderBajetiSummary();
+}
+
+async function deleteBajetiItem(id, aina) {
+  if (!confirm('Una uhakika wa kufuta kipengele hiki cha bajeti?')) return;
+  const { error } = await db.from('bajeti_mwaka').delete().eq('id', id);
+  if (error) { toast('❌ Hitilafu: ' + error.message); return; }
+  allBajeti = allBajeti.filter(b => b.id !== id);
+  toast('🗑 Imefutwa');
+  if (aina === 'mapato') renderBajetiMapato();
+  else renderBajetiMatumizi();
+  renderBajetiSummary();
+}
+
+function renderBajetiMapato() {
+  const cont = el('bajeti-mapato-list'); if (!cont) return;
+  const items = allBajeti.filter(b => b.aina === 'mapato');
+  if (!items.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:16px;color:#6B7280;font-size:13px;">Bado hakuna makadirio ya mapato. Ongeza hapo juu.</div>';
+    return;
+  }
+  const makaTotal = items.reduce((s, b) => s + b.kiasi_makadirio, 0);
+  const rows = items.map(b => {
+    const pct = makaTotal > 0 ? Math.round((b.kiasi_makadirio / makaTotal) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #E2E8F0;flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;">
+        <div style="font-weight:600;font-size:13px;color:#1B4D3E;">${b.kichwa}</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">${pct}% ya jumla ya makadirio</div>
+      </div>
+      <div style="text-align:right;min-width:120px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:#2F855A;">${formatMoney(b.kiasi_makadirio)}</div>
+        <div style="font-size:11px;color:#6B7280;">Makadirio</div>
+      </div>
+      <button class="btn btn-sm btn-red" onclick="deleteBajetiItem(${b.id},'mapato')" title="Futa">🗑</button>
+    </div>`;
+  }).join('');
+  cont.innerHTML = rows + `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#E6F7EC;border-radius:8px;padding:12px 14px;margin-top:8px;">
+      <span style="font-weight:700;font-size:13px;color:#2F855A;">JUMLA YA MAKADIRIO YA MAPATO</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#2F855A;">${formatMoney(makaTotal)}</span>
+    </div>`;
+}
+
+function renderBajetiMatumizi() {
+  const cont = el('bajeti-matumizi-list'); if (!cont) return;
+  const items = allBajeti.filter(b => b.aina === 'matumizi');
+  if (!items.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:16px;color:#6B7280;font-size:13px;">Bado hakuna makadirio ya matumizi. Ongeza hapo juu.</div>';
+    return;
+  }
+  const makaTotal = items.reduce((s, b) => s + b.kiasi_makadirio, 0);
+  const rows = items.map(b => {
+    const pct = makaTotal > 0 ? Math.round((b.kiasi_makadirio / makaTotal) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #E2E8F0;flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;">
+        <div style="font-weight:600;font-size:13px;color:#1B4D3E;">${b.kichwa}</div>
+        <div style="font-size:11px;color:#6B7280;margin-top:2px;">${pct}% ya jumla ya makadirio</div>
+      </div>
+      <div style="text-align:right;min-width:120px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:#B83B3B;">${formatMoney(b.kiasi_makadirio)}</div>
+        <div style="font-size:11px;color:#6B7280;">Makadirio</div>
+      </div>
+      <button class="btn btn-sm btn-red" onclick="deleteBajetiItem(${b.id},'matumizi')" title="Futa">🗑</button>
+    </div>`;
+  }).join('');
+  cont.innerHTML = rows + `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#FEE2E2;border-radius:8px;padding:12px 14px;margin-top:8px;">
+      <span style="font-weight:700;font-size:13px;color:#B83B3B;">JUMLA YA MAKADIRIO YA MATUMIZI</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#B83B3B;">${formatMoney(makaTotal)}</span>
+    </div>`;
+}
+
+function renderBajetiSummary() {
+  const cont = el('bajeti-summary'); if (!cont || !bajetiCurrentMwaka) return;
+  const mwaka = bajetiCurrentMwaka;
+  const from = `${mwaka}-01-01`;
+  const to   = `${mwaka}-12-31`;
+
+  const makaMapato   = allBajeti.filter(b => b.aina === 'mapato').reduce((s, b) => s + b.kiasi_makadirio, 0);
+  const makaMatumizi = allBajeti.filter(b => b.aina === 'matumizi').reduce((s, b) => s + b.kiasi_makadirio, 0);
+
+  const halisiMapato   = allJumla.filter(j => j.tarehe >= from && j.tarehe <= to).reduce((s, j) => s + calcIbadaJumlaEffective(j), 0);
+  const halisiMatumizi = allExpenses.filter(e => e.tarehe >= from && e.tarehe <= to).reduce((s, e) => s + e.kiasi, 0);
+
+  const makaBaki   = makaMapato - makaMatumizi;
+  const halisiBaki = halisiMapato - halisiMatumizi;
+
+  const pMapato   = makaMapato   > 0 ? Math.min(100, Math.round((halisiMapato   / makaMapato)   * 100)) : 0;
+  const pMatumizi = makaMatumizi > 0 ? Math.min(100, Math.round((halisiMatumizi / makaMatumizi) * 100)) : 0;
+
+  const diffMapato   = halisiMapato   - makaMapato;
+  const diffMatumizi = halisiMatumizi - makaMatumizi;
+
+  cont.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:linear-gradient(135deg,#E6F7EC,#C6F6D5);border-radius:12px;padding:14px;border:1px solid #9AE6B4;">
+        <div style="font-size:11px;font-weight:700;color:#2F855A;text-transform:uppercase;margin-bottom:8px;">📈 MAPATO</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#4A5568;margin-bottom:3px;">
+          <span>Makadirio:</span><span style="font-weight:700;color:#2F855A;">${formatMoney(makaMapato)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#4A5568;margin-bottom:8px;">
+          <span>Halisi hadi sasa:</span><span style="font-weight:700;color:#1B4D3E;">${formatMoney(halisiMapato)}</span>
+        </div>
+        <div style="background:#9AE6B4;border-radius:4px;height:8px;overflow:hidden;">
+          <div style="background:#2F855A;width:${pMapato}%;height:100%;border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+          <span style="font-size:11px;color:#2F855A;font-weight:600;">${pMapato}% imefikiwa</span>
+          <span style="font-size:11px;color:${diffMapato >= 0 ? '#2F855A' : '#B83B3B'};font-weight:600;">${diffMapato >= 0 ? '+' : ''}${formatMoney(diffMapato)}</span>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#FEE2E2,#FECACA);border-radius:12px;padding:14px;border:1px solid #FCA5A5;">
+        <div style="font-size:11px;font-weight:700;color:#B83B3B;text-transform:uppercase;margin-bottom:8px;">💸 MATUMIZI</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#4A5568;margin-bottom:3px;">
+          <span>Makadirio:</span><span style="font-weight:700;color:#B83B3B;">${formatMoney(makaMatumizi)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#4A5568;margin-bottom:8px;">
+          <span>Halisi hadi sasa:</span><span style="font-weight:700;color:#7B1B1B;">${formatMoney(halisiMatumizi)}</span>
+        </div>
+        <div style="background:#FECACA;border-radius:4px;height:8px;overflow:hidden;">
+          <div style="background:#B83B3B;width:${pMatumizi}%;height:100%;border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+          <span style="font-size:11px;color:#B83B3B;font-weight:600;">${pMatumizi}% imetumika</span>
+          <span style="font-size:11px;color:${diffMatumizi <= 0 ? '#2F855A' : '#B83B3B'};font-weight:600;">${diffMatumizi >= 0 ? '+' : ''}${formatMoney(diffMatumizi)}</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#1B4D3E,#2C5A4A);border-radius:12px;padding:16px;color:white;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#C6A43F;font-weight:700;margin-bottom:12px;">MUHTASARI KAMILI — BAJETI ${mwaka}</div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.12);font-size:13px;">
+        <span style="opacity:0.85;">Jumla Makadirio ya Mapato:</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:700;color:#C6A43F;">${formatMoney(makaMapato)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.12);font-size:13px;">
+        <span style="opacity:0.85;">Jumla Makadirio ya Matumizi:</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:700;color:#FCA5A5;">${formatMoney(makaMatumizi)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(198,164,63,0.4);font-size:13px;">
+        <span style="opacity:0.85;">Baki ya Makadirio (Mapato − Matumizi):</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:700;color:${makaBaki >= 0 ? '#C6A43F' : '#FCA5A5'};">${formatMoney(makaBaki)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.12);font-size:13px;">
+        <span style="opacity:0.85;">Mapato Halisi (hadi sasa):</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:700;color:#A7F3D0;">${formatMoney(halisiMapato)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.12);font-size:13px;">
+        <span style="opacity:0.85;">Matumizi Halisi (hadi sasa):</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:700;color:#FCA5A5;">${formatMoney(halisiMatumizi)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:4px;font-size:14px;">
+        <span style="font-weight:700;">BAKI HALISI (hadi sasa):</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:${halisiBaki >= 0 ? '#C6A43F' : '#FCA5A5'};">${formatMoney(halisiBaki)}</span>
+      </div>
+    </div>`;
+}
 
 // ==================== INIT ====================
 window.addEventListener('DOMContentLoaded', () => {
