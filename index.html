@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muhimbili Anglican Church | Mfumo Kamili wa Kanisa</title>
+<title>Muhimbili Anglican Chaplaincy | Mfumo Kamili wa Kanisa</title>
 <!-- SUPABASE CDN — FIX KUU: Library lazima ipakiwe kwanza -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -186,7 +186,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
 <!-- WELCOME SCREEN -->
 <div class="screen" id="s-welcome">
   <div class="welcome">
-    <div class="w-logo"><h1>MUHIMBILI<br>ANGLICAN CHURCH</h1><p>DIOCESE OF DAR ES SALAAM</p></div>
+    <div class="w-logo"><h1>MUHIMBILI<br>ANGLICAN CHAPLAINCY</h1><p>DIOCESE OF DAR ES SALAAM</p></div>
     <p class="w-verse">"Kwa maana wawili au watatu wamekusanyika pamoja kwa jina langu, niko hapo katikati yao" — Mt. 18:20</p>
     <div class="w-btns">
       <button class="wb" onclick="show('s-member-login')"><span class="wb-icon">🙏</span><span class="wb-text"><span class="wb-label">Muumini — Login</span><span class="wb-desc">Akaunti yako binafsi</span></span></button>
@@ -194,7 +194,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <button class="wb" onclick="show('s-secretary-login')"><span class="wb-icon">📋</span><span class="wb-text"><span class="wb-label">Katibu</span><span class="wb-desc">Waumini & matangazo</span></span></button>
       <button class="wb" onclick="show('s-treasurer-login')"><span class="wb-icon">💰</span><span class="wb-text"><span class="wb-label">Mweka Hazina</span><span class="wb-desc">Michango & matumizi</span></span></button>
     </div>
-    <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:40px;">© Muhimbili Anglican Church | ICR 2026</p>
+    <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:40px;">© Muhimbili Anglican Chaplaincy | ICR 2026</p>
   </div>
 </div>
 
@@ -280,7 +280,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="tab-ahadi" onclick="memberTab('ahadi')">🤝 Ahadi</div>
       <div class="tab" id="tab-announcements" onclick="memberTab('announcements')">📢 Matangazo</div>
       <div class="tab" id="tab-viongozi" onclick="memberTab('viongozi')">🏛 Viongozi</div>
-      <div class="tab" id="tab-ratiba" onclick="memberTab('ratiba')">📅 Ratiba Jumuiya</div>
+      <div class="tab" id="tab-ratiba" onclick="memberTab('ratiba')">📅 Ratiba</div>
       <div class="tab" id="tab-profile" onclick="memberTab('profile')">👤 Profaili</div>
     </div>
     <div id="member-account"><div id="member-jumuiya-notice"></div><div id="member-stats" class="stats-grid"></div><div class="card"><div class="card-title">📜 Historia ya Michango</div><div id="member-contributions"></div></div></div>
@@ -293,9 +293,24 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       </div>
     </div>
     <div id="member-ratiba" style="display:none;">
-      <div class="card">
-        <div class="card-title">📅 RATIBA YA JUMUIYA — MWAKA WOTE</div>
-        <div id="member-ratiba-list"><div style="text-align:center;padding:30px;color:#6B7280;">Inapakia...</div></div>
+      <!-- Sub-tab selector -->
+      <div class="tabs" style="margin-bottom:20px;">
+        <div class="tab active" id="mem-ratiba-sub-jumuiya" onclick="memRatibaSubTab('jumuiya')">🏘 Ratiba ya Jumuiya</div>
+        <div class="tab" id="mem-ratiba-sub-mwaka" onclick="memRatibaSubTab('mwaka')">📆 Ratiba / Calendar ya Mwaka</div>
+      </div>
+      <!-- Jumuiya sub-section -->
+      <div id="mem-ratiba-jumuiya-content">
+        <div class="card">
+          <div class="card-title">📅 RATIBA YA JUMUIYA — MWAKA WOTE</div>
+          <div id="member-ratiba-list"><div style="text-align:center;padding:30px;color:#6B7280;">Inapakia...</div></div>
+        </div>
+      </div>
+      <!-- Calendar ya Mwaka sub-section -->
+      <div id="mem-ratiba-mwaka-content" style="display:none;">
+        <div class="card">
+          <div class="card-title">📆 RATIBA / CALENDAR YA MWAKA</div>
+          <div id="member-ratiba-mwaka-list"><div style="text-align:center;padding:30px;color:#6B7280;">Inapakia...</div></div>
+        </div>
       </div>
     </div>
     <div id="member-profile" style="display:none;"><div class="card"><div class="card-title">👤 Taarifa Zangu</div><div id="profile-info"></div><div style="margin-top:20px;"><div class="card-title">🔒 Badilisha Nenosiri</div><div id="profile-pw-alert"></div><div class="fg"><label>Nenosiri la Zamani</label><input type="password" class="fi" id="old-pw"></div><div class="fg"><label>Nenosiri Jipya</label><input type="password" class="fi" id="new-pw"></div><div class="fg"><label>Thibitisha</label><input type="password" class="fi" id="new-pw2"></div><button class="btn btn-primary btn-block" onclick="changePassword()">🔒 Badilisha</button></div></div></div>
@@ -414,7 +429,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="secretary-tab-wageni" onclick="secretaryTab('wageni')">🤝 Wageni</div>
       <div class="tab" id="secretary-tab-announce" onclick="secretaryTab('announce')">📢 Tangazo</div>
       <div class="tab" id="secretary-tab-fedha" onclick="secretaryTab('fedha')">💰 Fedha</div>
-      <div class="tab" id="secretary-tab-ratiba" onclick="secretaryTab('ratiba')">📅 Ratiba Jumuiya</div>
+      <div class="tab" id="secretary-tab-ratiba" onclick="secretaryTab('ratiba')">📅 Ratiba</div>
     </div>
     <div id="secretary-reg"><div id="reg-requests-list"></div></div>
     <div id="secretary-idhini" style="display:none;"><div id="sec-idhini-list"></div></div>
@@ -503,55 +518,106 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="secretary-fedha" style="display:none;"><div id="secretary-fedha-content"></div></div>
 
     <div id="secretary-ratiba" style="display:none;">
-      <div class="card">
-        <div class="card-title">📅 INGIZA / SASISHA RATIBA YA JUMUIYA</div>
-        <div class="alert alert-info">Jumuiya hufanyika Jumapili ya mwisho ya kila mwezi. Weka taarifa kwa kila mwezi wa mwaka.</div>
-        <div id="ratiba-alert"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="fg" style="margin-bottom:0;">
-            <label>Mwaka *</label>
-            <input type="number" class="fi" id="ratiba-mwaka" placeholder="2026" min="2024" max="2099">
+      <!-- Sub-tab selector -->
+      <div class="tabs" style="margin-bottom:20px;">
+        <div class="tab active" id="sec-ratiba-sub-jumuiya" onclick="secRatibaSubTab('jumuiya')">🏘 Ratiba ya Jumuiya</div>
+        <div class="tab" id="sec-ratiba-sub-mwaka" onclick="secRatibaSubTab('mwaka')">📆 Ratiba / Calendar ya Mwaka</div>
+      </div>
+
+      <!-- ===== SUB: Ratiba ya Jumuiya ===== -->
+      <div id="sec-ratiba-jumuiya-content">
+        <div class="card">
+          <div class="card-title">📅 INGIZA / SASISHA RATIBA YA JUMUIYA</div>
+          <div class="alert alert-info">Jumuiya hufanyika Jumapili ya mwisho ya kila mwezi. Weka taarifa kwa kila mwezi wa mwaka.</div>
+          <div id="ratiba-alert"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Mwaka *</label>
+              <input type="number" class="fi" id="ratiba-mwaka" placeholder="2026" min="2024" max="2099">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label>Mwezi *</label>
+              <select class="fsel" id="ratiba-mwezi">
+                <option value="">— Chagua mwezi —</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Machi</option>
+                <option value="4">Aprili</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Julai</option>
+                <option value="8">Agosti</option>
+                <option value="9">Septemba</option>
+                <option value="10">Oktoba</option>
+                <option value="11">Novemba</option>
+                <option value="12">Desemba</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+              <label>Jina la Mwenyeji (atakayeandaa Jumuiya) *</label>
+              <input type="text" class="fi" id="ratiba-jina-mwenyeji" placeholder="mfano: Ndg. Mariam Juma">
+            </div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+              <label>Mahali (Nyumba ya Mwenyeji) *</label>
+              <input type="text" class="fi" id="ratiba-mahali" placeholder="mfano: Nyumba ya Ndg. Mariam — Sinza Mori">
+            </div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+              <label>Tarehe ya Jumuiya *</label>
+              <input type="date" class="fi" id="ratiba-tarehe">
+            </div>
           </div>
-          <div class="fg" style="margin-bottom:0;">
-            <label>Mwezi *</label>
-            <select class="fsel" id="ratiba-mwezi">
-              <option value="">— Chagua mwezi —</option>
-              <option value="1">Januari</option>
-              <option value="2">Februari</option>
-              <option value="3">Machi</option>
-              <option value="4">Aprili</option>
-              <option value="5">Mei</option>
-              <option value="6">Juni</option>
-              <option value="7">Julai</option>
-              <option value="8">Agosti</option>
-              <option value="9">Septemba</option>
-              <option value="10">Oktoba</option>
-              <option value="11">Novemba</option>
-              <option value="12">Desemba</option>
-            </select>
-          </div>
-          <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
-            <label>Jina la Mwenyeji (atakayeandaa Jumuiya) *</label>
-            <input type="text" class="fi" id="ratiba-jina-mwenyeji" placeholder="mfano: Ndg. Mariam Juma">
-          </div>
-          <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
-            <label>Mahali (Nyumba ya Mwenyeji) *</label>
-            <input type="text" class="fi" id="ratiba-mahali" placeholder="mfano: Nyumba ya Ndg. Mariam — Sinza Mori">
-          </div>
-          <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
-            <label>Tarehe ya Jumuiya *</label>
-            <input type="date" class="fi" id="ratiba-tarehe">
+          <input type="hidden" id="ratiba-edit-id">
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="saveRatibaJumuiya()">💾 Hifadhi Ratiba</button>
+            <button class="btn btn-outline" onclick="clearRatibaForm()">✕ Futa Fomu</button>
           </div>
         </div>
-        <input type="hidden" id="ratiba-edit-id">
-        <div style="display:flex;gap:8px;margin-top:14px;">
-          <button class="btn btn-primary" style="flex:1;" onclick="saveRatibaJumuiya()">💾 Hifadhi Ratiba</button>
-          <button class="btn btn-outline" onclick="clearRatibaForm()">✕ Futa Fomu</button>
+        <div class="card">
+          <div class="card-title">📋 RATIBA YA MWAKA WOTE — JUMUIYA</div>
+          <div id="secretary-ratiba-list"></div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">📋 RATIBA YA MWAKA WOTE — JUMUIYA</div>
-        <div id="secretary-ratiba-list"></div>
+
+      <!-- ===== SUB: Ratiba / Calendar ya Mwaka ===== -->
+      <div id="sec-ratiba-mwaka-content" style="display:none;">
+        <div class="card">
+          <div class="card-title">📆 INGIZA / SASISHA RATIBA / CALENDAR YA MWAKA</div>
+          <div class="alert alert-info">Weka matukio, sherehe, na tarehe muhimu za kanisa kwa mwaka wote. Taarifa hizi zinaonekana kwa waumini.</div>
+          <div id="ratiba-mwaka-alert"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="fg" style="margin-bottom:0;">
+              <label>Mwaka *</label>
+              <input type="number" class="fi" id="rm-mwaka" placeholder="2026" min="2024" max="2099">
+            </div>
+            <div class="fg" style="margin-bottom:0;">
+              <label>Tarehe ya Tukio *</label>
+              <input type="date" class="fi" id="rm-tarehe">
+            </div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+              <label>Kichwa cha Tukio *</label>
+              <input type="text" class="fi" id="rm-kichwa" placeholder="mfano: Pasaka, Krisimasi, Ibada ya Shukrani...">
+            </div>
+            <div class="fg" style="margin-bottom:0;grid-column:1/-1;">
+              <label>Maelezo (hiari)</label>
+              <textarea class="fi" id="rm-maelezo" rows="2" placeholder="Maelezo ya ziada kuhusu tukio hili"></textarea>
+            </div>
+          </div>
+          <input type="hidden" id="rm-edit-id">
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="saveRatibaMwaka()">💾 Hifadhi Tukio</button>
+            <button class="btn btn-outline" onclick="clearRatibaMwakaForm()">✕ Futa Fomu</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span>📋 MATUKIO YA MWAKA</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:12px;font-weight:600;color:#4A5568;margin:0;">Mwaka:</label>
+              <input type="number" class="fi" id="rm-filter-mwaka" placeholder="2026" min="2024" max="2099" style="width:90px;padding:6px 10px;font-size:13px;" oninput="renderRatibaMwakaSecretary()">
+            </div>
+          </div>
+          <div id="secretary-ratiba-mwaka-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -729,6 +795,12 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
               <option value="Karatasi">Karatasi</option>
               <option value="Usafiri">Usafiri</option>
               <option value="Ujenzi">Ujenzi</option>
+              <option value="Kota Dayosisi">Kota Dayosisi</option>
+              <option value="Kutabaruku Kanisa">Kutabaruku Kanisa</option>
+              <option value="Rambirambi">Rambirambi</option>
+              <option value="Bima ya Afya">Bima ya Afya</option>
+              <option value="Matibabu">Matibabu</option>
+              <option value="UTT Ukwasi">UTT Ukwasi</option>
               <option value="Nyingine">Nyingine</option>
             </optgroup>
           </select>
@@ -959,6 +1031,19 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   ALTER TABLE ratiba_jumuiya ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "allow_all_ratiba_jumuiya" ON ratiba_jumuiya FOR ALL USING (true) WITH CHECK (true);
   -----------------------------------------------------------------------
+  -- RATIBA / CALENDAR YA MWAKA (mpya — tekeleza kwenye Supabase SQL Editor):
+  CREATE TABLE ratiba_mwaka (
+    id bigserial primary key,
+    mwaka integer not null,
+    tarehe date not null,
+    kichwa text not null,
+    maelezo text,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+  );
+  ALTER TABLE ratiba_mwaka ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_ratiba_mwaka" ON ratiba_mwaka FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
   -- BAJETI YA MWAKA (mpya — tekeleza kwenye Supabase SQL Editor):
   CREATE TABLE bajeti_mwaka (
     id bigserial primary key,
@@ -987,9 +1072,10 @@ let allAhadi = [], allAhadiMalipo = [];
 let allBenkiAmana = [], allBenkiAda = [];
 let allViongozi = [];
 let allRatibaJumuiya = [];
+let allRatibaMwaka = [];
 let allBajeti = [];
 let bajetiCurrentMwaka = null;
-let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHURCH", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
+let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHAPLAINCY", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
 function el(id) { return document.getElementById(id); }
@@ -1140,6 +1226,10 @@ async function loadAllData(silent = false) {
     const { data: ratiba } = await db.from('ratiba_jumuiya').select('*').order('tarehe', { ascending: true });
     allRatibaJumuiya = ratiba || [];
   } catch (e) { console.warn('Jedwali ya ratiba_jumuiya haijawekwa bado:', e.message); allRatibaJumuiya = []; }
+  try {
+    const { data: ratibaMwaka } = await db.from('ratiba_mwaka').select('*').order('tarehe', { ascending: true });
+    allRatibaMwaka = ratibaMwaka || [];
+  } catch (e) { console.warn('Jedwali ya ratiba_mwaka haijawekwa bado:', e.message); allRatibaMwaka = []; }
   if (!silent) showLoading(false);
 }
 
@@ -1304,7 +1394,7 @@ function memberTab(tab) {
   });
   if (tab === 'ahadi') renderMemberAhadi();
   if (tab === 'viongozi') renderViongoziMuumini();
-  if (tab === 'ratiba') renderMemberRatibaJumuiya();
+  if (tab === 'ratiba') { memRatibaSubTab('jumuiya'); renderMemberRatibaJumuiya(); }
 }
 
 // ==================== PASTOR DASHBOARD ====================
@@ -1548,7 +1638,7 @@ function secretaryTab(tab) {
   if (tab === 'wanafunzi') renderWanafunzi();
   if (tab === 'wageni') renderWageni();
   if (tab === 'idhini') renderSecretaryIdhini();
-  if (tab === 'ratiba') { renderRatibaJumuiyaSecretary(); initRatibaForm(); }
+  if (tab === 'ratiba') { secRatibaSubTab('jumuiya'); renderRatibaJumuiyaSecretary(); initRatibaForm(); }
 }
 
 // ==================== TREASURER DASHBOARD ====================
@@ -1587,7 +1677,7 @@ async function approveRequestWithInstructions(reqId, memberPhone, channel = 'wha
   await db.from('approvals').insert({ aina: 'contribution', kichwa: `${req.aina_jina} - ${req.muumini_jina}`, muumini_id: req.muumini_id, muumini_jina: req.muumini_jina, kiasi: req.kiasi, maelezo_ap: req.maelezo_muumini, hali: 'pending', tarehe_mchango: leo(), request_id: reqId });
   closeModal(); await loadAllData(); loadTreasurerDashboard();
   if (memberPhone) {
-    const msg = `✝ MUHIMBILI ANGLICAN CHURCH\n\nHabari ${req.muumini_jina},\n\nOmbi lako la mchango (${req.aina_jina} - ${formatMoney(req.kiasi)}) limekubaliwa! 🎉\n\n${instructions}\n\nMungu akubariki!`;
+    const msg = `✝ MUHIMBILI ANGLICAN CHAPLAINCY\n\nHabari ${req.muumini_jina},\n\nOmbi lako la mchango (${req.aina_jina} - ${formatMoney(req.kiasi)}) limekubaliwa! 🎉\n\n${instructions}\n\nMungu akubariki!`;
     if (channel === 'sms') {
       window.open(`sms:${memberPhone}?body=${encodeURIComponent(msg)}`, '_blank');
     } else {
@@ -2026,7 +2116,7 @@ function _pfHeader(formNum) {
     <div style="flex-shrink:0;">${_logo1()}</div>
     <div style="text-align:center;flex:1;padding:0 10px;">
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;font-family:'Times New Roman',serif;letter-spacing:0.5px;">KANISA ANGLIKANA TANZANIA</div>
-      <div style="font-size:14px;font-weight:700;text-transform:uppercase;font-family:'Times New Roman',serif;letter-spacing:0.5px;">MUHIMBILI ANGLICAN CHAPEL</div>
+      <div style="font-size:14px;font-weight:700;text-transform:uppercase;font-family:'Times New Roman',serif;letter-spacing:0.5px;">MUHIMBILI ANGLICAN CHAPLAINCY</div>
       <div style="font-size:10.5px;font-family:'Times New Roman',serif;">P.O. Box 25016, Dar es Salaam, Tanzania</div>
     </div>
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
@@ -2635,7 +2725,7 @@ function openBulkMsgModal() {
     </div>
     <div class="fg" style="margin-bottom:8px;">
       <label>Ujumbe</label>
-      <textarea class="fi" id="bulk-msg-text" rows="4" placeholder="Andika ujumbe hapa...">✝ MUHIMBILI ANGLICAN CHURCH\n\nHabari Ndugu/Dada,\n\n</textarea>
+      <textarea class="fi" id="bulk-msg-text" rows="4" placeholder="Andika ujumbe hapa...">✝ MUHIMBILI ANGLICAN CHAPLAINCY\n\nHabari Ndugu/Dada,\n\n</textarea>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-sm" style="background:#25D366;color:white;flex:1;" onclick="sendBulkWhatsApp()">🟢 Tuma WhatsApp (Mmoja Mmoja)</button>
@@ -3484,7 +3574,7 @@ function _ripotiPrint(d, generatedOn) {
     <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px double #000;padding-bottom:8px;margin-bottom:8px;">
       <div style="width:60px;">${logo1}</div>
       <div style="text-align:center;flex:1;">
-        <div style="font-size:14pt;font-weight:700;letter-spacing:1px;">MUHIMBILI ANGLICAN CHURCH</div>
+        <div style="font-size:14pt;font-weight:700;letter-spacing:1px;">MUHIMBILI ANGLICAN CHAPLAINCY</div>
         <div style="font-size:10pt;font-weight:600;">RIPOTI YA FEDHA</div>
         <div style="font-size:9pt;">Kipindi: <strong>${fmtPeriod}</strong></div>
       </div>
@@ -3572,7 +3662,7 @@ function downloadRipotiCSV() {
   const fmtPeriod = `${d.from} - ${d.to}`;
 
   const rows = [
-    ['RIPOTI YA FEDHA - MUHIMBILI ANGLICAN CHURCH'],
+    ['RIPOTI YA FEDHA - MUHIMBILI ANGLICAN CHAPLAINCY'],
     [`Kipindi: ${fmtPeriod}`],
     [],
     ['=== MUHTASARI ==='],
@@ -4030,7 +4120,7 @@ function downloadAhadiCSV(aina) {
   if (!filtered.length) { toast(`Hakuna rekodi za ${aina || 'ahadi'}`); return; }
   const ahadiIcons = { 'Mavuno': '🌾', 'Fungu la Kumi': '💰', 'Ujenzi': '🏗', 'Ahadi': '🤝' };
   const rows = [
-    [`MUHIMBILI ANGLICAN CHURCH — Ripoti ya Ahadi${aina ? ': ' + aina : ' Zote'}`],
+    [`MUHIMBILI ANGLICAN CHAPLAINCY — Ripoti ya Ahadi${aina ? ': ' + aina : ' Zote'}`],
     [`Tarehe ya Ripoti: ${new Date().toLocaleDateString('sw')}`],
     [],
     ['Jina la Muumini', 'Simu', 'Aina ya Ahadi', 'Tarehe ya Ahadi', 'Kiasi cha Ahadi (TZS)', 'Kiasi Kilicholipwa (TZS)', 'Kiasi Kinachobaki (TZS)', 'Hali'],
@@ -4294,6 +4384,174 @@ function renderMemberRatibaJumuiya() {
             </div>
             <div style="font-size:12px;color:#4A5568;margin-top:4px;">🙏 ${r.jina_mwenyeji}</div>
             <div style="font-size:12px;color:#6B7280;margin-top:2px;">📍 ${r.mahali}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatDate(r.tarehe)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ==================== RATIBA SUB-TABS ====================
+function secRatibaSubTab(sub) {
+  ['jumuiya', 'mwaka'].forEach(s => {
+    const cont = el('sec-ratiba-' + s + '-content');
+    const btn = el('sec-ratiba-sub-' + s);
+    if (cont) cont.style.display = s === sub ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', s === sub);
+  });
+  if (sub === 'mwaka') {
+    const now = new Date();
+    if (el('rm-mwaka') && !el('rm-mwaka').value) el('rm-mwaka').value = now.getFullYear();
+    if (el('rm-filter-mwaka') && !el('rm-filter-mwaka').value) el('rm-filter-mwaka').value = now.getFullYear();
+    renderRatibaMwakaSecretary();
+  }
+}
+
+function memRatibaSubTab(sub) {
+  ['jumuiya', 'mwaka'].forEach(s => {
+    const cont = el('mem-ratiba-' + s + '-content');
+    const btn = el('mem-ratiba-sub-' + s);
+    if (cont) cont.style.display = s === sub ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', s === sub);
+  });
+  if (sub === 'jumuiya') renderMemberRatibaJumuiya();
+  if (sub === 'mwaka') renderMemberRatibaMwaka();
+}
+
+// ==================== RATIBA YA MWAKA (Calendar) ====================
+function clearRatibaMwakaForm() {
+  el('rm-edit-id').value = '';
+  el('rm-tarehe').value = '';
+  el('rm-kichwa').value = '';
+  el('rm-maelezo').value = '';
+  el('ratiba-mwaka-alert').innerHTML = '';
+}
+
+async function saveRatibaMwaka() {
+  const mwaka = parseInt(el('rm-mwaka').value);
+  const tarehe = el('rm-tarehe').value;
+  const kichwa = el('rm-kichwa').value.trim();
+  const maelezo = el('rm-maelezo').value.trim();
+  const editId = el('rm-edit-id').value;
+
+  if (!mwaka || !tarehe || !kichwa) {
+    el('ratiba-mwaka-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote zinazohitajika *</div>';
+    return;
+  }
+
+  const payload = { mwaka, tarehe, kichwa, maelezo, updated_at: new Date().toISOString() };
+
+  let error;
+  if (editId) {
+    ({ error } = await db.from('ratiba_mwaka').update(payload).eq('id', parseInt(editId)));
+  } else {
+    ({ error } = await db.from('ratiba_mwaka').insert(payload));
+  }
+
+  if (error) {
+    el('ratiba-mwaka-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu: ${error.message}</div>`;
+    return;
+  }
+
+  el('ratiba-mwaka-alert').innerHTML = `<div class="alert alert-success">✅ Tukio limehifadhiwa!</div>`;
+  clearRatibaMwakaForm();
+  await loadAllData(true);
+  renderRatibaMwakaSecretary();
+  setTimeout(() => { if (el('ratiba-mwaka-alert')) el('ratiba-mwaka-alert').innerHTML = ''; }, 3000);
+}
+
+function editRatibaMwakaForm(id) {
+  const r = allRatibaMwaka.find(x => x.id == id); if (!r) return;
+  el('rm-edit-id').value = r.id;
+  el('rm-mwaka').value = r.mwaka;
+  el('rm-tarehe').value = r.tarehe;
+  el('rm-kichwa').value = r.kichwa;
+  el('rm-maelezo').value = r.maelezo || '';
+  el('ratiba-mwaka-alert').innerHTML = '<div class="alert alert-warning">✏️ Unabadilisha tukio. Bonyeza "Hifadhi Tukio" baada ya mabadiliko.</div>';
+  el('rm-kichwa').focus();
+  el('sec-ratiba-mwaka-content').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteRatibaMwaka(id) {
+  if (!confirm('Futa tukio hili kutoka ratiba ya mwaka?')) return;
+  const { error } = await db.from('ratiba_mwaka').delete().eq('id', id);
+  if (error) { toast('❌ Imeshindwa kufuta: ' + error.message); return; }
+  await loadAllData(true);
+  renderRatibaMwakaSecretary();
+  toast('🗑 Tukio limefutwa');
+}
+
+function renderRatibaMwakaSecretary() {
+  const cont = el('secretary-ratiba-mwaka-list'); if (!cont) return;
+  const now = new Date();
+  const mwaka = parseInt(el('rm-filter-mwaka').value) || now.getFullYear();
+  const filtered = allRatibaMwaka.filter(r => r.mwaka === mwaka).sort((a, b) => a.tarehe.localeCompare(b.tarehe));
+
+  if (!filtered.length) {
+    cont.innerHTML = `<div style="text-align:center;padding:30px;color:#6B7280;">Hakuna matukio yaliyowekwa kwa mwaka ${mwaka}. Tumia fomu hapo juu kuanza kuingiza.</div>`;
+    return;
+  }
+
+  const today = now.toISOString().slice(0, 10);
+  cont.innerHTML = `
+    <div style="margin-bottom:12px;font-size:12px;color:#6B7280;">Matukio ${filtered.length} ya mwaka ${mwaka} yamewekwa.</div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>#</th><th>Tarehe</th><th>Kichwa cha Tukio</th><th>Maelezo</th><th style="text-align:center;">Vitendo</th></tr></thead>
+        <tbody>
+          ${filtered.map((r, i) => {
+            const isPast = r.tarehe < today;
+            const isToday = r.tarehe === today;
+            return `<tr style="${isPast ? 'opacity:0.65;' : ''}${isToday ? 'background:#F0FFF4;' : ''}">
+              <td>${i + 1}</td>
+              <td><strong style="color:${isToday ? '#2F855A' : '#1B4D3E'}">${formatDate(r.tarehe)}</strong>${isToday ? ' <span class="badge badge-green" style="font-size:10px;">Leo</span>' : ''}</td>
+              <td>${r.kichwa}</td>
+              <td style="font-size:12px;color:#6B7280;">${r.maelezo || '—'}</td>
+              <td style="text-align:center;">
+                <div style="display:flex;gap:6px;justify-content:center;">
+                  <button class="btn btn-sm btn-outline" onclick="editRatibaMwakaForm(${r.id})" title="Hariri">✏️</button>
+                  <button class="btn btn-sm btn-red" onclick="deleteRatibaMwaka(${r.id})" title="Futa">🗑</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderMemberRatibaMwaka() {
+  const cont = el('member-ratiba-mwaka-list'); if (!cont) return;
+  const now = new Date();
+  const mwaka = now.getFullYear();
+  const today = now.toISOString().slice(0, 10);
+
+  const entries = allRatibaMwaka.filter(r => r.mwaka === mwaka).sort((a, b) => a.tarehe.localeCompare(b.tarehe));
+
+  if (!entries.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:40px;color:#6B7280;">Ratiba / Calendar ya mwaka huu bado haijawekwa na Katibu. Angalia tena baadaye.</div>';
+    return;
+  }
+
+  cont.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;color:#1B4D3E;margin-bottom:8px;">📆 Calendar ya Matukio — Mwaka ${mwaka}</div>
+      <div style="font-size:12px;color:#6B7280;">Matukio na tarehe muhimu za kanisa kwa mwaka wote.</div>
+    </div>
+    ${entries.map(r => {
+      const isPast = r.tarehe < today;
+      const isToday = r.tarehe === today;
+      return `
+      <div style="border-radius:12px;border:1px solid ${isToday ? '#9AE6B4' : '#E2E8F0'};background:${isToday ? 'linear-gradient(135deg,#F0FFF4,#E6F7EC)' : 'white'};padding:14px;margin-bottom:10px;${isPast && !isToday ? 'opacity:0.65;' : ''}">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:${isToday ? '#2F855A' : '#1B4D3E'};">
+              ${isToday ? '🟢 ' : isPast ? '✅ ' : '📆 '}${r.kichwa}
+              ${isToday ? '<span class="badge badge-green" style="margin-left:6px;font-size:10px;">Leo</span>' : ''}
+            </div>
+            ${r.maelezo ? `<div style="font-size:12px;color:#6B7280;margin-top:4px;">📝 ${r.maelezo}</div>` : ''}
           </div>
           <div style="text-align:right;flex-shrink:0;">
             <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C6A43F;">${formatDate(r.tarehe)}</div>
