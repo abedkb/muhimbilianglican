@@ -210,7 +210,12 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <button class="wb" onclick="show('s-secretary-login')"><span class="wb-icon">📋</span><span class="wb-text"><span class="wb-label">Katibu</span><span class="wb-desc">Waumini & matangazo</span></span></button>
       <button class="wb" onclick="show('s-treasurer-login')"><span class="wb-icon">💰</span><span class="wb-text"><span class="wb-label">Mweka Hazina</span><span class="wb-desc">Michango & matumizi</span></span></button>
     </div>
-    <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:40px;">© Muhimbili Anglican Chaplaincy | ICR 2026</p>
+    <!-- INSTALL BUTTON — always visible on all platforms -->
+    <button id="pwa-install-trigger" onclick="pwaShowInstall()" style="margin-top:24px;background:rgba(198,164,63,0.15);border:1.5px solid rgba(198,164,63,0.6);color:#C6A43F;padding:13px 22px;border-radius:40px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;max-width:320px;transition:all 0.2s;">
+      <span style="font-size:20px">📲</span>
+      <span>Bonyeza hapa kupakua application hii kwenye simu yako</span>
+    </button>
+    <p style="color:rgba(255,255,255,0.2);font-size:10px;margin-top:24px;">© Muhimbili Anglican Chaplaincy | ICR 2026</p>
   </div>
 </div>
 
@@ -4820,147 +4825,169 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 // ============================================================
-//  PWA — SINGLE FILE, FULLY SELF-CONTAINED
-//
-//  ✅ Manifest      → injected via data: URI
-//  ✅ Icons         → drawn via Canvas, embedded as data URLs
-//  ✅ Install banner→ custom UI bottom of screen
-//  ✅ iOS support   → apple-touch-icon injected dynamically
-//
-//  ⚠️  Service Worker offline caching is NOT possible in a
-//  single HTML file on a static host (GitHub Pages). Browsers
-//  require the SW script to be served as application/javascript
-//  from a real URL — a static server returns text/html for .html
-//  files, which browsers reject. Since Supabase always requires
-//  internet anyway, this limitation has zero practical impact.
+//  PWA — PLATFORM-AWARE INSTALL (iOS + Android + Desktop)
 // ============================================================
-
 (function() {
 
-  // ── 1. DRAW ICON via Canvas ──────────────────────────────
-  function drawIconDataURL(size) {
-    const c = document.createElement('canvas');
+  // ── 1. ICON via Canvas ────────────────────────────────────
+  function drawIcon(size) {
+    var c = document.createElement('canvas');
     c.width = c.height = size;
-    const ctx = c.getContext('2d');
-    const g = ctx.createLinearGradient(0, 0, size, size);
-    g.addColorStop(0, '#1B4D3E');
-    g.addColorStop(1, '#2C5A4A');
+    var ctx = c.getContext('2d');
+    var g = ctx.createLinearGradient(0,0,size,size);
+    g.addColorStop(0,'#1B4D3E'); g.addColorStop(1,'#2C5A4A');
     ctx.fillStyle = g;
-    const r = size * 0.22;
+    var r = size*0.22;
     ctx.beginPath();
-    ctx.moveTo(r,0); ctx.lineTo(size-r,0);
-    ctx.quadraticCurveTo(size,0,size,r);
-    ctx.lineTo(size,size-r);
-    ctx.quadraticCurveTo(size,size,size-r,size);
-    ctx.lineTo(r,size);
-    ctx.quadraticCurveTo(0,size,0,size-r);
-    ctx.lineTo(0,r);
-    ctx.quadraticCurveTo(0,0,r,0);
-    ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(r,0); ctx.lineTo(size-r,0); ctx.quadraticCurveTo(size,0,size,r);
+    ctx.lineTo(size,size-r); ctx.quadraticCurveTo(size,size,size-r,size);
+    ctx.lineTo(r,size); ctx.quadraticCurveTo(0,size,0,size-r);
+    ctx.lineTo(0,r); ctx.quadraticCurveTo(0,0,r,0);
+    ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#C6A43F';
-    ctx.fillRect(size/2 - size*0.05, size/2 - size*0.26, size*0.10, size*0.52);
-    ctx.fillRect(size/2 - size*0.21, size/2 - size*0.11, size*0.42, size*0.10);
+    ctx.fillRect(size/2-size*.05, size/2-size*.26, size*.10, size*.52);
+    ctx.fillRect(size/2-size*.21, size/2-size*.11, size*.42, size*.10);
     if (size >= 128) {
       ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = 'bold ' + Math.round(size*0.10) + 'px serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('MAC', size/2, size/2 + size*0.28);
+      ctx.font = 'bold '+Math.round(size*.10)+'px serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('MAC', size/2, size/2+size*.28);
     }
     return c.toDataURL('image/png');
   }
 
-  const icon192 = drawIconDataURL(192);
-  const icon512 = drawIconDataURL(512);
-  const icon152 = drawIconDataURL(152);
-  const icon144 = drawIconDataURL(144);
+  var icon192=drawIcon(192), icon512=drawIcon(512), icon152=drawIcon(152), icon144=drawIcon(144);
 
-  // ── 2. MANIFEST via data: URI ────────────────────────────
-  const manifest = {
-    name: "Muhimbili Anglican Chaplaincy",
-    short_name: "Muhimbili",
-    description: "Mfumo Kamili wa Usimamizi wa Kanisa",
+  // ── 2. MANIFEST via data: URI ─────────────────────────────
+  var manifest = {
+    name:"Muhimbili Anglican Chaplaincy", short_name:"Muhimbili",
+    description:"Mfumo Kamili wa Usimamizi wa Kanisa",
     start_url: location.href.split('?')[0],
-    display: "standalone",
-    orientation: "portrait-primary",
-    background_color: "#1B4D3E",
-    theme_color: "#1B4D3E",
-    lang: "sw",
-    prefer_related_applications: false,
-    icons: [
-      { src: icon192, sizes: "192x192", type: "image/png", purpose: "maskable any" },
-      { src: icon512, sizes: "512x512", type: "image/png", purpose: "maskable any" },
-      { src: icon152, sizes: "152x152", type: "image/png", purpose: "any" },
-      { src: icon144, sizes: "144x144", type: "image/png", purpose: "any" }
+    display:"standalone", orientation:"portrait-primary",
+    background_color:"#1B4D3E", theme_color:"#1B4D3E", lang:"sw",
+    prefer_related_applications:false,
+    icons:[
+      {src:icon192,sizes:"192x192",type:"image/png",purpose:"maskable any"},
+      {src:icon512,sizes:"512x512",type:"image/png",purpose:"maskable any"},
+      {src:icon152,sizes:"152x152",type:"image/png",purpose:"any"},
+      {src:icon144,sizes:"144x144",type:"image/png",purpose:"any"}
     ]
   };
-  const mLink = document.createElement('link');
-  mLink.rel  = 'manifest';
-  mLink.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+  var mLink=document.createElement('link');
+  mLink.rel='manifest';
+  mLink.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
   document.head.appendChild(mLink);
-
-  // iOS Safari apple-touch-icon
-  const aLink = document.createElement('link');
-  aLink.rel  = 'apple-touch-icon';
-  aLink.href = icon192;
+  var aLink=document.createElement('link');
+  aLink.rel='apple-touch-icon'; aLink.href=icon192;
   document.head.appendChild(aLink);
 
-  console.log('[PWA] Manifest imewekwa ✓');
+  // ── 3. DETECT PLATFORM ───────────────────────────────────
+  var ua = navigator.userAgent || '';
+  var isIOS     = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isAndroid = /Android/.test(ua);
+  var isMobile  = isIOS || isAndroid;
+  var isInApp   = window.navigator.standalone === true ||
+                  window.matchMedia('(display-mode: standalone)').matches;
 
-  // ── 3. INSTALL BANNER ───────────────────────────────────
-  let deferredPrompt = null;
-
-  const style = document.createElement('style');
-  style.textContent = [
-    '@keyframes pwaUp{',
-    '  from{opacity:0;transform:translateX(-50%) translateY(24px)}',
-    '  to  {opacity:1;transform:translateX(-50%) translateY(0)}',
-    '}',
-    '#pwa-banner{',
-    '  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);',
-    '  background:#1B4D3E;color:white;',
-    '  padding:12px 14px;border-radius:50px;',
-    '  box-shadow:0 8px 32px rgba(0,0,0,0.4);',
-    '  z-index:99999;font-family:Inter,sans-serif;',
-    '  font-size:13px;font-weight:600;',
-    '  display:none;align-items:center;gap:10px;',
-    '  max-width:340px;width:calc(100% - 40px);',
-    '  animation:pwaUp 0.4s ease;',
-    '}'
-  ].join('');
+  // ── 4. MODAL STYLES ──────────────────────────────────────
+  var style = document.createElement('style');
+  style.textContent =
+    '@keyframes pwaFadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}' +
+    '#pwa-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99998;display:flex;align-items:flex-end;justify-content:center;padding:16px;}' +
+    '#pwa-modal{background:#fff;border-radius:24px 24px 16px 16px;padding:24px 20px;width:100%;max-width:380px;animation:pwaFadeIn 0.3s ease;font-family:Inter,sans-serif;}' +
+    '#pwa-modal h3{font-size:17px;font-weight:700;color:#1B4D3E;margin-bottom:6px;}' +
+    '#pwa-modal p{font-size:13px;color:#4A5568;line-height:1.6;margin-bottom:16px;}' +
+    '.pwa-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:12px;background:#F9F6EF;border-radius:12px;}' +
+    '.pwa-step-num{background:#1B4D3E;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}' +
+    '.pwa-step-text{font-size:13px;color:#2D3748;line-height:1.5;}' +
+    '.pwa-step-text strong{display:block;font-weight:700;color:#1B4D3E;margin-bottom:2px;}' +
+    '#pwa-android-btn{width:100%;padding:14px;background:#1B4D3E;color:#fff;border:none;border-radius:40px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;}' +
+    '#pwa-close-btn{width:100%;padding:12px;background:#F1EFEA;color:#4A5568;border:none;border-radius:40px;font-size:13px;font-weight:600;cursor:pointer;}' +
+    '#pwa-install-trigger:hover{background:rgba(198,164,63,0.25)!important;}';
   document.head.appendChild(style);
 
-  const banner = document.createElement('div');
-  banner.id = 'pwa-banner';
-  banner.innerHTML =
-    '<span style="font-size:22px;flex-shrink:0">&#128242;</span>' +
-    '<span style="flex:1;line-height:1.3">Sakinisha app kwenye simu yako</span>' +
-    '<button id="pwa-install-btn" style="background:#C6A43F;color:#1B4D3E;border:none;padding:8px 16px;border-radius:30px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap">Sakinisha</button>' +
-    '<button id="pwa-dismiss-btn" style="background:transparent;color:rgba(255,255,255,0.5);border:none;font-size:20px;cursor:pointer;padding:0 4px;line-height:1">&#10005;</button>';
-
+  // ── 5. ANDROID: capture native prompt ────────────────────
+  var androidPrompt = null;
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
-    deferredPrompt = e;
-    setTimeout(function() {
-      document.body.appendChild(banner);
-      banner.style.display = 'flex';
-    }, 3000);
+    androidPrompt = e;
   });
 
-  document.addEventListener('click', async function(e) {
-    if (e.target.id === 'pwa-install-btn' && deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      banner.remove();
+  // ── 6. pwaShowInstall() — called by the welcome button ───
+  window.pwaShowInstall = function() {
+
+    // Already installed — tell user
+    if (isInApp) {
+      alert('App imeshasakinishwa kwenye simu yako! ✓');
+      return;
     }
-    if (e.target.id === 'pwa-dismiss-btn') banner.remove();
+
+    // Android + native prompt available → trigger directly
+    if (isAndroid && androidPrompt) {
+      androidPrompt.prompt();
+      androidPrompt.userChoice.then(function(r) {
+        if (r.outcome === 'accepted') androidPrompt = null;
+      });
+      return;
+    }
+
+    // Show modal with step-by-step instructions
+    var overlay = document.createElement('div');
+    overlay.id = 'pwa-overlay';
+    overlay.onclick = function(e) { if (e.target===overlay) overlay.remove(); };
+
+    var modal = document.createElement('div');
+    modal.id = 'pwa-modal';
+
+    var content = '';
+
+    if (isIOS) {
+      // iOS Safari instructions
+      content =
+        '<h3>📲 Pakua App — iPhone / iPad</h3>' +
+        '<p>Fuata hatua hizi kupakua app kwenye Home Screen yako:</p>' +
+        '<div class="pwa-step"><div class="pwa-step-num">1</div><div class="pwa-step-text"><strong>Bonyeza kitufe cha Share</strong>Kitufe cha mraba chenye mshale ↑ kilicho chini ya Safari (au juu kulingana na toleo lako)</div></div>' +
+        '<div class="pwa-step"><div class="pwa-step-num">2</div><div class="pwa-step-text"><strong>Tafuta "Add to Home Screen"</strong>Scroll chini kwenye orodha inayoonekana mpaka uone chaguo hili</div></div>' +
+        '<div class="pwa-step"><div class="pwa-step-num">3</div><div class="pwa-step-text"><strong>Bonyeza "Add"</strong>Jina la app litaonekana — bonyeza "Add" kumaliza. App itaonekana kwenye Home Screen yako!</div></div>' +
+        '<button id="pwa-close-btn" onclick="document.getElementById(\'pwa-overlay\').remove()">Nimeshaelewa ✓</button>';
+
+    } else if (isAndroid) {
+      // Android — no native prompt yet, show Chrome menu instructions
+      content =
+        '<h3>📲 Pakua App — Android</h3>' +
+        '<p>Fuata hatua hizi kupakua app kwenye simu yako:</p>' +
+        '<div class="pwa-step"><div class="pwa-step-num">1</div><div class="pwa-step-text"><strong>Bonyeza menyu ya Chrome (⋮)</strong>Dots tatu zilizo kona ya juu kulia ya Chrome</div></div>' +
+        '<div class="pwa-step"><div class="pwa-step-num">2</div><div class="pwa-step-text"><strong>Chagua "Add to Home screen"</strong>Au "Install app" — inategemea toleo la Chrome lako</div></div>' +
+        '<div class="pwa-step"><div class="pwa-step-num">3</div><div class="pwa-step-text"><strong>Bonyeza "Install" au "Add"</strong>App itaonekana kwenye Home Screen na App Drawer!</div></div>' +
+        '<button id="pwa-close-btn" onclick="document.getElementById(\'pwa-overlay\').remove()">Nimeshaelewa ✓</button>';
+
+    } else {
+      // Desktop
+      content =
+        '<h3>💻 Pakua App — Kompyuta</h3>' +
+        '<p>Unaweza kusakinisha app hii kwenye kompyuta yako:</p>' +
+        '<div class="pwa-step"><div class="pwa-step-num">1</div><div class="pwa-step-text"><strong>Chrome / Edge</strong>Tazama icon ya kusakinisha (⊕) kwenye address bar upande wa kulia, au menyu (⋮) → "Install Muhimbili..."</div></div>' +
+        '<div class="pwa-step"><div class="pwa-step-num">2</div><div class="pwa-step-text"><strong>Bonyeza "Install"</strong>App itafunguka kama dirisha lake na icon kwenye desktop</div></div>' +
+        '<button id="pwa-close-btn" onclick="document.getElementById(\'pwa-overlay\').remove()">Nimeshaelewa ✓</button>';
+    }
+
+    modal.innerHTML = content;
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+  };
+
+  // Hide install button if already running as installed app
+  window.addEventListener('DOMContentLoaded', function() {
+    if (isInApp) {
+      var btn = document.getElementById('pwa-install-trigger');
+      if (btn) btn.style.display = 'none';
+    }
   });
 
+  // Also hide on install
   window.addEventListener('appinstalled', function() {
-    banner.remove();
-    deferredPrompt = null;
+    var btn = document.getElementById('pwa-install-trigger');
+    if (btn) btn.style.display = 'none';
     console.log('[PWA] App imesanikishwa! ✓');
   });
 
