@@ -102,6 +102,30 @@ body{font-family:'Inter',sans-serif;background:#F5F3EF;color:#1E2A2E;font-size:1
 .badge-gold{background:#FEF3C7;color:#C6A43F;}
 .badge-red{background:#FEE2E2;color:#B83B3B;}
 .badge-blue{background:#E0F2FE;color:#2C5282;}
+.kadi-wrap{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px;border:2px solid rgba(0,0,0,0.15);}
+.kadi-mavuno{background:#F6C9D8;}
+.kadi-ahadi{background:#F4E9AE;}
+.kadi-fungu{background:#BFE3EF;}
+.kadi-head{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;}
+.kadi-head-logo{flex-shrink:0;}
+.kadi-head-text{flex:1;text-align:center;}
+.kadi-head-church{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-family:'Times New Roman',serif;}
+.kadi-head-dayosisi{font-size:10px;font-family:'Times New Roman',serif;}
+.kadi-head-chapel{font-size:13px;font-weight:700;text-transform:uppercase;font-family:'Times New Roman',serif;}
+.kadi-title{background:#1E1E1E;color:white;text-align:center;padding:8px;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-family:'Cormorant Garamond',serif;}
+.kadi-body{padding:12px 14px 16px;}
+.kadi-jina-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;margin-bottom:10px;flex-wrap:wrap;}
+.kadi-jina-row input{border:none;border-bottom:1px solid rgba(0,0,0,0.4);background:transparent;font-size:12px;font-weight:600;padding:2px 4px;flex:1;min-width:100px;}
+.kadi-table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:11px;background:rgba(255,255,255,0.55);border-radius:6px;overflow:hidden;}
+.kadi-table th,.kadi-table td{border:1px solid rgba(0,0,0,0.35);padding:5px 4px;text-align:center;}
+.kadi-table th{font-weight:700;background:rgba(255,255,255,0.4);}
+.kadi-table td:first-child,.kadi-table th:first-child{font-weight:700;background:rgba(255,255,255,0.4);}
+.kadi-table tr.kadi-jumla-row td{font-weight:800;background:rgba(255,255,255,0.55);}
+.kadi-table input{width:100%;border:none;background:transparent;text-align:center;font-size:11px;padding:2px;font-family:inherit;}
+.kadi-table input:focus{outline:1.5px solid #1B4D3E;border-radius:3px;background:white;}
+.kadi-summary{font-size:11px;font-weight:600;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-top:6px;}
+.kadi-summary div{display:flex;justify-content:space-between;border-bottom:1px dotted rgba(0,0,0,0.4);padding:2px 0;}
+.kadi-mwaka-mzima{margin-top:8px;display:flex;justify-content:space-between;font-size:13px;font-weight:800;border-top:1.5px solid rgba(0,0,0,0.5);padding-top:6px;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;}
 .modal-bg.open{display:flex;}
 .modal-box{background:white;border-radius:20px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
@@ -299,6 +323,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab active" id="tab-account" onclick="memberTab('account')">📊 Akaunti</div>
       <div class="tab" id="tab-request" onclick="memberTab('request')">🤲 Ombi</div>
       <div class="tab" id="tab-ahadi" onclick="memberTab('ahadi')">🤝 Ahadi</div>
+      <div class="tab" id="tab-kadi" onclick="memberTab('kadi')">🗂 Kadi Zangu</div>
       <div class="tab" id="tab-announcements" onclick="memberTab('announcements')">📢 Matangazo</div>
       <div class="tab" id="tab-viongozi" onclick="memberTab('viongozi')">🏛 Viongozi</div>
       <div class="tab" id="tab-ratiba" onclick="memberTab('ratiba')">📅 Ratiba</div>
@@ -382,6 +407,13 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         <div class="card-title">📋 Ahadi Zangu</div>
         <div id="my-ahadi-list"></div>
       </div>
+    </div>
+    <div id="member-kadi" style="display:none;">
+      <div class="card">
+        <div class="card-title">🗂 Kadi Zangu za Sadaka</div>
+        <div class="fg" style="margin-bottom:0;"><label>Mwaka</label><input type="number" class="fi" id="member-kadi-mwaka" onchange="renderMemberKadi()"></div>
+      </div>
+      <div id="member-kadi-holder"></div>
     </div>
   </div>
 </div>
@@ -653,6 +685,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="tab" id="treasurer-tab-jumla" onclick="treasurerTab('jumla')">📊 Jumla</div>
       <div class="tab" id="treasurer-tab-maombi" onclick="treasurerTab('maombi')">🤲 Maombi <span id="treasurer-requests-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
       <div class="tab" id="treasurer-tab-ahadi" onclick="treasurerTab('ahadi')">🤝 Ahadi <span id="treasurer-ahadi-count" class="badge" style="background:#B83B3B;color:white;">0</span></div>
+      <div class="tab" id="treasurer-tab-kadi" onclick="treasurerTab('kadi')">🗂 Kadi za Sadaka</div>
       <div class="tab" id="treasurer-tab-matumizi" onclick="treasurerTab('matumizi')">💸 Matumizi</div>
       <div class="tab" id="treasurer-tab-benki" onclick="treasurerTab('benki')">🏦 Benki</div>
       <div class="tab" id="treasurer-tab-aina" onclick="treasurerTab('aina')">🏷 Aina</div>
@@ -787,6 +820,26 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         </div>
         <div id="ahadi-records-summary" style="margin-top:10px;padding-top:10px;border-top:1px solid #E2E8F0;"></div>
       </div>
+    </div>
+    <div id="treasurer-kadi" style="display:none;">
+      <div class="card">
+        <div class="card-title">🗂 Jaza Kadi ya Sadaka ya Muumini</div>
+        <div id="treas-kadi-alert"></div>
+        <div class="fg"><label>Chagua Muumini</label>
+          <select class="fsel" id="treas-kadi-member" onchange="renderTreasKadiCard()">
+            <option value="">— Chagua muumini —</option>
+          </select>
+        </div>
+        <div class="fg"><label>Aina ya Kadi</label>
+          <select class="fsel" id="treas-kadi-aina" onchange="renderTreasKadiCard()">
+            <option value="Mavuno">🌾 Sadaka ya Mavuno</option>
+            <option value="Ahadi">🤝 Sadaka ya Ahadi</option>
+            <option value="Fungu la Kumi">💰 Sadaka ya Fungu la Kumi</option>
+          </select>
+        </div>
+        <div class="fg"><label>Mwaka</label><input type="number" class="fi" id="treas-kadi-mwaka" onchange="renderTreasKadiCard()"></div>
+      </div>
+      <div id="treas-kadi-card-holder"></div>
     </div>
     <div id="treasurer-matumizi" style="display:none;">
       <div id="matumizi-summary"></div>
@@ -1077,6 +1130,24 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   ALTER TABLE bajeti_mwaka ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "allow_all_bajeti_mwaka" ON bajeti_mwaka FOR ALL USING (true) WITH CHECK (true);
   -----------------------------------------------------------------------
+  -- KADI ZA SADAKA (Mavuno / Ahadi / Fungu la Kumi) — tekeleza kwenye Supabase SQL Editor:
+  CREATE TABLE sadaka_kadi (
+    id bigserial primary key,
+    muumini_id bigint not null,
+    muumini_jina text not null,
+    aina_kadi text not null CHECK (aina_kadi IN ('Mavuno','Ahadi','Fungu la Kumi')),
+    mwaka integer not null,
+    mwezi integer not null CHECK (mwezi BETWEEN 1 AND 12),
+    wiki integer not null CHECK (wiki BETWEEN 1 AND 5),
+    kiasi integer not null default 0,
+    kuwekwa_na text,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now(),
+    UNIQUE (muumini_id, aina_kadi, mwaka, mwezi, wiki)
+  );
+  ALTER TABLE sadaka_kadi ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_sadaka_kadi" ON sadaka_kadi FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
@@ -1096,6 +1167,7 @@ let allRatibaJumuiya = [];
 let allRatibaMwaka = [];
 let allBajeti = [];
 let bajetiCurrentMwaka = null;
+let allSadakaKadi = [];
 let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHAPLAINCY", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
 
 // ==================== HELPERS ====================
@@ -1231,6 +1303,10 @@ async function loadAllData(silent = false) {
     allAhadi = ah || [];
     allAhadiMalipo = ahm || [];
   } catch (e) { console.warn('Jedwali za ahadi hazijawekwa bado:', e.message); }
+  try {
+    const { data: sk } = await db.from('sadaka_kadi').select('*');
+    allSadakaKadi = sk || [];
+  } catch (e) { console.warn('Jedwali ya sadaka_kadi haijawekwa bado:', e.message); allSadakaKadi = []; }
   try {
     const [{ data: ba }, { data: bada }] = await Promise.all([
       db.from('benki_amana').select('*').order('tarehe', { ascending: false }),
@@ -1409,11 +1485,12 @@ function resetStaffPassword(role) {
 }
 
 function memberTab(tab) {
-  ['account', 'request', 'ahadi', 'announcements', 'viongozi', 'ratiba', 'profile'].forEach(t => {
+  ['account', 'request', 'ahadi', 'kadi', 'announcements', 'viongozi', 'ratiba', 'profile'].forEach(t => {
     const e = el('member-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
   if (tab === 'ahadi') renderMemberAhadi();
+  if (tab === 'kadi') renderMemberKadi();
   if (tab === 'viongozi') renderViongoziMuumini();
   if (tab === 'ratiba') { memRatibaSubTab('jumuiya'); renderMemberRatibaJumuiya(); }
 }
@@ -2298,11 +2375,12 @@ function printForm2(tarehe, ainaIbada) {
 }
 
 function treasurerTab(tab) {
-  ['ingiza', 'jumla', 'maombi', 'ahadi', 'matumizi', 'benki', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti', 'bajeti'].forEach(t => {
+  ['ingiza', 'jumla', 'maombi', 'ahadi', 'kadi', 'matumizi', 'benki', 'aina', 'leo', 'fedha', 'ujenzi', 'historia', 'waumini', 'ripoti', 'bajeti'].forEach(t => {
     const e = el('treasurer-' + t); if (e) e.style.display = t === tab ? 'block' : 'none';
     const b = el('treasurer-tab-' + t); if (b) b.classList.toggle('active', t === tab);
   });
   if (tab === 'ahadi') renderTreasurerAhadi();
+  if (tab === 'kadi') renderTreasurerKadiTab();
   if (tab === 'jumla') renderJumlaAinaFields();
   if (tab === 'leo') renderIbadaLeo('treasurer-leo-content');
   if (tab === 'fedha') renderTreasurerFedha('treasurer-fedha-content');
@@ -3850,6 +3928,142 @@ function renderMemberAhadi() {
       ` : ''}
     </div>`;
   }).join('') : '<div style="text-align:center;padding:30px;color:#666;">Huna ahadi zilizotumwa bado</div>';
+}
+
+// ==================== KADI ZA SADAKA (Mavuno / Ahadi / Fungu la Kumi) ====================
+const KADI_TYPES = [
+  { id: 'Mavuno', label: 'SADAKA YA MAVUNO', cls: 'kadi-mavuno' },
+  { id: 'Ahadi', label: 'SADAKA YA AHADI', cls: 'kadi-ahadi' },
+  { id: 'Fungu la Kumi', label: 'SADAKA YA FUNGU LA KUMI', cls: 'kadi-fungu' }
+];
+function kadiWrapId(ainaKadi, mwaka) { return 'kadi-card-' + ainaKadi.replace(/\s+/g, '') + '-' + mwaka; }
+function kadiMonthSum(muuminiId, ainaKadi, mwaka, mwezi) {
+  return allSadakaKadi.filter(k => k.muumini_id == muuminiId && k.aina_kadi === ainaKadi && k.mwaka == mwaka && k.mwezi == mwezi).reduce((s, k) => s + (k.kiasi || 0), 0);
+}
+function kadiRangeSum(muuminiId, ainaKadi, mwaka, from, to) {
+  let s = 0; for (let m = from; m <= to; m++) s += kadiMonthSum(muuminiId, ainaKadi, mwaka, m); return s;
+}
+function _kadiTableHTML(muuminiId, ainaKadi, mwaka, monthsRange, editable) {
+  const monthLabels = monthsRange[0] === 1 ? ['Jan.', 'Feb.', 'Mach', 'Apr.', 'May', 'June'] : ['July', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Des.'];
+  let rows = '';
+  for (let wiki = 1; wiki <= 5; wiki++) {
+    rows += `<tr><td>${wiki}.</td>` + monthsRange.map(m => {
+      const rec = allSadakaKadi.find(k => k.muumini_id == muuminiId && k.aina_kadi === ainaKadi && k.mwaka == mwaka && k.mwezi == m && k.wiki == wiki);
+      const val = rec ? rec.kiasi : '';
+      if (editable) return `<td><input type="number" min="0" data-m="${m}" data-w="${wiki}" class="kadi-cell-input" value="${val || ''}" oninput="recalcKadiJumla(this)"></td>`;
+      return `<td>${val ? Number(val).toLocaleString() : ''}</td>`;
+    }).join('') + '</tr>';
+  }
+  rows += `<tr class="kadi-jumla-row"><td>JUMLA</td>` + monthsRange.map(m => {
+    const sum = kadiMonthSum(muuminiId, ainaKadi, mwaka, m);
+    return editable ? `<td><span class="kadi-jumla-m" data-jm="${m}">${sum.toLocaleString()}</span></td>` : `<td>${sum.toLocaleString()}</td>`;
+  }).join('') + '</tr>';
+  return `<table class="kadi-table"><thead><tr><th>JUMA</th>${monthLabels.map(l => `<th>${l}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+function renderKadiCardHTML(type, muuminiId, mwaka, editable) {
+  const member = allMembers.find(m => m.id == muuminiId);
+  const jina = member ? member.jina_kamili : '';
+  const namba = member ? member.namba_muumini : '';
+  const q13 = kadiRangeSum(muuminiId, type.id, mwaka, 1, 3), q46 = kadiRangeSum(muuminiId, type.id, mwaka, 4, 6);
+  const q79 = kadiRangeSum(muuminiId, type.id, mwaka, 7, 9), q1012 = kadiRangeSum(muuminiId, type.id, mwaka, 10, 12);
+  const mwakaMzima = q13 + q46 + q79 + q1012;
+  return `<div class="kadi-wrap ${type.cls}" id="${kadiWrapId(type.id, mwaka)}">
+    <div class="kadi-head">
+      <div class="kadi-head-logo">${_logo1()}</div>
+      <div class="kadi-head-text">
+        <div class="kadi-head-church">Kanisa Anglikana Tanzania</div>
+        <div class="kadi-head-dayosisi">Dayosisi ya Dar es Salaam</div>
+        <div class="kadi-head-chapel">Muhimbili Chapel</div>
+      </div>
+    </div>
+    <div class="kadi-title">${type.label}</div>
+    <div class="kadi-body">
+      <div class="kadi-jina-row"><span>JINA: <strong>${jina}</strong></span><span>NA: <strong>${namba || ''}</strong></span></div>
+      ${_kadiTableHTML(muuminiId, type.id, mwaka, [1,2,3,4,5,6], editable)}
+      ${_kadiTableHTML(muuminiId, type.id, mwaka, [7,8,9,10,11,12], editable)}
+      <div class="kadi-summary">
+        <div><span>Miezi 1 - 3</span><span class="kadi-q13">${q13.toLocaleString()}</span></div>
+        <div><span>Miezi 4 - 6</span><span class="kadi-q46">${q46.toLocaleString()}</span></div>
+        <div><span>Miezi 7 - 9</span><span class="kadi-q79">${q79.toLocaleString()}</span></div>
+        <div><span>Miezi 10 - 12</span><span class="kadi-q1012">${q1012.toLocaleString()}</span></div>
+      </div>
+      <div class="kadi-mwaka-mzima"><span>MWAKA MZIMA</span><span class="kadi-mwaka-total">TZS ${mwakaMzima.toLocaleString()}</span></div>
+    </div>
+    ${editable ? `<div style="padding:0 14px 14px;"><button class="btn btn-primary btn-block" onclick="saveKadiGrid('${muuminiId}','${type.id}',${mwaka})">💾 Hifadhi Kadi</button></div>` : ''}
+  </div>`;
+}
+function recalcKadiJumla(inputEl) {
+  const wrap = inputEl.closest('.kadi-wrap');
+  if (!wrap) return;
+  const byMonth = {};
+  wrap.querySelectorAll('.kadi-cell-input').forEach(inp => {
+    const m = inp.dataset.m, v = parseInt(inp.value) || 0;
+    byMonth[m] = (byMonth[m] || 0) + v;
+  });
+  wrap.querySelectorAll('.kadi-jumla-m').forEach(span => {
+    span.textContent = (byMonth[span.dataset.jm] || 0).toLocaleString();
+  });
+  const rangeSum = (from, to) => { let s = 0; for (let m = from; m <= to; m++) s += (byMonth[m] || 0); return s; };
+  const q13 = rangeSum(1, 3), q46 = rangeSum(4, 6), q79 = rangeSum(7, 9), q1012 = rangeSum(10, 12);
+  wrap.querySelector('.kadi-q13').textContent = q13.toLocaleString();
+  wrap.querySelector('.kadi-q46').textContent = q46.toLocaleString();
+  wrap.querySelector('.kadi-q79').textContent = q79.toLocaleString();
+  wrap.querySelector('.kadi-q1012').textContent = q1012.toLocaleString();
+  wrap.querySelector('.kadi-mwaka-total').textContent = 'TZS ' + (q13 + q46 + q79 + q1012).toLocaleString();
+}
+async function saveKadiGrid(muuminiId, ainaKadi, mwaka) {
+  const wrap = el(kadiWrapId(ainaKadi, mwaka));
+  if (!wrap) return;
+  const member = allMembers.find(m => m.id == muuminiId);
+  const records = [];
+  wrap.querySelectorAll('.kadi-cell-input').forEach(inp => {
+    records.push({
+      muumini_id: parseInt(muuminiId),
+      muumini_jina: member ? member.jina_kamili : '',
+      aina_kadi: ainaKadi,
+      mwaka: parseInt(mwaka),
+      mwezi: parseInt(inp.dataset.m),
+      wiki: parseInt(inp.dataset.w),
+      kiasi: parseInt(inp.value) || 0,
+      kuwekwa_na: 'Mweka Hazina'
+    });
+  });
+  const alertEl = el('treas-kadi-alert');
+  showLoading(true);
+  const { error } = await db.from('sadaka_kadi').upsert(records, { onConflict: 'muumini_id,aina_kadi,mwaka,mwezi,wiki' });
+  showLoading(false);
+  if (error) { if (alertEl) alertEl.innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
+  if (alertEl) { alertEl.innerHTML = '<div class="alert alert-success">✅ Kadi imehifadhiwa — itaonekana kwenye dashibodi ya muumini!</div>'; setTimeout(() => { if (alertEl) alertEl.innerHTML = ''; }, 3000); }
+  await loadAllData(true);
+  renderTreasKadiCard();
+}
+function renderTreasurerKadiTab() {
+  const sel = el('treas-kadi-member');
+  if (sel) {
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Chagua muumini —</option>' + allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${m.id}">${m.jina_kamili} (${m.namba_muumini})</option>`).join('');
+    if (prev) sel.value = prev;
+  }
+  if (el('treas-kadi-mwaka') && !el('treas-kadi-mwaka').value) el('treas-kadi-mwaka').value = new Date().getFullYear();
+  renderTreasKadiCard();
+}
+function renderTreasKadiCard() {
+  const holder = el('treas-kadi-card-holder');
+  if (!holder) return;
+  const memberId = el('treas-kadi-member').value;
+  const ainaId = el('treas-kadi-aina').value;
+  const mwaka = parseInt(el('treas-kadi-mwaka').value) || new Date().getFullYear();
+  if (!memberId) { holder.innerHTML = '<div class="card" style="text-align:center;color:#6B7280;padding:30px;">Chagua muumini kwanza ili kujaza kadi yake</div>'; return; }
+  const type = KADI_TYPES.find(t => t.id === ainaId) || KADI_TYPES[0];
+  holder.innerHTML = renderKadiCardHTML(type, memberId, mwaka, true);
+}
+function renderMemberKadi() {
+  if (!currentUser) return;
+  if (el('member-kadi-mwaka') && !el('member-kadi-mwaka').value) el('member-kadi-mwaka').value = new Date().getFullYear();
+  const mwaka = parseInt(el('member-kadi-mwaka').value) || new Date().getFullYear();
+  const holder = el('member-kadi-holder');
+  if (!holder) return;
+  holder.innerHTML = KADI_TYPES.map(type => renderKadiCardHTML(type, currentUser.id, mwaka, false)).join('');
 }
 
 // ==================== TREASURER AHADI FUNCTIONS ====================
