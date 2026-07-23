@@ -2923,7 +2923,6 @@ async function sendBulkSMS() {
   if (!selected.length) { toast('Chagua muumini angalau mmoja'); return; }
   const phones = selected.map(m => m.namba_simu || '').filter(Boolean);
   if (!phones.length) { toast('Waumini waliochaguliwa hawana namba za simu'); return; }
-  if (!confirm('Tuma SMS kwa waumini ' + phones.length + '?')) return;
   closeModal();
   toast('⏳ Inatuma SMS kwa waumini ' + phones.length + '...');
   try {
