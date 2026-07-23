@@ -2796,7 +2796,10 @@ async function sendSMSBeem(phones, message) {
     body: JSON.stringify({ phones, message })
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.success) throw new Error(data.error || 'SMS haikutumwa (server error)');
+  if (!res.ok || !data.success) {
+    const detailMsg = data.detail ? (typeof data.detail === 'string' ? data.detail : (data.detail.message || JSON.stringify(data.detail))) : '';
+    throw new Error((data.error || 'SMS haikutumwa (server error)') + (detailMsg ? ' — ' + detailMsg : ''));
+  }
   return data;
 }
 
