@@ -1148,6 +1148,19 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   ALTER TABLE sadaka_kadi ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "allow_all_sadaka_kadi" ON sadaka_kadi FOR ALL USING (true) WITH CHECK (true);
   -----------------------------------------------------------------------
+  -- SMS LOG (Beem) — historia ya SMS zilizotumwa na viongozi (tekeleza kwenye Supabase SQL Editor):
+  CREATE TABLE sms_log (
+    id bigserial primary key,
+    tumwa_na text not null,
+    idadi_wapokeaji integer not null default 0,
+    namba_simu text,
+    ujumbe text not null,
+    hali text not null default 'sent',
+    created_at timestamptz default now()
+  );
+  ALTER TABLE sms_log ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_sms_log" ON sms_log FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
@@ -2770,6 +2783,34 @@ function downloadWauminiCSV(role) {
 
 // ==================== MESSAGING FUNCTIONS ====================
 
+// Inatuma SMS halisi kupitia Beem Africa (Supabase Edge Function inashikilia API key/secret,
+// hazionekani humu kwenye JS ya kivinjari).
+async function sendSMSBeem(phones, message) {
+  const res = await fetch(SUPABASE_URL + '/functions/v1/send-sms', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'apikey': SUPABASE_ANON_KEY
+    },
+    body: JSON.stringify({ phones, message })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) throw new Error(data.error || 'SMS haikutumwa (server error)');
+  return data;
+}
+
+async function logSMS(phones, message) {
+  try {
+    await db.from('sms_log').insert({
+      tumwa_na: currentRole || 'kiongozi',
+      idadi_wapokeaji: phones.length,
+      namba_simu: phones.join(','),
+      ujumbe: message
+    });
+  } catch (e) { /* jedwali sms_log halijaundwa bado kwenye Supabase - si tatizo */ }
+}
+
 function openIndividualMsg(memberId) {
   const m = allMembers.find(x => x.id == memberId);
   if (!m) { toast('Muumini hapatikani'); return; }
@@ -2788,19 +2829,28 @@ function openIndividualMsg(memberId) {
     </div>`);
 }
 
-function sendIndividualMsg(memberId, channel) {
+async function sendIndividualMsg(memberId, channel) {
   const m = allMembers.find(x => x.id == memberId);
   if (!m) return;
   const msg = el('ind-msg-text')?.value || '';
   if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
   const phone = m.namba_simu || '';
-  closeModal();
   if (channel === 'sms') {
-    window.open('sms:' + phone + '?body=' + encodeURIComponent(msg), '_blank');
-  } else {
-    const waPhone = phone.replace(/^0/, '255');
-    window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank');
+    if (!phone) { toast('Muumini hana namba ya simu'); return; }
+    closeModal();
+    toast('⏳ Inatuma SMS...');
+    try {
+      await sendSMSBeem([phone], msg);
+      await logSMS([phone], msg);
+      toast('✅ SMS imetumwa kwa ' + m.jina_kamili);
+    } catch (e) {
+      toast('❌ SMS imeshindikana: ' + e.message);
+    }
+    return;
   }
+  closeModal();
+  const waPhone = phone.replace(/^0/, '255');
+  window.open('https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function openBulkMsgModal() {
@@ -2864,28 +2914,25 @@ function sendBulkWhatsApp() {
   sendNext();
 }
 
-function sendBulkSMS() {
+async function sendBulkSMS() {
   const msg = el('bulk-msg-text')?.value || '';
   if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
   const selected = Array.from(document.querySelectorAll('.bulk-msg-chk:checked'))
     .map(chk => allMembers.find(m => m.id == chk.dataset.memberId))
     .filter(Boolean);
   if (!selected.length) { toast('Chagua muumini angalau mmoja'); return; }
-  const numbers = selected.map(m => m.namba_simu || '').filter(Boolean).join(', ');
-  openModal('📱 Tuma SMS — Maelekezo', `
-    <div class="alert alert-info" style="margin-bottom:10px;">Wapokeaji: <strong>${selected.length}</strong>. Nakili namba zote, kisha fungua programu yako ya SMS na uweke wote wewe mwenyewe.</div>
-    <div class="fg" style="margin-bottom:10px;">
-      <label>Namba za Simu (Bonyeza kucha­gua, kisha nakili)</label>
-      <textarea class="fi" rows="3" readonly onclick="this.select()" style="font-size:12px;font-family:monospace;">${numbers}</textarea>
-    </div>
-    <div class="fg" style="margin-bottom:10px;">
-      <label>Ujumbe (Bonyeza kuchagua, kisha nakili)</label>
-      <textarea class="fi" id="bulk-sms-body" rows="4" readonly onclick="this.select()">${msg}</textarea>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="window.open('sms:?body='+encodeURIComponent(el('bulk-sms-body').value),'_blank')">📱 Fungua SMS App</button>
-      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
-    </div>`);
+  const phones = selected.map(m => m.namba_simu || '').filter(Boolean);
+  if (!phones.length) { toast('Waumini waliochaguliwa hawana namba za simu'); return; }
+  if (!confirm('Tuma SMS kwa waumini ' + phones.length + '?')) return;
+  closeModal();
+  toast('⏳ Inatuma SMS kwa waumini ' + phones.length + '...');
+  try {
+    const result = await sendSMSBeem(phones, msg);
+    await logSMS(phones, msg);
+    toast('✅ SMS zimetumwa kwa waumini ' + result.sent);
+  } catch (e) {
+    toast('❌ SMS zimeshindikana: ' + e.message);
+  }
 }
 
 function openAhadiPaymentModal(ahadiId) {
