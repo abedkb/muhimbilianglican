@@ -284,6 +284,15 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   </div></div>
 </div>
 
+<!-- QUICK CONTRIBUTION (kiungo kutoka SMS ya kukumbusha ibada) -->
+<div class="screen" id="s-quick-changia">
+  <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
+  <div class="pw"><div class="card"><div class="card-title">🙏 CHANGIA MOJA KWA MOJA</div>
+    <div id="quick-changia-alert"></div>
+    <div id="quick-changia-form">Inapakia...</div>
+  </div></div>
+</div>
+
 <!-- PASTOR LOGIN -->
 <div class="screen" id="s-pastor-login">
   <div class="topbar"><h2>MUHIMBILI ANGLICAN</h2><button class="logout-btn" onclick="show('s-welcome')">← Nyuma</button></div>
@@ -433,13 +442,15 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="pastor-pending"><div id="pending-list"></div></div>
     <div id="pastor-leo" style="display:none;"><div id="pastor-leo-content"></div></div>
     <div id="pastor-fedha" style="display:none;"><div id="pastor-fedha-content"></div></div>
-    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('pastor')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="pastor-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterPastorWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div><div id="pastor-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="pastor-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-gold" onclick="openSundayReminderModal()">🔔 Kumbusha Ibada</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('pastor')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="pastor-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterPastorWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="pastor-members-list"></tbody></table></div><div id="pastor-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="pastor-ripoti" style="display:none;"><div class="stats-grid" id="pastor-report-stats"></div><div class="alert alert-info">Ripoti kamili inapatikana kwenye sehemu ya Mweka Hazina.</div></div>
     <div id="pastor-mipangilio" style="display:none;">
       <div class="card"><div class="card-title">⚙ Mipangilio ya Kanisa</div><div id="pastor-settings-alert"></div>
         <div class="fg"><label>Jina la Kanisa</label><input type="text" class="fi" id="pastor-kanisa-jina"></div>
         <div class="fg"><label>Mahali</label><input type="text" class="fi" id="pastor-kanisa-mahali"></div>
         <div class="fg"><label>Simu ya Kanisa</label><input type="tel" class="fi" id="pastor-kanisa-simu"></div>
+        <div class="fg"><label>Muda wa Kuanza Ibada</label><input type="text" class="fi" id="pastor-kanisa-mwanzo" placeholder="mfano: Saa 4:00 Asubuhi"></div>
+        <div class="fg"><label>Muda wa Kumaliza Ibada</label><input type="text" class="fi" id="pastor-kanisa-mwisho" placeholder="mfano: Saa 7:00 Mchana"></div>
         <button class="btn btn-primary btn-block" onclick="saveKanisaInfo()">💾 Hifadhi Mipangilio</button>
       </div>
       <div class="card">
@@ -486,7 +497,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     </div>
     <div id="secretary-reg"><div id="reg-requests-list"></div></div>
     <div id="secretary-idhini" style="display:none;"><div id="sec-idhini-list"></div></div>
-    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="secretary-members" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Waumini Wote</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-gold" onclick="openSundayReminderModal()">🔔 Kumbusha Ibada</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('secretary')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="secretary-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterSecretaryWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Hali</th><th>Vitendo</th></tr></thead><tbody id="secretary-members-list"></tbody></table></div><div id="secretary-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="secretary-ss" style="display:none;">
       <div class="card">
         <div class="card-title">🧒 Sajili Mtoto wa Sunday School</div>
@@ -958,7 +969,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     <div id="treasurer-fedha" style="display:none;"><div id="treasurer-fedha-content"></div></div>
     <div id="treasurer-ujenzi" style="display:none;"><div id="treasurer-ujenzi-content"></div></div>
     <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
-    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-gold" onclick="openSundayReminderModal()">🔔 Kumbusha Ibada</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
     <div id="treasurer-bajeti" style="display:none;">
       <!-- Year selector -->
       <div class="card">
@@ -1161,9 +1172,15 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   ALTER TABLE sms_log ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "allow_all_sms_log" ON sms_log FOR ALL USING (true) WITH CHECK (true);
   -----------------------------------------------------------------------
+  -- MUDA WA IBADA (mpya — ongeza safu hizi kwenye jedwali la kanisa_settings, tekeleza mara moja):
+  ALTER TABLE kanisa_settings ADD COLUMN IF NOT EXISTS muda_mwanzo text;
+  ALTER TABLE kanisa_settings ADD COLUMN IF NOT EXISTS muda_mwisho text;
+  -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
+// Base URL ya application hii mtandaoni — inatumika kutengeneza kiungo cha "Changia Sasa" ndani ya SMS.
+const APP_BASE_URL = 'https://abedkb.github.io/muhimbilianglican/';
 
 // FIX: CDN ya v2 inatumia window.supabase.createClient
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1181,7 +1198,7 @@ let allRatibaMwaka = [];
 let allBajeti = [];
 let bajetiCurrentMwaka = null;
 let allSadakaKadi = [];
-let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHAPLAINCY", mahali: "Dar es Salaam", simu_kanisa: "0712345678" };
+let kanisaSettings = { jina_kanisa: "MUHIMBILI ANGLICAN CHAPLAINCY", mahali: "Dar es Salaam", simu_kanisa: "0712345678", muda_mwanzo: "", muda_mwisho: "" };
 
 // ==================== HELPERS ====================
 function el(id) { return document.getElementById(id); }
@@ -1437,6 +1454,55 @@ async function submitRequest() {
   await loadAllData(); loadMemberDashboard(); memberTab('request');
 }
 
+// ==================== QUICK CONTRIBUTION (kiungo cha SMS) ====================
+// Inatambua muumini kwa namba ya simu iliyopo kwenye kiungo (?changia=1&simu=...),
+// bila kuhitaji nenosiri — SMS ilifika kwenye simu yake mwenyewe.
+function initQuickChangia() {
+  const phone = new URLSearchParams(location.search).get('simu') || '';
+  const box = el('quick-changia-form');
+  const member = allMembers.find(m => m.namba_simu === phone.trim());
+  if (!phone || !member) {
+    box.innerHTML = `<div class="alert alert-error">Samahani, hatukuweza kukutambua kupitia namba ya simu. Tafadhali ingia kama Muumini kutuma ombi lako la mchango.</div>
+      <button class="btn btn-outline btn-block" style="margin-top:10px;" onclick="show('s-member-login')">🔑 Ingia kama Muumini</button>`;
+    return;
+  }
+  box.innerHTML = `
+    <div class="alert alert-info">Karibu, <strong>${member.jina_kamili}</strong>! Jaza taarifa za mchango wako hapa chini, Mweka Hazina atathibitisha.</div>
+    <div class="fg"><label>Aina ya Sadaka</label>
+      <select class="fsel" id="qc-aina">
+        <option value="Mavuno">🌾 Sadaka ya Mavuno</option>
+        <option value="Fungu la kumi (zaka)">💰 Sadaka ya Fungu la Kumi</option>
+        <option value="Ahadi">🤝 Sadaka ya Ahadi</option>
+      </select>
+    </div>
+    <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="qc-kiasi" placeholder="mfano: 10000"></div>
+    <div class="fg"><label>Ujumbe (hiari)</label><textarea class="fi" id="qc-ujumbe" rows="2" placeholder="Andika ujumbe wa hiari..."></textarea></div>
+    <button class="btn btn-primary btn-block" onclick="submitQuickChangia(${member.id})">🙏 Tuma Ombi la Mchango</button>
+  `;
+}
+
+async function submitQuickChangia(memberId) {
+  const member = allMembers.find(m => m.id == memberId);
+  if (!member) return;
+  const ainaVal = el('qc-aina').value;
+  const kiasi = parseInt(el('qc-kiasi').value);
+  const ujumbe = el('qc-ujumbe').value.trim();
+  if (!kiasi || kiasi <= 0) { el('quick-changia-alert').innerHTML = '<div class="alert alert-error">Weka kiasi sahihi</div>'; return; }
+  const match = allContributionTypes.find(t => (t.name || t.jina) === ainaVal);
+  const iconFallback = { 'Mavuno': '🌾', 'Fungu la kumi (zaka)': '💰', 'Ahadi': '🤝' };
+  showLoading(true);
+  const { error } = await db.from('ombi_michango').insert({
+    muumini_id: member.id, muumini_jina: member.jina_kamili, muumini_simu: member.namba_simu,
+    aina: 'contribution', aina_id: match ? match.id : null,
+    aina_jina: ainaVal, aina_icon: match ? match.icon : (iconFallback[ainaVal] || '🙏'),
+    kiasi, maelezo_muumini: ujumbe, hali: 'pending'
+  });
+  showLoading(false);
+  if (error) { el('quick-changia-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
+  el('quick-changia-form').innerHTML = '';
+  el('quick-changia-alert').innerHTML = '<div class="alert alert-success">✅ Asante ' + member.jina_kamili + '! Ombi lako la mchango limepokelewa na litathibitishwa na Mweka Hazina.</div>';
+}
+
 async function changePassword() {
   const old = el('old-pw').value.trim(), nw = el('new-pw').value.trim(), nw2 = el('new-pw2').value.trim();
   if (!old || !nw) { el('profile-pw-alert').innerHTML = '<div class="alert alert-error">Jaza sehemu zote</div>'; return; }
@@ -1537,6 +1603,8 @@ function loadPastorDashboard() {
   el('pastor-kanisa-jina').value = kanisaSettings.jina_kanisa || '';
   el('pastor-kanisa-mahali').value = kanisaSettings.mahali || '';
   el('pastor-kanisa-simu').value = kanisaSettings.simu_kanisa || '';
+  el('pastor-kanisa-mwanzo').value = kanisaSettings.muda_mwanzo || '';
+  el('pastor-kanisa-mwisho').value = kanisaSettings.muda_mwisho || '';
   el('pastor-katibu-pw').value = getPW('secretary');
   el('pastor-hazina-pw').value = getPW('treasurer');
   el('pastor-recovery-code').value = getPW('recovery');
@@ -1658,6 +1726,8 @@ async function saveKanisaInfo() {
   kanisaSettings.jina_kanisa = el('pastor-kanisa-jina').value.trim();
   kanisaSettings.mahali = el('pastor-kanisa-mahali').value.trim();
   kanisaSettings.simu_kanisa = el('pastor-kanisa-simu').value.trim();
+  kanisaSettings.muda_mwanzo = el('pastor-kanisa-mwanzo').value.trim();
+  kanisaSettings.muda_mwisho = el('pastor-kanisa-mwisho').value.trim();
   await db.from('kanisa_settings').upsert(kanisaSettings);
   el('pastor-settings-alert').innerHTML = '<div class="alert alert-success">✅ Mipangilio imehifadhiwa!</div>';
   setTimeout(() => el('pastor-settings-alert').innerHTML = '', 3000);
@@ -2935,6 +3005,80 @@ async function sendBulkSMS() {
   } catch (e) {
     toast('❌ SMS zimeshindikana: ' + e.message);
   }
+}
+
+// ==================== UJUMBE WA KUKUMBUSHA IBADA YA JUMAPILI ====================
+// Kila muumini hupokea SMS yenye jina lake na kiungo binafsi cha "Changia Sasa"
+// (kinachomtambua kwa namba yake ya simu), hivyo ujumbe hutumwa mmoja mmoja
+// badala ya kundi moja kama sendBulkSMS.
+function nextSundayDateLabel() {
+  const d = new Date();
+  const daysUntilSunday = (7 - d.getDay()) % 7 || 7;
+  d.setDate(d.getDate() + daysUntilSunday);
+  return `Jumapili, ${d.getDate()} ${MIEZI_SW[d.getMonth() + 1]} ${d.getFullYear()}`;
+}
+
+function buildSundayReminderTemplate() {
+  const tarehe = nextSundayDateLabel();
+  const mwanzo = kanisaSettings.muda_mwanzo || '09:00 EAT';
+  const mwisho = kanisaSettings.muda_mwisho || '01:00 EAT';
+  return `${kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY'}\n\nHabari {JINA},\n\nKaribu ibada ya ${tarehe}. Ibada itaanza saa ${mwanzo} na kumalizika saa ${mwisho}.\n\nKama hutaweza kuhudhuria, unaweza kuchangia Sadaka ya Mavuno, Fungu la Kumi au Ahadi moja kwa moja kupitia kiungo hiki:\n{LINK}\n\nMungu akubariki!`;
+}
+
+function openSundayReminderModal() {
+  const members = allMembers.filter(m => m.hali === 'hai');
+  if (!members.length) { toast('Hakuna waumini hai'); return; }
+  const memberCheckboxes = members.map(m =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F1EFEA;cursor:pointer;">
+      <input type="checkbox" class="sunday-msg-chk" data-member-id="${m.id}" checked style="width:16px;height:16px;flex-shrink:0;">
+      <span style="flex:1;font-size:13px;font-weight:500;">${m.jina_kamili}</span>
+      <span style="font-size:11px;color:#6B7280;">${m.namba_simu || '—'}</span>
+    </label>`
+  ).join('');
+  openModal('🔔 Ujumbe wa Kukumbusha Ibada ya Jumapili', `
+    <div class="alert alert-info" style="font-size:12px;">Kila muumini atapokea ujumbe wenye jina lake na kiungo chake binafsi cha kuchangia — SMS zitatumwa mmoja mmoja, si kwa pamoja.</div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.sunday-msg-chk').forEach(c=>c.checked=true)">✅ Chagua Wote</button>
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.sunday-msg-chk').forEach(c=>c.checked=false)">☐ Ondoa Wote</button>
+      <span style="font-size:12px;color:#6B7280;">${members.length} waumini hai</span>
+    </div>
+    <div style="max-height:170px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;padding:8px 12px;margin-bottom:12px;">
+      ${memberCheckboxes}
+    </div>
+    <div class="fg" style="margin-bottom:4px;">
+      <label>Ujumbe (usiondoe <code>{JINA}</code> na <code>{LINK}</code> — vitajazwa kiotomatiki kwa kila muumini)</label>
+      <textarea class="fi" id="sunday-msg-text" rows="7">${buildSundayReminderTemplate()}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="sendSundayReminderSMS()">📱 Tuma SMS ya Kukumbusha</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+async function sendSundayReminderSMS() {
+  const msg = el('sunday-msg-text')?.value || '';
+  if (!msg.trim()) { toast('Andika ujumbe kwanza'); return; }
+  const selected = Array.from(document.querySelectorAll('.sunday-msg-chk:checked'))
+    .map(chk => allMembers.find(m => m.id == chk.dataset.memberId))
+    .filter(Boolean)
+    .filter(m => m.namba_simu);
+  if (!selected.length) { toast('Chagua muumini mwenye namba ya simu angalau mmoja'); return; }
+  closeModal();
+  let sentCount = 0, failCount = 0;
+  for (let i = 0; i < selected.length; i++) {
+    const m = selected[i];
+    const link = APP_BASE_URL + '?changia=1&simu=' + encodeURIComponent(m.namba_simu);
+    const personalMsg = msg.replace(/\{JINA\}/g, m.jina_kamili).replace(/\{LINK\}/g, link);
+    toast(`⏳ Inatuma (${i + 1}/${selected.length})... ${m.jina_kamili}`);
+    try {
+      await sendSMSBeem([m.namba_simu], personalMsg);
+      await logSMS([m.namba_simu], personalMsg);
+      sentCount++;
+    } catch (e) {
+      failCount++;
+    }
+  }
+  toast(`✅ Ujumbe wa Jumapili umetumwa kwa waumini ${sentCount}` + (failCount ? ` (imeshindikana: ${failCount})` : ''));
 }
 
 function openAhadiPaymentModal(ahadiId) {
@@ -5082,8 +5226,13 @@ function renderBajetiSummary() {
 
 // ==================== INIT ====================
 window.addEventListener('DOMContentLoaded', () => {
-  show('s-welcome');
-  loadAllData(true);
+  const params = new URLSearchParams(location.search);
+  if (params.get('changia') === '1') {
+    loadAllData(true).then(() => { initQuickChangia(); show('s-quick-changia'); });
+  } else {
+    show('s-welcome');
+    loadAllData(true);
+  }
 });
 
 
