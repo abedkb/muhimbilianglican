@@ -449,7 +449,7 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         <div class="fg"><label>Jina la Kanisa</label><input type="text" class="fi" id="pastor-kanisa-jina"></div>
         <div class="fg"><label>Mahali</label><input type="text" class="fi" id="pastor-kanisa-mahali"></div>
         <div class="fg"><label>Simu ya Kanisa</label><input type="tel" class="fi" id="pastor-kanisa-simu"></div>
-        <div class="fg"><label>Muda wa Kuanza Ibada</label><input type="text" class="fi" id="pastor-kanisa-mwanzo" placeholder="mfano: Saa 4:00 Asubuhi"></div>
+        <div class="fg"><label>Muda wa Kuanza Ibada</label><input type="text" class="fi" id="pastor-kanisa-mwanzo" placeholder="mfano: Saa 3:00 Asubuhi"></div>
         <div class="fg"><label>Muda wa Kumaliza Ibada</label><input type="text" class="fi" id="pastor-kanisa-mwisho" placeholder="mfano: Saa 7:00 Mchana"></div>
         <button class="btn btn-primary btn-block" onclick="saveKanisaInfo()">💾 Hifadhi Mipangilio</button>
       </div>
@@ -1181,6 +1181,8 @@ const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
 // Base URL ya application hii mtandaoni — inatumika kutengeneza kiungo cha "Changia Sasa" ndani ya SMS.
 const APP_BASE_URL = 'https://abedkb.github.io/muhimbilianglican/';
+// Jina la mtumaji linaloambatanishwa mwishoni mwa SMS ya kukumbusha ibada.
+const SENDER_NAME = 'Rev. Fr. Dr. Meshack S. Chindundwa';
 
 // FIX: CDN ya v2 inatumia window.supabase.createClient
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -3020,9 +3022,9 @@ function nextSundayDateLabel() {
 
 function buildSundayReminderTemplate() {
   const tarehe = nextSundayDateLabel();
-  const mwanzo = kanisaSettings.muda_mwanzo || '09:00 EAT';
-  const mwisho = kanisaSettings.muda_mwisho || '01:00 EAT';
-  return `${kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY'}\n\nHabari {JINA},\n\nKaribu ibada ya ${tarehe}. Ibada itaanza saa ${mwanzo} na kumalizika saa ${mwisho}.\n\nKama hutaweza kuhudhuria, unaweza kuchangia Sadaka ya Mavuno, Fungu la Kumi au Ahadi moja kwa moja kupitia kiungo hiki:\n{LINK}\n\nMungu akubariki!`;
+  const mwanzo = kanisaSettings.muda_mwanzo || 'Saa 3:00 Asubuhi';
+  const mwisho = kanisaSettings.muda_mwisho || 'Saa 7:00 Mchana';
+  return `Bwana Yesu Asifiwe {JINA}, Napenda kukukaribisha katika ibada ya ${tarehe}. Ibada yetu inatarajia kuanza ${mwanzo} hadi ${mwisho}. Endapo hautaweza kuhudhuria unaweza kuchangia Sadaka ya Mavuno, Fungu la Kumi au Ahadi moja kwa moja kupitia kiungo {LINK}\n\nMungu akubariki!\n\n${SENDER_NAME}`;
 }
 
 function openSundayReminderModal() {
