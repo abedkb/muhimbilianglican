@@ -1191,6 +1191,8 @@ const BANK_ACCOUNT_NUMBER = '015C877279800';
 const BANK_NAME = 'CRDB';
 const BANK_ACCOUNT_NAME = 'MUHIMBILI ANGLICAN';
 const TREASURER_PHONE = '0767676711';
+// Jina la Mweka Hazina — linaonekana chini ya "Mweka Hazina" mwishoni mwa SMS ya asante ya mchango.
+const TREASURER_NAME = 'HENERICA SHIJA JOACHIM';
 
 // FIX: CDN ya v2 inatumia window.supabase.createClient
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1529,7 +1531,7 @@ function buildContributionThankYouSms(jina, ainaVal, kiasi) {
     `Tafadhali tuma mchango wako katika akaunti ya benki ya kanisa:\nNAMBA YA AKAUNTI (${BANK_NAME}): ${BANK_ACCOUNT_NUMBER}\nJINA: ${BANK_ACCOUNT_NAME}`,
     `Baada ya kukamilisha malipo, tafadhali tuma risiti ya malipo kwa Mweka Hazina kupitia namba ${TREASURER_PHONE} ili taarifa za malipo yako ziingizwe kwenye kadi yako ya sadaka.`,
     'Mungu akubariki!',
-    'Mweka Hazina'
+    `Mweka Hazina\n${TREASURER_NAME}`
   ];
   return paragraphs.join('\n\n');
 }
