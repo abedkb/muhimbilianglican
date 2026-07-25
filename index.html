@@ -844,9 +844,9 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         <div class="card-title">🗂 Jaza Kadi ya Sadaka ya Muumini</div>
         <div id="treas-kadi-alert"></div>
         <div class="fg"><label>Chagua Muumini</label>
-          <select class="fsel" id="treas-kadi-member" onchange="renderTreasKadiCard()">
-            <option value="">— Chagua muumini —</option>
-          </select>
+          <input type="text" class="fi" id="treas-kadi-member-search" list="treas-kadi-member-datalist" placeholder="🔍 Andika jina la muumini..." autocomplete="off" oninput="onTreasKadiMemberSearch()">
+          <datalist id="treas-kadi-member-datalist"></datalist>
+          <input type="hidden" id="treas-kadi-member">
         </div>
         <div class="fg"><label>Aina ya Kadi</label>
           <select class="fsel" id="treas-kadi-aina" onchange="renderTreasKadiCard()">
@@ -1356,9 +1356,10 @@ async function loadAllData(silent = false) {
     allAhadiMalipo = ahm || [];
   } catch (e) { console.warn('Jedwali za ahadi hazijawekwa bado:', e.message); }
   try {
-    const { data: sk } = await db.from('sadaka_kadi').select('*');
+    const { data: sk, error: skErr } = await db.from('sadaka_kadi').select('*');
+    if (skErr) throw skErr;
     allSadakaKadi = sk || [];
-  } catch (e) { console.warn('Jedwali ya sadaka_kadi haijawekwa bado:', e.message); allSadakaKadi = []; }
+  } catch (e) { console.warn('Jedwali ya sadaka_kadi haijawekwa bado:', e.message); if (!silent) toast('⚠ Kadi za sadaka hazikupakiwa: ' + e.message); allSadakaKadi = []; }
   try {
     const [{ data: ba }, { data: bada }] = await Promise.all([
       db.from('benki_amana').select('*').order('tarehe', { ascending: false }),
@@ -4312,20 +4313,25 @@ async function saveKadiGrid(muuminiId, ainaKadi, mwaka) {
   });
   const alertEl = el('treas-kadi-alert');
   showLoading(true);
-  const { error } = await db.from('sadaka_kadi').upsert(records, { onConflict: 'muumini_id,aina_kadi,mwaka,mwezi,wiki' });
+  const { error: delErr } = await db.from('sadaka_kadi').delete().eq('muumini_id', parseInt(muuminiId)).eq('aina_kadi', ainaKadi).eq('mwaka', parseInt(mwaka));
+  if (delErr) { showLoading(false); if (alertEl) alertEl.innerHTML = `<div class="alert alert-error">Hitilafu: ${delErr.message}</div>`; return; }
+  const { error } = await db.from('sadaka_kadi').insert(records);
   showLoading(false);
   if (error) { if (alertEl) alertEl.innerHTML = `<div class="alert alert-error">Hitilafu: ${error.message}</div>`; return; }
   if (alertEl) { alertEl.innerHTML = '<div class="alert alert-success">✅ Kadi imehifadhiwa — itaonekana kwenye dashibodi ya muumini!</div>'; setTimeout(() => { if (alertEl) alertEl.innerHTML = ''; }, 3000); }
-  await loadAllData(true);
+  await loadAllData();
+  renderTreasKadiCard();
+}
+function treasKadiMemberLabel(m) { return `${m.jina_kamili} (${m.namba_muumini})`; }
+function onTreasKadiMemberSearch() {
+  const typed = el('treas-kadi-member-search').value.trim();
+  const match = allMembers.find(m => m.hali === 'hai' && treasKadiMemberLabel(m) === typed);
+  el('treas-kadi-member').value = match ? match.id : '';
   renderTreasKadiCard();
 }
 function renderTreasurerKadiTab() {
-  const sel = el('treas-kadi-member');
-  if (sel) {
-    const prev = sel.value;
-    sel.innerHTML = '<option value="">— Chagua muumini —</option>' + allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${m.id}">${m.jina_kamili} (${m.namba_muumini})</option>`).join('');
-    if (prev) sel.value = prev;
-  }
+  const dl = el('treas-kadi-member-datalist');
+  if (dl) dl.innerHTML = allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${treasKadiMemberLabel(m)}">`).join('');
   if (el('treas-kadi-mwaka') && !el('treas-kadi-mwaka').value) el('treas-kadi-mwaka').value = new Date().getFullYear();
   renderTreasKadiCard();
 }
