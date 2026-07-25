@@ -738,7 +738,14 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       </div>
       <div class="card"><div class="card-title">📋 Historia ya Jumla za Ibada</div><div id="jumla-historia"></div></div>
     </div>
-    <div id="treasurer-maombi" style="display:none;"><div id="treasurer-requests-list"></div></div>
+    <div id="treasurer-maombi" style="display:none;">
+      <div id="treasurer-requests-list"></div>
+      <div class="card">
+        <div class="card-title">📋 Orodha ya Maombi ya Michango (Waumini Wote)</div>
+        <div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="michango-requests-search" placeholder="🔍 Tafuta jina la muumini..." oninput="renderMichangoRequestsList()" style="margin-bottom:0;"></div>
+        <div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th><th>Malipo</th><th>Kitendo</th></tr></thead><tbody id="michango-requests-list-body"></tbody></table></div>
+      </div>
+    </div>
     <div id="treasurer-ahadi" style="display:none;">
       <!-- DIRECT ENTRY CARD -->
       <div class="card">
@@ -1175,6 +1182,9 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   -- MUDA WA IBADA (mpya — ongeza safu hizi kwenye jedwali la kanisa_settings, tekeleza mara moja):
   ALTER TABLE kanisa_settings ADD COLUMN IF NOT EXISTS muda_mwanzo text;
   ALTER TABLE kanisa_settings ADD COLUMN IF NOT EXISTS muda_mwisho text;
+  -----------------------------------------------------------------------
+  -- HALI YA MALIPO YA OMBI LA MCHANGO (mpya — ongeza safu hii kwenye jedwali la ombi_michango, tekeleza mara moja):
+  ALTER TABLE ombi_michango ADD COLUMN IF NOT EXISTS malipo_hali text NOT NULL DEFAULT 'bado';
   -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
@@ -1890,12 +1900,44 @@ function loadTreasurerDashboard() {
   el('treasurer-ahadi-count').textContent = pendingAhadi;
   el('treasurer-requests-list').innerHTML = pendingReqs.length ? pendingReqs.map(r => `<div class="card"><div class="card-title">🤲 OMBI LA MCHANGO</div><div class="finance-row"><span>${r.muumini_jina}</span><span>${r.aina_icon || ''} ${r.aina_jina} · ${formatMoney(r.kiasi)}</span></div>${r.maelezo_muumini ? `<div class="alert alert-info">${r.maelezo_muumini}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="openRequestModal('${r.id}','${r.muumini_jina}','${r.muumini_simu}','${r.aina_jina}',${r.kiasi})">✅ Kubali & Tuma Maelekezo</button><button class="btn btn-red btn-sm" onclick="rejectRequest('${r.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi yanayosubiri</div>';
   el('history-list').innerHTML = allContributions.filter(c => c.hali !== 'pending').slice(0, 50).map(c => { const m = allMembers.find(x => x.id == c.muumini_id); const ap = allApprovals.find(a => a.id == c.approval_id); const approver = ap ? (ap.idhiniwa_na || '') : ''; return `<tr><td>${m ? m.jina_kamili : '—'}</td><td>${c.aina_icon || ''} ${c.aina_jina}</td><td><strong>${formatMoney(c.kiasi)}</strong></td><td>${formatDate(c.tarehe_mchango)}</td><td><span class="badge ${c.hali === 'approved' ? 'badge-green' : 'badge-red'}">${c.hali === 'approved' ? `✅ Imeidhinishwa${approver ? ' na ' + approver : ''}` : '❌ Imekataliwa'}</span></td></tr>`; }).join('');
+  renderMichangoRequestsList();
   renderTypeList(); renderJumlaAinaFields(); renderExpenseList(); renderJumlaHistoria(); renderMatumiziBaki();
   renderIbadaLeo('treasurer-leo-content'); renderTreasurerFedha('treasurer-fedha-content');
   const approved = allContributions.filter(c => c.hali === 'approved');
   const total = approved.reduce((s, c) => s + c.kiasi, 0);
   const totalExp = allExpenses.reduce((s, e) => s + e.kiasi, 0);
   const rs = el('treasurer-report-stats'); if (rs) rs.innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-number">${formatMoney(total)}</div><div class="stat-label">Jumla Michango</div></div><div class="stat-card"><div class="stat-number">${allContributions.filter(c=>c.hali==='approved').length}</div><div class="stat-label">Idadi ya Michango</div></div><div class="stat-card"><div class="stat-number">${formatMoney(totalExp)}</div><div class="stat-label">Matumizi Yote</div></div><div class="stat-card"><div class="stat-number">${formatMoney(total - totalExp)}</div><div class="stat-label">Salio</div></div></div>`;
+}
+
+function renderMichangoRequestsList() {
+  const searchEl = el('michango-requests-search');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  const reqs = allRequests.filter(r => r.aina === 'contribution' && (!q || (r.muumini_jina || '').toLowerCase().includes(q)));
+  const haliBadge = { pending: '<span class="badge badge-gold">⏳ Inasubiri</span>', approved: '<span class="badge badge-blue">✅ Imekubaliwa</span>', rejected: '<span class="badge badge-red">❌ Imekataliwa</span>' };
+  el('michango-requests-list-body').innerHTML = reqs.length ? reqs.map(r => {
+    let malipoCell = '<span style="color:#999;">—</span>';
+    if (r.hali === 'approved') {
+      malipoCell = (r.malipo_hali === 'imelipwa')
+        ? `<span class="badge badge-green">✅ Imelipwa</span> <button class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:11px;" onclick="toggleMalipoHali('${r.id}','bado')">↩ Rudisha</button>`
+        : `<span class="badge badge-gold">🕓 Bado Haijalipwa</span> <button class="btn btn-green btn-sm" style="padding:2px 8px;font-size:11px;" onclick="toggleMalipoHali('${r.id}','imelipwa')">✅ Weka Imelipwa</button>`;
+    }
+    return `<tr><td>${r.muumini_jina || '—'}</td><td>${r.aina_icon || ''} ${r.aina_jina || '—'}</td><td><strong>${formatMoney(r.kiasi)}</strong></td><td>${r.created_at ? new Date(r.created_at).toLocaleDateString('sw') : '—'}</td><td>${haliBadge[r.hali] || r.hali}</td><td>${malipoCell}</td><td><button class="btn btn-red btn-sm" style="padding:2px 8px;font-size:11px;" onclick="deleteMichangoRequest('${r.id}')">🗑 Futa</button></td></tr>`;
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya michango</td></tr>';
+}
+
+async function toggleMalipoHali(reqId, newStatus) {
+  showLoading(true);
+  await db.from('ombi_michango').update({ malipo_hali: newStatus }).eq('id', reqId);
+  await loadAllData(); loadTreasurerDashboard();
+  toast(newStatus === 'imelipwa' ? '✅ Imewekwa kama Imelipwa' : '↩ Imerudishwa kama Bado Haijalipwa');
+}
+
+async function deleteMichangoRequest(reqId) {
+  if (!confirm('Una uhakika unataka kufuta ombi hili la mchango kabisa? Haiwezi kurudishwa.')) return;
+  showLoading(true);
+  await db.from('ombi_michango').delete().eq('id', reqId);
+  await loadAllData(); loadTreasurerDashboard();
+  toast('🗑 Ombi limefutwa');
 }
 
 function openRequestModal(reqId, memberName, memberPhone, typeName, amount) {
