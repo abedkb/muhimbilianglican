@@ -1463,6 +1463,7 @@ async function submitRequest() {
   if (error) { el('request-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
   el('request-alert').innerHTML = '<div class="alert alert-success">✅ Ombi limepelekwa kwa Mweka Hazina!</div>';
   el('request-amount').value = ''; el('request-message').value = '';
+  await notifyTreasurerOfRequest(currentUser.jina_kamili, currentUser.namba_simu, type.name || type.jina, amount, message);
   await loadAllData(); loadMemberDashboard(); memberTab('request');
 }
 
@@ -1520,6 +1521,27 @@ async function submitQuickChangia(memberId) {
       await logSMS([member.namba_simu], thankYouMsg);
     } catch (e) { /* SMS ya asante imeshindikana — ombi tayari limehifadhiwa, si tatizo kubwa */ }
   }
+  await notifyTreasurerOfRequest(member.jina_kamili, member.namba_simu, ainaVal, kiasi, ujumbe);
+}
+
+// SMS kwa Mweka Hazina inayomjulisha kuhusu ombi jipya la mchango linalosubiri idhini yake.
+function buildTreasurerRequestSms(jina, simu, ainaVal, kiasi, ujumbe) {
+  const paragraphs = [
+    `Mweka Hazina ${TREASURER_NAME},`,
+    `Kuna ombi jipya la mchango linalosubiri idhini yako:`,
+    `Jina: ${jina}\nSimu: ${simu}\nAina ya Sadaka: ${ainaVal}\nKiasi: ${formatMoney(kiasi)}${ujumbe ? `\nUjumbe: ${ujumbe}` : ''}`,
+    `Tafadhali ingia kwenye mfumo kuthibitisha ombi hili.`
+  ];
+  return paragraphs.join('\n\n');
+}
+
+async function notifyTreasurerOfRequest(jina, simu, ainaVal, kiasi, ujumbe) {
+  if (!TREASURER_PHONE) return;
+  const msg = buildTreasurerRequestSms(jina, simu, ainaVal, kiasi, ujumbe);
+  try {
+    await sendSMSBeem([TREASURER_PHONE], msg);
+    await logSMS([TREASURER_PHONE], msg);
+  } catch (e) { /* SMS kwa Mweka Hazina imeshindikana — ombi tayari limehifadhiwa, si tatizo kubwa */ }
 }
 
 // SMS ya asante inayotumwa moja kwa moja kwa muumini baada ya kuwasilisha ombi la mchango
