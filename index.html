@@ -1898,7 +1898,7 @@ function loadTreasurerDashboard() {
   el('treasurer-requests-count').textContent = pendingReqs.length;
   const pendingAhadi = allAhadi.filter(a => a.hali === 'pending').length + allAhadiMalipo.filter(a => a.hali === 'pending').length;
   el('treasurer-ahadi-count').textContent = pendingAhadi;
-  el('treasurer-requests-list').innerHTML = pendingReqs.length ? pendingReqs.map(r => `<div class="card"><div class="card-title">🤲 OMBI LA MCHANGO</div><div class="finance-row"><span>${r.muumini_jina}</span><span>${r.aina_icon || ''} ${r.aina_jina} · ${formatMoney(r.kiasi)}</span></div>${r.maelezo_muumini ? `<div class="alert alert-info">${r.maelezo_muumini}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="openRequestModal('${r.id}','${r.muumini_jina}','${r.muumini_simu}','${r.aina_jina}',${r.kiasi})">✅ Kubali & Tuma Maelekezo</button><button class="btn btn-red btn-sm" onclick="rejectRequest('${r.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi yanayosubiri</div>';
+  el('treasurer-requests-list').innerHTML = pendingReqs.length ? pendingReqs.map(r => `<div class="card"><div class="card-title">🤲 OMBI LA MCHANGO</div><div class="finance-row"><span>${r.muumini_jina}</span><span>${r.aina_icon || ''} ${r.aina_jina} · ${formatMoney(r.kiasi)}</span></div>${r.maelezo_muumini ? `<div class="alert alert-info">${r.maelezo_muumini}</div>` : ''}<div style="display:flex;gap:10px;margin-top:12px;"><button class="btn btn-green btn-sm" onclick="approveRequest('${r.id}')">✅ Kubali</button><button class="btn btn-red btn-sm" onclick="rejectRequest('${r.id}')">❌ Kataa</button></div></div>`).join('') : '<div class="card" style="text-align:center;padding:40px;">Hakuna maombi yanayosubiri</div>';
   el('history-list').innerHTML = allContributions.filter(c => c.hali !== 'pending').slice(0, 50).map(c => { const m = allMembers.find(x => x.id == c.muumini_id); const ap = allApprovals.find(a => a.id == c.approval_id); const approver = ap ? (ap.idhiniwa_na || '') : ''; return `<tr><td>${m ? m.jina_kamili : '—'}</td><td>${c.aina_icon || ''} ${c.aina_jina}</td><td><strong>${formatMoney(c.kiasi)}</strong></td><td>${formatDate(c.tarehe_mchango)}</td><td><span class="badge ${c.hali === 'approved' ? 'badge-green' : 'badge-red'}">${c.hali === 'approved' ? `✅ Imeidhinishwa${approver ? ' na ' + approver : ''}` : '❌ Imekataliwa'}</span></td></tr>`; }).join('');
   renderMichangoRequestsList();
   renderTypeList(); renderJumlaAinaFields(); renderExpenseList(); renderJumlaHistoria(); renderMatumiziBaki();
@@ -1940,29 +1940,13 @@ async function deleteMichangoRequest(reqId) {
   toast('🗑 Ombi limefutwa');
 }
 
-function openRequestModal(reqId, memberName, memberPhone, typeName, amount) {
-  const template = `Bwana Yesu Asifiwe ${memberName}!\nAsante sana kwa ${typeName} yako, unaweza kutuma katika `;
-  openModal('✅ Kubali Ombi', `<div class="alert alert-info">Muumini: <strong>${memberName}</strong><br>${typeName} · ${formatMoney(amount)}</div><div class="fg"><label>📲 Maelekezo ya Malipo (Njia ya Kulipa)</label><textarea class="fi" id="modal-payment-instructions" rows="5">${template}</textarea></div><div class="alert alert-warning" style="font-size:11px;margin-bottom:10px;">📌 Jaza njia ya kulipa (mfano: M-Pesa: 0712 XXX XXX — Jina Fulani) mwishoni mwa ujumbe hapo juu.</div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"><button class="btn btn-green" style="flex:1;" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}','whatsapp')">🟢 Thibitisha &amp; Tuma WhatsApp</button><button class="btn btn-blue" style="flex:1;" onclick="approveRequestWithInstructions('${reqId}','${memberPhone}','sms')">📱 Thibitisha &amp; Tuma SMS</button><button class="btn btn-outline" onclick="closeModal()">Rudi</button></div>`);
-}
-
-async function approveRequestWithInstructions(reqId, memberPhone, channel = 'whatsapp') {
-  const instructions = el('modal-payment-instructions').value.trim();
-  if (!instructions) { toast('Tafadhali andika maelekezo ya malipo'); return; }
+async function approveRequest(reqId) {
   const req = allRequests.find(r => r.id == reqId); if (!req) return;
   showLoading(true);
-  await db.from('ombi_michango').update({ hali: 'approved', maelekezo_malipo: instructions }).eq('id', reqId);
-  const { data: newContrib } = await db.from('michango').insert({ muumini_id: req.muumini_id, aina_id: req.aina_id, aina_jina: req.aina_jina, aina_icon: req.aina_icon, kiasi: req.kiasi, tarehe_mchango: leo(), maelezo: req.maelezo_muumini, hali: 'pending' }).select();
+  await db.from('ombi_michango').update({ hali: 'approved' }).eq('id', reqId);
+  await db.from('michango').insert({ muumini_id: req.muumini_id, aina_id: req.aina_id, aina_jina: req.aina_jina, aina_icon: req.aina_icon, kiasi: req.kiasi, tarehe_mchango: leo(), maelezo: req.maelezo_muumini, hali: 'pending' });
   await db.from('approvals').insert({ aina: 'contribution', kichwa: `${req.aina_jina} - ${req.muumini_jina}`, muumini_id: req.muumini_id, muumini_jina: req.muumini_jina, kiasi: req.kiasi, maelezo_ap: req.maelezo_muumini, hali: 'pending', tarehe_mchango: leo(), request_id: reqId });
-  closeModal(); await loadAllData(); loadTreasurerDashboard();
-  if (memberPhone) {
-    const msg = `✝ MUHIMBILI ANGLICAN CHAPLAINCY\n\nHabari ${req.muumini_jina},\n\nOmbi lako la mchango (${req.aina_jina} - ${formatMoney(req.kiasi)}) limekubaliwa! 🎉\n\n${instructions}\n\nMungu akubariki!`;
-    if (channel === 'sms') {
-      window.open(`sms:${memberPhone}?body=${encodeURIComponent(msg)}`, '_blank');
-    } else {
-      const phone = memberPhone.replace(/^0/, '255');
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-  }
+  await loadAllData(); loadTreasurerDashboard();
   toast('✅ Ombi limekubaliwa!');
 }
 
