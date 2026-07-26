@@ -72,6 +72,11 @@ body{font-family:'Inter',sans-serif;background:#F5F3EF;color:#1E2A2E;font-size:1
 .fi{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;transition:all 0.2s;}
 .fi:focus{outline:none;border-color:#C6A43F;box-shadow:0 0 0 3px rgba(198,164,63,0.1);}
 .fsel{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:14px;background:white;}
+.member-search-wrap{position:relative;}
+.member-search-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1.5px solid #E2E8F0;border-radius:10px;box-shadow:var(--shadow);max-height:220px;overflow-y:auto;z-index:50;}
+.member-search-item{padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #F1EFEA;}
+.member-search-item:last-child{border-bottom:none;}
+.member-search-item:hover{background:#F1EFEA;}
 .btn{padding:12px 20px;border:none;border-radius:40px;font-weight:600;font-size:14px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;justify-content:center;}
 .btn-block{width:100%;}
 .btn-primary{background:#1B4D3E;color:white;}
@@ -844,8 +849,10 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         <div class="card-title">🗂 Jaza Kadi ya Sadaka ya Muumini</div>
         <div id="treas-kadi-alert"></div>
         <div class="fg"><label>Chagua Muumini</label>
-          <input type="text" class="fi" id="treas-kadi-member-search" list="treas-kadi-member-datalist" placeholder="🔍 Andika jina la muumini..." autocomplete="off" oninput="onTreasKadiMemberSearch()">
-          <datalist id="treas-kadi-member-datalist"></datalist>
+          <div class="member-search-wrap">
+            <input type="text" class="fi" id="treas-kadi-member-search" placeholder="🔍 Andika au chagua jina la muumini..." autocomplete="off" oninput="onTreasKadiMemberSearch()" onfocus="onTreasKadiMemberSearch()">
+            <div id="treas-kadi-member-list" class="member-search-list" style="display:none;"></div>
+          </div>
           <input type="hidden" id="treas-kadi-member">
         </div>
         <div class="fg"><label>Aina ya Kadi</label>
@@ -4324,14 +4331,28 @@ async function saveKadiGrid(muuminiId, ainaKadi, mwaka) {
 }
 function treasKadiMemberLabel(m) { return `${m.jina_kamili} (${m.namba_muumini})`; }
 function onTreasKadiMemberSearch() {
-  const typed = el('treas-kadi-member-search').value.trim();
-  const match = allMembers.find(m => m.hali === 'hai' && treasKadiMemberLabel(m) === typed);
-  el('treas-kadi-member').value = match ? match.id : '';
+  const q = el('treas-kadi-member-search').value.trim().toLowerCase();
+  const listEl = el('treas-kadi-member-list');
+  const matches = allMembers.filter(m => m.hali === 'hai' && (!q || treasKadiMemberLabel(m).toLowerCase().includes(q)));
+  listEl.innerHTML = matches.length
+    ? matches.map(m => `<div class="member-search-item" onclick="selectTreasKadiMember('${m.id}')">${treasKadiMemberLabel(m)}</div>`).join('')
+    : '<div class="member-search-item" style="color:#999;cursor:default;">Hakuna muumini alipatikana</div>';
+  listEl.style.display = 'block';
+}
+function selectTreasKadiMember(memberId) {
+  const member = allMembers.find(m => m.id == memberId);
+  if (!member) return;
+  el('treas-kadi-member-search').value = treasKadiMemberLabel(member);
+  el('treas-kadi-member').value = member.id;
+  el('treas-kadi-member-list').style.display = 'none';
   renderTreasKadiCard();
 }
+document.addEventListener('click', (e) => {
+  const searchInput = el('treas-kadi-member-search');
+  const wrap = searchInput ? searchInput.closest('.member-search-wrap') : null;
+  if (wrap && !wrap.contains(e.target)) { const l = el('treas-kadi-member-list'); if (l) l.style.display = 'none'; }
+});
 function renderTreasurerKadiTab() {
-  const dl = el('treas-kadi-member-datalist');
-  if (dl) dl.innerHTML = allMembers.filter(m => m.hali === 'hai').map(m => `<option value="${treasKadiMemberLabel(m)}">`).join('');
   if (el('treas-kadi-mwaka') && !el('treas-kadi-mwaka').value) el('treas-kadi-mwaka').value = new Date().getFullYear();
   renderTreasKadiCard();
 }
