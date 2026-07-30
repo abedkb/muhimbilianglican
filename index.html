@@ -744,6 +744,13 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <div class="card"><div class="card-title">📋 Historia ya Jumla za Ibada</div><div id="jumla-historia"></div></div>
     </div>
     <div id="treasurer-maombi" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>🔔 Kumbusho la Malipo ya Mchango</span>
+          <button class="btn btn-sm btn-gold" onclick="openMalipoReminderModal()">🔔 Tuma Kumbusho</button>
+        </div>
+        <div style="font-size:12px;color:#6B7280;">Tuma SMS ya kukumbusha muumini mmoja au waumini wote kuhusu malipo ya Ahadi, Fungu la Kumi, Sadaka, Ujenzi au aina nyingine ya mchango iliyoainishwa kwenye Maombi ya Mchango.</div>
+      </div>
       <div id="treasurer-requests-list"></div>
       <div class="card">
         <div class="card-title">📋 Orodha ya Maombi ya Michango (Waumini Wote)</div>
@@ -1949,7 +1956,7 @@ function renderMichangoRequestsList() {
         ? `<span class="badge badge-green">✅ Imelipwa</span> <button class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:11px;" onclick="toggleMalipoHali('${r.id}','bado')">↩ Rudisha</button>`
         : `<span class="badge badge-gold">🕓 Bado Haijalipwa</span> <button class="btn btn-green btn-sm" style="padding:2px 8px;font-size:11px;" onclick="toggleMalipoHali('${r.id}','imelipwa')">✅ Weka Imelipwa</button>`;
     }
-    return `<tr><td>${r.muumini_jina || '—'}</td><td>${r.aina_icon || ''} ${r.aina_jina || '—'}</td><td><strong>${formatMoney(r.kiasi)}</strong></td><td>${r.created_at ? new Date(r.created_at).toLocaleDateString('sw') : '—'}</td><td>${haliBadge[r.hali] || r.hali}</td><td>${malipoCell}</td><td><button class="btn btn-red btn-sm" style="padding:2px 8px;font-size:11px;" onclick="deleteMichangoRequest('${r.id}')">🗑 Futa</button></td></tr>`;
+    return `<tr><td>${r.muumini_jina || '—'}</td><td>${r.aina_icon || ''} ${r.aina_jina || '—'}</td><td><strong>${formatMoney(r.kiasi)}</strong></td><td>${r.created_at ? new Date(r.created_at).toLocaleDateString('sw') : '—'}</td><td>${haliBadge[r.hali] || r.hali}</td><td>${malipoCell}</td><td><button class="btn btn-gold btn-sm" style="padding:2px 8px;font-size:11px;" onclick="openMalipoReminderFromRequest('${r.id}')" title="Kumbusha Malipo">🔔</button> <button class="btn btn-red btn-sm" style="padding:2px 8px;font-size:11px;" onclick="deleteMichangoRequest('${r.id}')">🗑 Futa</button></td></tr>`;
   }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:#666;">Hakuna maombi ya michango</td></tr>';
 }
 
@@ -3283,6 +3290,142 @@ async function sendSundayReminderSMS() {
     }
   }
   toast(`✅ Ujumbe wa Jumapili umetumwa kwa waumini ${sentCount}` + (failCount ? ` (imeshindikana: ${failCount})` : ''));
+}
+
+// ==================== KUMBUSHO YA MALIPO YA MCHANGO (Ahadi/Fungu la Kumi/Sadaka/Ujenzi/n.k.) ====================
+// Inatumika kwenye kichupo cha "Maombi" — Mweka Hazina anaweza kutuma SMS ya kukumbusha
+// muumini mmoja (aliyeainishwa) au waumini wote kuhusu aina ya mchango wanayodaiwa/wanayotarajiwa kulipa.
+function malipoReminderAinaOptions() {
+  const builtins = ['Ahadi', 'Fungu la Kumi', 'Sadaka', 'Ujenzi'];
+  const fromTypes = allContributionTypes.map(t => t.name || t.jina).filter(n => n && !builtins.includes(n));
+  return [...builtins, ...fromTypes];
+}
+
+function buildMalipoReminderTemplate(aina) {
+  const paragraphs = [
+    kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY',
+    'Bwana Yesu Asifiwe {JINA},',
+    `Tunapenda kukukumbusha kuhusu ${aina} yako ya kiasi cha {KIASI} uliyoiahidi tarehe {TAREHE}, ambayo bado haijakamilika. Tafadhali kamilisha mchango wako kupitia kiungo {LINK}`,
+    'Kwa maswali au ufafanuzi wowote kuhusu mchango huu, tafadhali wasiliana na Mweka Hazina.',
+    'Mungu akubariki!',
+    `${TREASURER_NAME}\nMWEKAHAZINA\n${TREASURER_PHONE}`
+  ];
+  return paragraphs.join('\n\n');
+}
+
+// Inatafuta kiasi na tarehe halisi ya ahadi/ombi la muumini kwa aina husika — kwanza kwenye
+// jedwali la "ahadi" (Mavuno/Fungu la Kumi/Ujenzi/Ahadi), kisha kwenye "ombi_michango" (aina nyingine
+// zilizoainishwa wakati wa Maombi ya Mchango, mfano Sadaka). Inarudisha null ikiwa hakuna kumbukumbu.
+function findMemberPledgeInfo(memberId, aina) {
+  const ahadiMatches = allAhadi.filter(a => a.muumini_id == memberId && a.aina_ahadi === aina && a.hali === 'approved');
+  if (ahadiMatches.length) {
+    const chosen = ahadiMatches.slice().sort((a, b) => (b.tarehe_ahadi || '').localeCompare(a.tarehe_ahadi || ''))[0];
+    return { kiasi: chosen.kiasi_ahadi, tarehe: chosen.tarehe_ahadi };
+  }
+  const reqMatches = allRequests.filter(r => r.aina === 'contribution' && r.muumini_id == memberId && r.aina_jina === aina);
+  if (reqMatches.length) {
+    const chosen = reqMatches.slice().sort((a, b) => {
+      const pendA = a.hali === 'pending' ? 1 : 0, pendB = b.hali === 'pending' ? 1 : 0;
+      if (pendA !== pendB) return pendB - pendA;
+      return (b.created_at || '').localeCompare(a.created_at || '');
+    })[0];
+    return { kiasi: chosen.kiasi, tarehe: (chosen.created_at || '').slice(0, 10) };
+  }
+  return null;
+}
+
+function openMalipoReminderFromRequest(reqId) {
+  const r = allRequests.find(x => x.id == reqId);
+  if (!r) return;
+  openMalipoReminderModal(r.muumini_id, r.aina_jina);
+}
+
+function openMalipoReminderModal(preselectMemberId, presetAina) {
+  const members = allMembers.filter(m => m.hali === 'hai');
+  if (!members.length) { toast('Hakuna waumini hai'); return; }
+  const ainaOpts = malipoReminderAinaOptions();
+  if (presetAina && !ainaOpts.includes(presetAina)) ainaOpts.unshift(presetAina);
+  const initialAina = presetAina || ainaOpts[0];
+  const memberCheckboxes = members.map(m => {
+    const checked = preselectMemberId ? (m.id == preselectMemberId) : false;
+    return `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F1EFEA;cursor:pointer;">
+      <input type="checkbox" class="malipo-reminder-chk" data-member-id="${m.id}" ${checked ? 'checked' : ''} style="width:16px;height:16px;flex-shrink:0;">
+      <span style="flex:1;font-size:13px;font-weight:500;">${m.jina_kamili}</span>
+      <span style="font-size:11px;color:#6B7280;">${m.namba_simu || '—'}</span>
+    </label>`;
+  }).join('');
+  openModal('🔔 Kumbusho la Malipo ya Mchango', `
+    <div class="fg">
+      <label>Aina ya Mchango Anayokumbushwa</label>
+      <select class="fsel" id="malipo-reminder-aina" onchange="el('malipo-reminder-text').value = buildMalipoReminderTemplate(el('malipo-reminder-aina').value)">
+        ${ainaOpts.map(a => `<option value="${a}"${a === initialAina ? ' selected' : ''}>${a}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.malipo-reminder-chk').forEach(c=>c.checked=true)">✅ Chagua Wote</button>
+      <button class="btn btn-sm btn-outline" onclick="document.querySelectorAll('.malipo-reminder-chk').forEach(c=>c.checked=false)">☐ Ondoa Wote</button>
+      <span style="font-size:12px;color:#6B7280;">${members.length} waumini hai</span>
+    </div>
+    <div class="fg" style="margin-bottom:10px;">
+      <input type="text" class="fi" id="malipo-reminder-search" placeholder="🔍 Tafuta muumini..." oninput="filterMalipoReminderList()" style="margin-bottom:0;">
+    </div>
+    <div id="malipo-reminder-member-list" style="max-height:170px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;padding:8px 12px;margin-bottom:12px;">
+      ${memberCheckboxes}
+    </div>
+    <div class="fg" style="margin-bottom:4px;">
+      <label>Ujumbe (usiondoe <code>{JINA}</code>, <code>{KIASI}</code>, <code>{TAREHE}</code> na <code>{LINK}</code> — vitajazwa kiotomatiki kwa kila muumini)</label>
+      <textarea class="fi" id="malipo-reminder-text" rows="7">${buildMalipoReminderTemplate(initialAina)}</textarea>
+    </div>
+    <div class="alert alert-info" style="font-size:11px;">ℹ️ Muumini ambaye hana kumbukumbu ya ahadi/ombi la aina hii kwenye mfumo hatatumiwa ujumbe huu (kiasi na tarehe havitapatikana).</div>
+    <div id="malipo-reminder-alert"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-blue" style="flex:1;" onclick="sendMalipoReminderSMS()">📱 Tuma SMS ya Kumbusho</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">✕ Funga</button>
+    </div>`);
+}
+
+function filterMalipoReminderList() {
+  const q = (el('malipo-reminder-search')?.value || '').trim().toLowerCase();
+  document.querySelectorAll('#malipo-reminder-member-list label').forEach(label => {
+    const name = label.querySelector('span').textContent.toLowerCase();
+    label.style.display = (!q || name.includes(q)) ? 'flex' : 'none';
+  });
+}
+
+async function sendMalipoReminderSMS() {
+  const msg = el('malipo-reminder-text')?.value || '';
+  if (!msg.trim()) { el('malipo-reminder-alert').innerHTML = '<div class="alert alert-error">Andika ujumbe kwanza</div>'; return; }
+  const aina = el('malipo-reminder-aina')?.value || '';
+  const selected = Array.from(document.querySelectorAll('.malipo-reminder-chk:checked'))
+    .map(chk => allMembers.find(m => m.id == chk.dataset.memberId))
+    .filter(Boolean)
+    .filter(m => m.namba_simu);
+  if (!selected.length) { el('malipo-reminder-alert').innerHTML = '<div class="alert alert-error">Chagua muumini mwenye namba ya simu angalau mmoja</div>'; return; }
+  closeModal();
+  let sentCount = 0, failCount = 0, skippedCount = 0;
+  for (let i = 0; i < selected.length; i++) {
+    const m = selected[i];
+    const pledge = findMemberPledgeInfo(m.id, aina);
+    if (!pledge) { skippedCount++; continue; }
+    const link = APP_BASE_URL + '?changia=1&simu=' + encodeURIComponent(m.namba_simu);
+    const personalMsg = msg
+      .replace(/\{JINA\}/g, m.jina_kamili)
+      .replace(/\{KIASI\}/g, formatMoney(pledge.kiasi))
+      .replace(/\{TAREHE\}/g, formatDate(pledge.tarehe))
+      .replace(/\{LINK\}/g, link);
+    toast(`⏳ Inatuma (${i + 1}/${selected.length})... ${m.jina_kamili}`);
+    try {
+      await sendSMSBeem([m.namba_simu], personalMsg);
+      await logSMS([m.namba_simu], personalMsg);
+      sentCount++;
+    } catch (e) {
+      failCount++;
+    }
+  }
+  let summary = `✅ Kumbusho la malipo limetumwa kwa waumini ${sentCount}`;
+  if (failCount) summary += ` (imeshindikana: ${failCount})`;
+  if (skippedCount) summary += ` — waumini ${skippedCount} hawana kumbukumbu ya ${aina} hivyo hawakutumiwa`;
+  toast(summary);
 }
 
 function openAhadiPaymentModal(ahadiId) {
