@@ -1193,6 +1193,21 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
   -- HALI YA MALIPO YA OMBI LA MCHANGO (mpya — ongeza safu hii kwenye jedwali la ombi_michango, tekeleza mara moja):
   ALTER TABLE ombi_michango ADD COLUMN IF NOT EXISTS malipo_hali text NOT NULL DEFAULT 'bado';
   -----------------------------------------------------------------------
+  -- UFUATILIAJI WA BAKI YA IBAADA (mpya — tekeleza kwenye Supabase SQL Editor):
+  -- Inarekodi baki ya sadaka ya kila ibada iko wapi: benki, kiongozi/muumini aliyeshika, au imetumika shughuli gani.
+  CREATE TABLE baki_uwekaji (
+    id bigserial primary key,
+    jumla_ibada_id bigint not null,
+    tarehe date not null,
+    kiasi integer not null,
+    aina text not null CHECK (aina IN ('benki','mtu','matumizi')),
+    eneo text not null,
+    maelezo text,
+    created_at timestamptz default now()
+  );
+  ALTER TABLE baki_uwekaji ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "allow_all_baki_uwekaji" ON baki_uwekaji FOR ALL USING (true) WITH CHECK (true);
+  -----------------------------------------------------------------------
 */
 const SUPABASE_URL = 'https://mdyktdczcngeenumwkyt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1keWt0ZGN6Y25nZWVudW13a3l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDMxOTYsImV4cCI6MjA5MjAxOTE5Nn0.J5OTYNawZ6l_dKNYrNpwm2_fabXYraE7Ty8BALVZRM8';
@@ -1224,6 +1239,7 @@ let allBenkiAmana = [], allBenkiAda = [];
 let allViongozi = [];
 let allRatibaJumuiya = [];
 let allRatibaMwaka = [];
+let allBakiUwekaji = [];
 let allBajeti = [];
 let bajetiCurrentMwaka = null;
 let allSadakaKadi = [];
@@ -1387,6 +1403,10 @@ async function loadAllData(silent = false) {
     const { data: ratibaMwaka } = await db.from('ratiba_mwaka').select('*').order('tarehe', { ascending: true });
     allRatibaMwaka = ratibaMwaka || [];
   } catch (e) { console.warn('Jedwali ya ratiba_mwaka haijawekwa bado:', e.message); allRatibaMwaka = []; }
+  try {
+    const { data: bakiUw } = await db.from('baki_uwekaji').select('*').order('created_at', { ascending: false });
+    allBakiUwekaji = bakiUw || [];
+  } catch (e) { console.warn('Jedwali ya baki_uwekaji haijawekwa bado:', e.message); allBakiUwekaji = []; }
   if (!silent) showLoading(false);
 }
 
@@ -2189,8 +2209,95 @@ function renderJumlaHistoria() {
         <span>BAKI YA IBAADA</span>
         <span style="color:${baki>=0?'#86EFAC':'#FCA5A5'};">${formatMoney(baki)}</span>
       </div>
+      ${renderBakiTrackingBlock(j.id, baki)}
     </div>`;
   }).join('');
+}
+
+// ==================== UFUATILIAJI WA BAKI YA IBAADA (traceability) ====================
+function bakiAinaLabel(aina) {
+  return aina === 'benki' ? '🏦 Benki' : aina === 'mtu' ? '👤 Kiongozi/Muumini' : '💼 Matumizi';
+}
+
+function renderBakiTrackingBlock(jumlaId, baki) {
+  const entries = allBakiUwekaji.filter(b => String(b.jumla_ibada_id) === String(jumlaId));
+  const tracked = entries.reduce((s, b) => s + b.kiasi, 0);
+  const untracked = baki - tracked;
+  return `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,0.25);">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+      <div style="font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.5px;">📍 Baki Ilipo (Ufuatiliaji)</div>
+      <button class="btn btn-sm" style="background:rgba(198,164,63,0.2);color:#C6A43F;border:1px solid rgba(198,164,63,0.4);font-size:11px;padding:4px 8px;" onclick="openBakiTrackModal('${jumlaId}', ${baki})">➕ Fuatilia</button>
+    </div>
+    ${entries.length ? entries.map(b => `
+      <div class="jc-row" style="font-size:12px;">
+        <span>${bakiAinaLabel(b.aina)}: ${b.eneo}${b.maelezo ? ` <small style="opacity:0.6;">(${b.maelezo})</small>` : ''}</span>
+        <span style="display:flex;align-items:center;gap:6px;">
+          ${formatMoney(b.kiasi)}
+          <button onclick="deleteBakiTrack('${b.id}','${jumlaId}')" style="background:none;border:none;color:#FCA5A5;cursor:pointer;font-size:12px;" title="Futa">🗑</button>
+        </span>
+      </div>`).join('') : '<div style="font-size:12px;color:rgba(255,255,255,0.5);">Bado hakuna kumbukumbu ya mahali baki ilipo</div>'}
+    ${entries.length ? `<div class="jc-row" style="font-size:12px;font-weight:700;border-top:1px dashed rgba(255,255,255,0.2);margin-top:4px;padding-top:4px;">
+      <span>Haijafuatiliwa</span>
+      <span style="color:${untracked===0?'#86EFAC':'#FCA5A5'};">${formatMoney(untracked)}</span>
+    </div>` : ''}
+  </div>`;
+}
+
+function openBakiTrackModal(jumlaId, baki) {
+  const tracked = allBakiUwekaji.filter(b => String(b.jumla_ibada_id) === String(jumlaId)).reduce((s, b) => s + b.kiasi, 0);
+  const remaining = baki - tracked;
+  openModal('📍 Fuatilia Baki ya Ibaada', `
+    <div id="baki-track-alert"></div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:10px;">Baki ambayo bado haijafuatiliwa: <strong>${formatMoney(remaining)}</strong></div>
+    <div class="fg"><label>Baki Iko Wapi?</label>
+      <select class="fsel" id="bt-aina" onchange="toggleBtFields()">
+        <option value="benki">🏦 Benki</option>
+        <option value="mtu">👤 Kiongozi / Muumini Aliyeshika</option>
+        <option value="matumizi">💼 Imetumika Kwenye Shughuli</option>
+      </select>
+    </div>
+    <div class="fg"><label id="bt-eneo-label">Jina la Benki / Akaunti</label><input type="text" class="fi" id="bt-eneo" placeholder="mfano: CRDB - 015C877279800"></div>
+    <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="bt-kiasi" value="${remaining > 0 ? remaining : ''}"></div>
+    <div class="fg"><label>Maelezo ya Ziada (si lazima)</label><input type="text" class="fi" id="bt-maelezo" placeholder="mfano: itatumika kununua vifaa..."></div>
+    <button class="btn btn-gold btn-block" onclick="saveBakiTrack('${jumlaId}')">💾 Hifadhi</button>
+  `);
+}
+
+function toggleBtFields() {
+  const aina = el('bt-aina').value;
+  const label = el('bt-eneo-label'), input = el('bt-eneo');
+  if (aina === 'benki') { label.textContent = 'Jina la Benki / Akaunti'; input.placeholder = 'mfano: CRDB - 015C877279800'; }
+  else if (aina === 'mtu') { label.textContent = 'Jina la Kiongozi / Muumini'; input.placeholder = 'mfano: Mweka Hazina - Henerica Shija'; }
+  else { label.textContent = 'Shughuli Iliyotumika'; input.placeholder = 'mfano: Ununuzi wa vifaa vya ibada'; }
+}
+
+async function saveBakiTrack(jumlaId) {
+  const aina = el('bt-aina').value;
+  const eneo = el('bt-eneo').value.trim();
+  const kiasi = parseInt(el('bt-kiasi').value) || 0;
+  const maelezo = el('bt-maelezo').value.trim();
+  if (!eneo) { el('baki-track-alert').innerHTML = '<div class="alert alert-error">Jaza mahali baki ilipo</div>'; return; }
+  if (kiasi <= 0) { el('baki-track-alert').innerHTML = '<div class="alert alert-error">Weka kiasi sahihi</div>'; return; }
+  showLoading(true);
+  try {
+    const { error } = await db.from('baki_uwekaji').insert({ jumla_ibada_id: jumlaId, tarehe: leo(), kiasi, aina, eneo, maelezo: maelezo || null });
+    if (error) { el('baki-track-alert').innerHTML = `<div class="alert alert-error">❌ Hitilafu: ${error.message}</div>`; return; }
+    await loadAllData(true);
+    closeModal();
+    renderJumlaHistoria();
+    toast('✅ Kumbukumbu ya baki imehifadhiwa');
+  } finally { showLoading(false); }
+}
+
+async function deleteBakiTrack(id, jumlaId) {
+  if (!confirm('Futa kumbukumbu hii ya baki?')) return;
+  showLoading(true);
+  try {
+    const { error } = await db.from('baki_uwekaji').delete().eq('id', id);
+    if (error) { toast('❌ Hitilafu: ' + error.message); return; }
+    await loadAllData(true);
+    renderJumlaHistoria();
+  } finally { showLoading(false); }
 }
 
 // ==================== UJENZI TAB ====================
