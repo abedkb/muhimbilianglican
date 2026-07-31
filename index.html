@@ -3319,8 +3319,9 @@ function buildMalipoReminderTemplate(aina) {
   const paragraphs = [
     kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY',
     'Bwana Yesu Asifiwe {JINA},',
-    `Tunapenda kukukumbusha kukamilisha/kupunguza ahadi yako ya ${label} ya kiasi cha {KIASI} uliyoiahidi tarehe {TAREHE}, ambayo bado haijakamilika. Tafadhali kamilisha mchango wako kupitia kiungo {LINK}`,
-    'Kwa maswali au ufafanuzi wowote kuhusu mchango huu, tafadhali wasiliana na Mweka Hazina.',
+    `Tunapenda kukukumbusha kukamilisha/kupunguza ahadi yako ya ${label} ya kiasi cha {KIASI} uliyoiahidi tarehe {TAREHE}, ambayo bado haijakamilika.`,
+    `Unaweza kukamilisha/kupunguza ahadi yako kupitia akaunti ifuatayo:\nBENKI: ${BANK_NAME}\nNAMBA YA AKAUNTI: ${BANK_ACCOUNT_NUMBER}\nJINA LA AKAUNTI: ${BANK_ACCOUNT_NAME}`,
+    `Baada ya kukamilisha malipo, naomba utume risiti kwa Mweka Hazina kupitia namba ${TREASURER_PHONE}.`,
     'Mungu akubariki!',
     `${TREASURER_NAME}\nMWEKAHAZINA\n${TREASURER_PHONE}`
   ];
@@ -3387,7 +3388,7 @@ function openMalipoReminderModal(preselectMemberId, presetAina) {
       ${memberCheckboxes}
     </div>
     <div class="fg" style="margin-bottom:4px;">
-      <label>Ujumbe (usiondoe <code>{JINA}</code>, <code>{KIASI}</code>, <code>{TAREHE}</code> na <code>{LINK}</code> — vitajazwa kiotomatiki kwa kila muumini)</label>
+      <label>Ujumbe (usiondoe <code>{JINA}</code>, <code>{KIASI}</code> na <code>{TAREHE}</code> — vitajazwa kiotomatiki kwa kila muumini)</label>
       <textarea class="fi" id="malipo-reminder-text" rows="7">${buildMalipoReminderTemplate(initialAina)}</textarea>
     </div>
     <div class="alert alert-info" style="font-size:11px;">ℹ️ Muumini ambaye hana kumbukumbu ya ahadi/ombi la aina hii kwenye mfumo hatatumiwa ujumbe huu (kiasi na tarehe havitapatikana).</div>
@@ -3421,12 +3422,10 @@ async function sendMalipoReminderSMS() {
     const m = selected[i];
     const pledge = findMemberPledgeInfo(m.id, aina);
     if (!pledge) { skippedCount++; continue; }
-    const link = APP_BASE_URL + '?changia=1&simu=' + encodeURIComponent(m.namba_simu);
     const personalMsg = msg
       .replace(/\{JINA\}/g, m.jina_kamili)
       .replace(/\{KIASI\}/g, formatMoney(pledge.kiasi))
-      .replace(/\{TAREHE\}/g, formatDate(pledge.tarehe))
-      .replace(/\{LINK\}/g, link);
+      .replace(/\{TAREHE\}/g, formatDate(pledge.tarehe));
     toast(`⏳ Inatuma (${i + 1}/${selected.length})... ${m.jina_kamili}`);
     try {
       await sendSMSBeem([m.namba_simu], personalMsg);
