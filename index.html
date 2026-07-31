@@ -3296,16 +3296,30 @@ async function sendSundayReminderSMS() {
 // Inatumika kwenye kichupo cha "Maombi" — Mweka Hazina anaweza kutuma SMS ya kukumbusha
 // muumini mmoja (aliyeainishwa) au waumini wote kuhusu aina ya mchango wanayodaiwa/wanayotarajiwa kulipa.
 function malipoReminderAinaOptions() {
-  const builtins = ['Ahadi', 'Fungu la Kumi', 'Sadaka', 'Ujenzi'];
+  const builtins = ['Ahadi', 'Fungu la Kumi', 'Mavuno', 'Ujenzi', 'Sadaka'];
   const fromTypes = allContributionTypes.map(t => t.name || t.jina).filter(n => n && !builtins.includes(n));
   return [...builtins, ...fromTypes];
 }
 
+// Inabadilisha aina ghafi (mfano "Ujenzi", "Fungu la Kumi") kuwa jina litakalosomeka
+// kwenye SMS, mfano "Sadaka ya Ujenzi" — kama ilivyo kwenye majina ya Kadi za Sadaka.
+function malipoReminderAinaLabel(aina) {
+  const map = {
+    'Ujenzi': 'Sadaka ya Ujenzi',
+    'Ahadi': 'Sadaka ya Ahadi',
+    'Fungu la Kumi': 'Sadaka ya Fungu la Kumi (Zaka)',
+    'Mavuno': 'Sadaka ya Mavuno'
+  };
+  if (map[aina]) return map[aina];
+  return /^sadaka/i.test(aina || '') ? aina : `Sadaka ya ${aina}`;
+}
+
 function buildMalipoReminderTemplate(aina) {
+  const label = malipoReminderAinaLabel(aina);
   const paragraphs = [
     kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY',
     'Bwana Yesu Asifiwe {JINA},',
-    `Tunapenda kukukumbusha kuhusu ${aina} yako ya kiasi cha {KIASI} uliyoiahidi tarehe {TAREHE}, ambayo bado haijakamilika. Tafadhali kamilisha mchango wako kupitia kiungo {LINK}`,
+    `Tunapenda kukukumbusha kukamilisha/kupunguza ahadi yako ya ${label} ya kiasi cha {KIASI} uliyoiahidi tarehe {TAREHE}, ambayo bado haijakamilika. Tafadhali kamilisha mchango wako kupitia kiungo {LINK}`,
     'Kwa maswali au ufafanuzi wowote kuhusu mchango huu, tafadhali wasiliana na Mweka Hazina.',
     'Mungu akubariki!',
     `${TREASURER_NAME}\nMWEKAHAZINA\n${TREASURER_PHONE}`
@@ -3358,7 +3372,7 @@ function openMalipoReminderModal(preselectMemberId, presetAina) {
     <div class="fg">
       <label>Aina ya Mchango Anayokumbushwa</label>
       <select class="fsel" id="malipo-reminder-aina" onchange="el('malipo-reminder-text').value = buildMalipoReminderTemplate(el('malipo-reminder-aina').value)">
-        ${ainaOpts.map(a => `<option value="${a}"${a === initialAina ? ' selected' : ''}>${a}</option>`).join('')}
+        ${ainaOpts.map(a => `<option value="${a}"${a === initialAina ? ' selected' : ''}>${malipoReminderAinaLabel(a)}</option>`).join('')}
       </select>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap;">
