@@ -1528,6 +1528,7 @@ function initQuickChangia() {
     <div class="alert alert-info">Karibu, <strong>${member.jina_kamili}</strong>! Jaza taarifa za mchango wako hapa chini, Mweka Hazina atathibitisha.</div>
     <div class="fg"><label>Aina ya Sadaka</label>
       <select class="fsel" id="qc-aina">
+        <option value="Kawaida">💵 Sadaka ya Kawaida</option>
         <option value="Mavuno">🌾 Sadaka ya Mavuno</option>
         <option value="Fungu la kumi (zaka)">💰 Sadaka ya Fungu la Kumi</option>
         <option value="Ahadi">🤝 Sadaka ya Ahadi</option>
@@ -1547,7 +1548,7 @@ async function submitQuickChangia(memberId) {
   const ujumbe = el('qc-ujumbe').value.trim();
   if (!kiasi || kiasi <= 0) { el('quick-changia-alert').innerHTML = '<div class="alert alert-error">Weka kiasi sahihi</div>'; return; }
   const match = allContributionTypes.find(t => (t.name || t.jina) === ainaVal);
-  const iconFallback = { 'Mavuno': '🌾', 'Fungu la kumi (zaka)': '💰', 'Ahadi': '🤝' };
+  const iconFallback = { 'Kawaida': '💵', 'Mavuno': '🌾', 'Fungu la kumi (zaka)': '💰', 'Ahadi': '🤝' };
   showLoading(true);
   const { error } = await db.from('ombi_michango').insert({
     muumini_id: member.id, muumini_jina: member.jina_kamili, muumini_simu: member.namba_simu,
