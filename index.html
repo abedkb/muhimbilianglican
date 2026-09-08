@@ -1495,7 +1495,22 @@ function loadMemberDashboard() {
   el('profile-info').innerHTML = `<div style="display:grid;gap:12px;"><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Jina Kamili</span><span>${currentUser.jina_kamili}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Namba ya Simu</span><span>${currentUser.namba_simu}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #E2E8F0;"><span style="font-weight:600;">Namba ya Muumini</span><span>${currentUser.namba_muumini}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="font-weight:600;">Tarehe ya Kujiunga</span><span>${formatDate(currentUser.tarehe_kujiunga)}</span></div></div>`;
   el('request-type').innerHTML = '<option value="">— Chagua aina —</option>' + allContributionTypes.map(t => `<option value="${t.id}">${t.icon} ${t.name || t.jina}</option>`).join('');
   const myReqs = allRequests.filter(r => r.muumini_id === currentUser.id && r.aina === 'contribution');
-  el('my-requests').innerHTML = myReqs.length ? myReqs.map(r => `<div class="contrib-card"><div class="contrib-info"><div class="contrib-type">${r.aina_jina}</div><div class="contrib-date">📅 ${formatDate(r.created_at)} · Kiasi: ${formatMoney(r.kiasi)}</div>${r.maelezo_muumini ? `<div style="font-size:11px;color:#666;">${r.maelezo_muumini}</div>` : ''}</div><div><span class="badge ${r.hali === 'approved' ? 'badge-green' : r.hali === 'rejected' ? 'badge-red' : 'badge-gold'}">${r.hali === 'approved' ? '✅ Imekubaliwa' : r.hali === 'rejected' ? '❌ Imekataliwa' : '⏳ Inasubiri'}</span></div></div>`).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi yaliyotumwa</div>';
+  el('my-requests').innerHTML = myReqs.length ? myReqs.map(r => {
+    const haliBadge = `<span class="badge ${r.hali === 'approved' ? 'badge-green' : r.hali === 'rejected' ? 'badge-red' : 'badge-gold'}">${r.hali === 'approved' ? '✅ Imekubaliwa' : r.hali === 'rejected' ? '❌ Imekataliwa' : '⏳ Inasubiri'}</span>`;
+    let malipoSection = '';
+    if (r.hali !== 'rejected') {
+      if (r.malipo_hali === 'imelipwa') {
+        malipoSection = `<div style="margin-top:8px;"><span class="badge badge-green">✅ Imelipwa${r.mno_provider ? ' kwa ' + r.mno_provider : ''}</span></div>`;
+      } else {
+        malipoSection = `<div style="margin-top:8px;">
+          <span class="badge badge-gold">🕓 Bado Haijalipwa</span>
+          <button class="btn btn-green btn-sm" style="margin-left:6px;padding:4px 12px;font-size:11px;" onclick="openPayModal('${r.id}', ${r.kiasi})">📲 Lipa Sasa</button>
+          ${r.malipo_error ? `<div style="font-size:11px;color:#B83B3B;margin-top:4px;">${r.malipo_error}</div>` : ''}
+        </div>`;
+      }
+    }
+    return `<div class="contrib-card" style="flex-direction:column;align-items:stretch;"><div style="display:flex;gap:12px;align-items:center;"><div class="contrib-info"><div class="contrib-type">${r.aina_jina}</div><div class="contrib-date">📅 ${formatDate(r.created_at)} · Kiasi: ${formatMoney(r.kiasi)}</div>${r.maelezo_muumini ? `<div style="font-size:11px;color:#666;">${r.maelezo_muumini}</div>` : ''}</div><div>${haliBadge}</div></div>${malipoSection}</div>`;
+  }).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi yaliyotumwa</div>';
 }
 
 async function submitRequest() {
@@ -1510,6 +1525,59 @@ async function submitRequest() {
   el('request-amount').value = ''; el('request-message').value = '';
   await notifyTreasurerOfRequest(currentUser.jina_kamili, currentUser.namba_simu, type.name || type.jina, amount, message);
   await loadAllData(); loadMemberDashboard(); memberTab('request');
+}
+
+// ==================== MALIPO YA MTANDAO WA SIMU (AzamPay) ====================
+function openPayModal(reqId, kiasi) {
+  openModal('📲 Lipa kwa Simu', `
+    <div class="alert alert-info" style="margin-bottom:14px;">Kiasi: <strong>${formatMoney(kiasi)}</strong> &nbsp;·&nbsp; Namba: <strong>${currentUser.namba_simu}</strong></div>
+    <div class="fg">
+      <label>Chagua Mtandao wa Malipo</label>
+      <select class="fsel" id="pay-provider-select">
+        <option value="Mpesa">M-Pesa (Vodacom)</option>
+        <option value="Tigo">Tigo Pesa / Mix by Yas</option>
+        <option value="Airtel">Airtel Money</option>
+        <option value="Halopesa">HaloPesa</option>
+        <option value="Azampesa">AzamPesa</option>
+      </select>
+    </div>
+    <div id="pay-modal-alert"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-green btn-block" id="pay-confirm-btn" onclick="initiateAzamPayCheckout('${reqId}')">✅ Thibitisha Malipo</button>
+      <button class="btn btn-outline" onclick="closeModal()">✕ Funga</button>
+    </div>
+  `);
+}
+
+async function initiateAzamPayCheckout(reqId) {
+  const provider = el('pay-provider-select').value;
+  const btn = el('pay-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Inatuma ombi...';
+  el('pay-modal-alert').innerHTML = '';
+  try {
+    const res = await fetch(SUPABASE_URL + '/functions/v1/azampay-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({ reqId, provider })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Malipo hayakuanzishwa');
+    }
+    el('pay-modal-alert').innerHTML = '<div class="alert alert-success" style="margin-top:10px;">✅ Ombi la malipo limetumwa. Tazama simu yako uthibitishe (USSD/pop-up).</div>';
+    btn.textContent = '✅ Imetumwa';
+    toast('📲 Angalia simu yako kuthibitisha malipo');
+    // Malipo yanathibitishwa kwa njia ya callback (webhook) — tunasubiri kidogo
+    // kisha kupakua upya data ili kuona kama malipo_hali imebadilika.
+    setTimeout(async () => { await loadAllData(); loadMemberDashboard(); }, 15000);
+  } catch (err) {
+    el('pay-modal-alert').innerHTML = '<div class="alert alert-error" style="margin-top:10px;">Hitilafu: ' + err.message + '</div>';
+    btn.disabled = false; btn.textContent = '✅ Thibitisha Malipo';
+  }
 }
 
 // ==================== QUICK CONTRIBUTION (kiungo cha SMS) ====================
