@@ -2361,10 +2361,61 @@ function renderJumlaAinaFields() {
       </div>
       <div id="f2-extracted-review"></div>
     </div>`;
+  const gridHTML = `
+    <div class="card" style="border:2px solid #C6A43F;margin-bottom:12px;">
+      <div class="card-title">🧮 Hesabu Noti (hiari)</div>
+      <div class="alert alert-info" style="font-size:12px;">Hesabu noti kwa kila aina ya sadaka — weka <strong>idadi ya noti</strong>, mfumo utahesabu kiasi na kujaza sehemu husika chini moja kwa moja.</div>
+      <div style="overflow-x:auto;margin-bottom:6px;">
+      <table style="border-collapse:collapse;width:100%;font-size:11px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;min-width:80px;padding:4px;background:#1B4D3E;color:#C6A43F;position:sticky;left:0;">NOTI</th>
+            ${F1_GRID_CATS.map(c => `<th style="padding:4px;min-width:52px;background:#1B4D3E;color:#C6A43F;font-size:9px;">${c.label}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody id="jumla-grid-body"></tbody>
+      </table>
+      </div>
+    </div>`;
   const builtinHTML = F1_GRID_CATS.map(c => `<div class="fg"><label>${c.icon} ${c.label}</label><input type="number" class="fi" id="jumla-${c.id}" placeholder="0"></div>`).join('');
   const ujenziHTML = `<div class="fg"><label>🏗 Ujenzi</label><input type="number" class="fi" id="jumla-ujenzi" placeholder="0"></div>`;
   const customHTML = allContributionTypes.map(t => `<div class="fg"><label>${t.icon} ${t.name || t.jina}</label><input type="number" class="fi" id="jumla-extra-${t.id}" placeholder="0"></div>`).join('');
-  grid.innerHTML = uploadHTML + builtinHTML + ujenziHTML + customHTML;
+  grid.innerHTML = uploadHTML + gridHTML + builtinHTML + ujenziHTML + customHTML;
+  renderJumlaGridBody();
+}
+
+// ==================== HESABU NOTI (Denomination Grid) ====================
+const F1_DENOMINATIONS = [10000, 5000, 2000, 1000, 500, 200, 100, 50];
+
+function renderJumlaGridBody() {
+  const body = el('jumla-grid-body');
+  if (!body) return;
+  body.innerHTML = F1_DENOMINATIONS.map(den => `<tr>
+      <td style="padding:3px 4px;font-weight:700;color:#1B4D3E;background:#F7FAFC;position:sticky;left:0;">${den.toLocaleString()}</td>
+      ${F1_GRID_CATS.map(c => `<td style="padding:2px;"><input type="number" min="0" class="fi jumla-grid-cell" style="width:48px;padding:4px;text-align:center;font-size:11px;" id="jgrid-${c.id}-${den}" placeholder="0" oninput="recalcJumlaGrid()"></td>`).join('')}
+    </tr>`).join('')
+    + `<tr style="border-top:2px solid #C6A43F;">
+      <td style="padding:4px;font-weight:700;background:#F7FAFC;position:sticky;left:0;">JUMLA</td>
+      ${F1_GRID_CATS.map(c => `<td style="padding:4px;text-align:center;font-weight:700;color:#1B4D3E;background:#FFF9E6;" id="jgrid-total-${c.id}">0</td>`).join('')}
+    </tr>`;
+}
+
+function recalcJumlaGrid() {
+  F1_GRID_CATS.forEach(c => {
+    const total = F1_DENOMINATIONS.reduce((sum, den) => {
+      const count = parseInt(el(`jgrid-${c.id}-${den}`)?.value) || 0;
+      return sum + count * den;
+    }, 0);
+    const cell = el(`jgrid-total-${c.id}`);
+    if (cell) cell.textContent = total.toLocaleString();
+    const field = el('jumla-' + c.id);
+    if (field) field.value = total > 0 ? total : '';
+  });
+}
+
+function resetJumlaGrid() {
+  document.querySelectorAll('.jumla-grid-cell').forEach(inp => inp.value = '');
+  F1_GRID_CATS.forEach(c => { const cell = el(`jgrid-total-${c.id}`); if (cell) cell.textContent = '0'; });
 }
 
 // ==================== KUSOMA FOMU KWA PICHA (Gemini vision extraction) ====================
@@ -2460,6 +2511,7 @@ async function saveJumla() {
     el('jumla-alert').innerHTML = '<div class="alert alert-success">✅ Jumla ya ibada imehifadhiwa!</div>';
     setTimeout(() => el('jumla-alert').innerHTML = '', 3000);
     F1_GRID_CATS.forEach(c => { if (el('jumla-' + c.id)) el('jumla-' + c.id).value = ''; });
+    resetJumlaGrid();
     if (el('jumla-ujenzi')) el('jumla-ujenzi').value = '';
     if (el('f1-photo-status')) el('f1-photo-status').innerHTML = '';
     if (el('f1-photo-input')) el('f1-photo-input').value = '';
