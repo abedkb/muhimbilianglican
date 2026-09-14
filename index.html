@@ -1027,7 +1027,18 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
     </div>
     <div id="treasurer-ujenzi" style="display:none;"><div id="treasurer-ujenzi-content"></div></div>
     <div id="treasurer-historia" style="display:none;"><div class="card"><div class="card-title">📋 Historia ya Michango</div><div class="table-wrapper"><table><thead><tr><th>Muumini</th><th>Aina</th><th>Kiasi</th><th>Tarehe</th><th>Hali</th></tr></thead><tbody id="history-list"></tbody></table></div></div></div>
-    <div id="treasurer-waumini" style="display:none;"><div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-gold" onclick="openSundayReminderModal()">🔔 Kumbusha Ibada</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div></div>
+    <div id="treasurer-waumini" style="display:none;">
+      <div class="card">
+        <div class="card-title">➕ Ongeza Muumini Mpya (moja kwa moja, bila idhini)</div>
+        <div id="treasurer-add-member-alert"></div>
+        <div class="fg"><label>Jina Kamili</label><input type="text" class="fi" id="ta-jina"></div>
+        <div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="ta-simu" placeholder="0712345678"></div>
+        <div class="fg"><label>Jinsia</label><select class="fsel" id="ta-jinsia"><option value="Mwanaume">Mwanaume</option><option value="Mwanamke">Mwanamke</option></select></div>
+        <div class="fg"><label>Barua Pepe (hiari)</label><input type="email" class="fi" id="ta-email"></div>
+        <button class="btn btn-primary btn-block" onclick="treasurerAddMember()">➕ Ongeza Muumini</button>
+      </div>
+      <div class="card"><div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;"><span>👥 Orodha ya Waumini</span><div style="display:flex;gap:6px;"><button class="btn btn-sm" style="background:#25D366;color:white;" onclick="openBulkMsgModal()">💬 Ujumbe kwa Wote</button><button class="btn btn-sm btn-gold" onclick="openSundayReminderModal()">🔔 Kumbusha Ibada</button><button class="btn btn-sm btn-green" onclick="downloadWauminiCSV('treasurer')">⬇ Pakua Orodha</button></div></div><div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="treasurer-waumini-search" placeholder="🔍 Tafuta jina la muumini..." oninput="filterTreasurerWaumini()" style="margin-bottom:0;"></div><div class="table-wrapper"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Namba</th><th>Jinsia</th><th>Hali</th><th style="text-align:center;">Ujumbe</th></tr></thead><tbody id="treasurer-members-list"></tbody></table></div><div id="treasurer-waumini-count" style="font-size:12px;color:#6B7280;margin-top:8px;padding-top:8px;border-top:1px solid #E2E8F0;text-align:right;"></div></div>
+    </div>
     <div id="treasurer-bajeti" style="display:none;">
       <!-- Year selector -->
       <div class="card">
@@ -1305,6 +1316,30 @@ function openModal(title, body) { el('modal-title').innerHTML = title; el('modal
 function formatDate(d) { if (!d) return '—'; try { return new Date(d + 'T00:00:00').toLocaleDateString('sw'); } catch(e) { return d; } }
 function formatMoney(n) { return 'TZS ' + (n || 0).toLocaleString() + '/='; }
 function generateMemberNumber() { return 'MAC' + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 3).toUpperCase(); }
+
+// Mweka Hazina anaweza kuongeza muumini moja kwa moja — hali: 'hai'
+// mara moja, bila kupitia ombi la usajili kwa Katibu/Mchungaji.
+async function treasurerAddMember() {
+  const jina = el('ta-jina').value.trim();
+  const simu = el('ta-simu').value.trim();
+  const jinsia = el('ta-jinsia').value;
+  const email = el('ta-email').value.trim();
+  const namba = generateMemberNumber();
+  if (!jina || !simu) { el('treasurer-add-member-alert').innerHTML = '<div class="alert alert-error">Jaza jina na namba ya simu</div>'; return; }
+  if (allMembers.find(m => m.namba_simu === simu)) { el('treasurer-add-member-alert').innerHTML = '<div class="alert alert-error">Namba hii tayari imesajiliwa</div>'; return; }
+  showLoading(true);
+  const { error } = await db.from('waumini').insert({
+    jina_kamili: jina, namba_simu: simu, jinsia,
+    barua_pepe: email || null, nenosiri: simu,
+    namba_muumini: namba, hali: 'hai',
+    tarehe_kujiunga: leo()
+  });
+  showLoading(false);
+  if (error) { el('treasurer-add-member-alert').innerHTML = '<div class="alert alert-error">❌ ' + error.message + '</div>'; return; }
+  el('treasurer-add-member-alert').innerHTML = `<div class="alert alert-success">✅ ${jina} ameongezwa! Nenosiri lake la kuanzia ni namba yake ya simu (${simu}) — mjulishe abadilishe baadaye.</div>`;
+  el('ta-jina').value = ''; el('ta-simu').value = ''; el('ta-email').value = '';
+  await loadAllData(); loadTreasurerDashboard();
+}
 function leo() { return new Date().toISOString().slice(0, 10); }
 function getPW(role) { return localStorage.getItem('mac_pw_' + role) || (role === 'pastor' ? 'PASTOR2026' : role === 'secretary' ? 'KATIBU2026' : role === 'recovery' ? 'MUHIMBILI2026' : 'HAZINA2026'); }
 function setPW(role, pw) { localStorage.setItem('mac_pw_' + role, pw); }
@@ -1551,15 +1586,27 @@ function loadMemberDashboard() {
   }).join('') : '<div style="text-align:center;padding:20px;color:#666;">Hakuna maombi yaliyotumwa</div>';
 }
 
+// Mchango wa muumini sasa unathibitishwa moja kwa moja wakati wa
+// kutuma ombi — Mweka Hazina hahitajiki tena kukubali kila ombi
+// mmoja mmoja. Hii inafanya kile approveRequest() ilichokuwa
+// ikifanya, lakini papo hapo baada ya ombi kutumwa.
+async function autoApproveMchango(reqId, reqData) {
+  await db.from('michango').insert({ muumini_id: reqData.muumini_id, aina_id: reqData.aina_id, aina_jina: reqData.aina_jina, aina_icon: reqData.aina_icon, kiasi: reqData.kiasi, tarehe_mchango: leo(), maelezo: reqData.maelezo_muumini, hali: 'pending' });
+  await db.from('approvals').insert({ aina: 'contribution', kichwa: `${reqData.aina_jina} - ${reqData.muumini_jina}`, muumini_id: reqData.muumini_id, muumini_jina: reqData.muumini_jina, kiasi: reqData.kiasi, maelezo_ap: reqData.maelezo_muumini, hali: 'pending', tarehe_mchango: leo(), request_id: reqId });
+}
+
 async function submitRequest() {
   const typeId = el('request-type').value, amount = parseInt(el('request-amount').value), message = el('request-message').value.trim();
   if (!typeId || !amount || amount <= 0) { el('request-alert').innerHTML = '<div class="alert alert-error">Chagua aina na weka kiasi sahihi</div>'; return; }
   const type = allContributionTypes.find(t => t.id === typeId);
   showLoading(true);
-  const { error } = await db.from('ombi_michango').insert({ muumini_id: currentUser.id, muumini_jina: currentUser.jina_kamili, muumini_simu: currentUser.namba_simu, aina: 'contribution', aina_id: typeId, aina_jina: type.name || type.jina, aina_icon: type.icon, kiasi: amount, maelezo_muumini: message, hali: 'pending' });
+  const { data, error } = await db.from('ombi_michango').insert({ muumini_id: currentUser.id, muumini_jina: currentUser.jina_kamili, muumini_simu: currentUser.namba_simu, aina: 'contribution', aina_id: typeId, aina_jina: type.name || type.jina, aina_icon: type.icon, kiasi: amount, maelezo_muumini: message, hali: 'approved' }).select();
+  if (!error && data && data[0]) {
+    await autoApproveMchango(data[0].id, { muumini_id: currentUser.id, muumini_jina: currentUser.jina_kamili, aina_id: typeId, aina_jina: type.name || type.jina, aina_icon: type.icon, kiasi: amount, maelezo_muumini: message });
+  }
   showLoading(false);
   if (error) { el('request-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
-  el('request-alert').innerHTML = '<div class="alert alert-success">✅ Ombi limepelekwa kwa Mweka Hazina!</div>';
+  el('request-alert').innerHTML = '<div class="alert alert-success">✅ Mchango wako umepokelewa!</div>';
   el('request-amount').value = ''; el('request-message').value = '';
   await notifyTreasurerOfRequest(currentUser.jina_kamili, currentUser.namba_simu, type.name || type.jina, amount, message);
   await loadAllData(); loadMemberDashboard(); memberTab('request');
@@ -1664,12 +1711,15 @@ async function submitQuickChangia(memberId) {
     muumini_id: member.id, muumini_jina: member.jina_kamili, muumini_simu: member.namba_simu,
     aina: 'contribution', aina_id: match ? match.id : null,
     aina_jina: ainaVal, aina_icon: match ? match.icon : (iconFallback[ainaVal] || '🙏'),
-    kiasi, maelezo_muumini: ujumbe, hali: 'pending'
+    kiasi, maelezo_muumini: ujumbe, hali: 'approved'
   }).select();
+  if (!error && inserted && inserted[0]) {
+    await autoApproveMchango(inserted[0].id, { muumini_id: member.id, muumini_jina: member.jina_kamili, aina_id: match ? match.id : null, aina_jina: ainaVal, aina_icon: match ? match.icon : (iconFallback[ainaVal] || '🙏'), kiasi, maelezo_muumini: ujumbe });
+  }
   showLoading(false);
   if (error) { el('quick-changia-alert').innerHTML = '<div class="alert alert-error">Hitilafu: ' + error.message + '</div>'; return; }
   el('quick-changia-form').innerHTML = '';
-  el('quick-changia-alert').innerHTML = '<div class="alert alert-success">✅ Asante ' + member.jina_kamili + '! Ombi lako la mchango limepokelewa.</div>';
+  el('quick-changia-alert').innerHTML = '<div class="alert alert-success">✅ Asante ' + member.jina_kamili + '! Mchango wako umepokelewa.</div>';
   // Mara moja mwombe alipe kwa simu (USSD push) badala ya kusubiri tu
   // Mweka Hazina athibitishe kwa mkono — sawa na kitufe "Lipa Sasa"
   // kwenye dashibodi ya muumini, lakini hapa moja kwa moja bila login.
