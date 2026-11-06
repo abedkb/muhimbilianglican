@@ -3839,29 +3839,7 @@ function nextSundayDateLabel() {
   return `Jumapili, ${d.getDate()} ${MIEZI_SW[d.getMonth() + 1]} ${d.getFullYear()}`;
 }
 
-// Ujumbe maalum wa mara moja kwa Jumapili 25 Oktoba 2026 (ibada + ibada ya Jumuiya).
-// Unatumika tu kwa tarehe hiyo; Jumapili nyingine zinatumia ujumbe wa kawaida hapa chini.
-const SPECIAL_SUNDAY_MESSAGES = {
-  '2026-10-25': 'Bwana Yesu Asifiwe {JINA},\n\nNapenda kukukaribisha katika ibaada ya Kesho, Jumapili 25 October 2026. Ibaada yetu inatarajia kuanza Saa 3:00 Asubuhi hadi Saa 6:00 mchana, kisha kufuatiwa na Ibaada ya Jumuiya itakayofanyika nyumbani kwa Mr & Mrs Eric Hamissi, Mbezi, nyuma ya shule ya St.Mary\'s High School.'
-};
-function nextSundayISO() {
-  const d = new Date();
-  const daysUntilSunday = (7 - d.getDay()) % 7 || 7;
-  d.setDate(d.getDate() + daysUntilSunday);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
 function buildSundayReminderTemplate() {
-  const special = SPECIAL_SUNDAY_MESSAGES[nextSundayISO()];
-  if (special) {
-    return [
-      kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY',
-      special,
-      `Pia unaweza kutuma sadaka yako ya kawaida, mavuno, ahadi au fungu la kumi moja kwa moja kupitia kiungo {LINK}`,
-      'Mungu akubariki!',
-      `${SENDER_NAME}\n${PASTOR_PHONE}`
-    ].join('\n\n');
-  }
   const tarehe = nextSundayDateLabel();
   const mwanzo = kanisaSettings.muda_mwanzo || 'Saa 3:00 Asubuhi';
   const mwisho = kanisaSettings.muda_mwisho || 'Saa 5:30 Asubuhi';
