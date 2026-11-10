@@ -828,13 +828,6 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
       <!-- ALL RECORDS -->
       <div class="card">
         <div class="card-title">📋 Rekodi za Ahadi Zote</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Mavuno')">⬇ Mavuno</button>
-          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Fungu la Kumi')">⬇ Fungu la Kumi</button>
-          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Ujenzi')">⬇ Ujenzi</button>
-          <button class="btn btn-sm btn-outline" onclick="downloadAhadiCSV('Ahadi')">⬇ Ahadi</button>
-          <button class="btn btn-sm btn-green" onclick="downloadAhadiCSV('')">⬇ Zote CSV</button>
-        </div>
         <div class="fg" style="margin-bottom:12px;"><input type="text" class="fi" id="ahadi-records-search" placeholder="🔍 Tafuta jina au aina..." oninput="renderAhadiRecords()" style="margin-bottom:0;"></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="ahadi-filter-btns">
           <button class="btn btn-sm btn-primary" onclick="filterAhadiType('')">Zote</button>
@@ -1115,8 +1108,27 @@ td{padding:12px;font-size:13px;border-bottom:1px solid #E2E8F0;}
         </div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-primary" style="flex:1;" onclick="generateRipoti()">📊 Onyesha Ripoti</button>
-          <button class="btn btn-outline" onclick="printRipoti()">🖨️ Chapisha / PDF</button>
-          <button class="btn btn-gold btn-sm" onclick="downloadRipotiCSV()">📥 CSV</button>
+          <button class="btn btn-outline" onclick="printRipoti()">🖨️ Chapisha</button>
+          <button class="btn btn-outline" onclick="downloadRipotiPDF()">📄 PDF</button>
+          <button class="btn btn-gold btn-sm" onclick="downloadRipotiExcel()">📊 Excel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📄 Ripoti ya Aina ya Sadaka (Ahadi)</div>
+        <div style="font-size:13px;color:#6B7280;margin-bottom:12px;">Chagua aina ya sadaka (mfano Mavuno) uone ahadi, kilicholipwa na kilichobaki.</div>
+        <div>
+          <div class="fg" style="margin-bottom:10px;"><label>Chagua Aina ya Sadaka</label><select class="fsel" id="ahr-aina" onchange="ahrRender()"></select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div class="fg" style="margin-bottom:0;"><label>Kuanzia Tarehe (hiari)</label><input type="date" class="fi" id="ahr-from" onchange="ahrRender()"></div>
+            <div class="fg" style="margin-bottom:0;"><label>Hadi Tarehe (hiari)</label><input type="date" class="fi" id="ahr-to" onchange="ahrRender()"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:12px;cursor:pointer;"><input type="checkbox" id="ahr-baki-tu" onchange="ahrRender()" style="width:18px;height:18px;"> Onyesha wenye kilichobaki tu</label>
+          <div id="ahr-preview"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn btn-sm btn-primary" style="flex:1;min-width:110px;" onclick="ahrDownloadPDF()">📄 Pakua PDF</button>
+            <button class="btn btn-sm btn-green" style="flex:1;min-width:110px;" onclick="ahrDownloadCSV()">📊 Pakua Excel</button>
+            <button class="btn btn-sm btn-outline" style="flex:1;min-width:110px;" onclick="ahrPrint()">🖨 Chapisha</button>
+          </div>
         </div>
       </div>
       <div id="ripoti-content"></div>
@@ -3652,24 +3664,20 @@ function filterTreasurerWaumini() {
   renderTreasurerWaumini(el('treasurer-waumini-search').value.trim());
 }
 
+function wauminiSpec(role) {
+  return {
+    fname: `waumini_${role}_${leo()}`, title: 'ORODHA YA WAUMINI', subtitle: 'Tarehe: ' + formatDate(leo()) + '  |  Idadi: ' + allMembers.length,
+    sections: [{ head: ['#', 'Jina Kamili', 'Namba ya Simu', 'Namba ya Muumini', 'Jinsia', 'Hali', 'Tarehe ya Kujiunga'],
+      rows: allMembers.map((m, i) => [i + 1, m.jina_kamili || '', m.namba_simu || '', m.namba_muumini || '', m.jinsia || '', m.hali === 'hai' ? 'Hai' : m.hali === 'si_hai' ? 'Si Hai' : 'Pending', m.tarehe_kujiunga || '']) }]
+  };
+}
 function downloadWauminiCSV(role) {
-  const headers = ['#', 'Jina Kamili', 'Namba ya Simu', 'Namba ya Muumini', 'Jinsia', 'Hali', 'Tarehe ya Kujiunga'];
-  const rows = allMembers.map((m, i) => [
-    i + 1,
-    `"${(m.jina_kamili || '').replace(/"/g, '""')}"`,
-    m.namba_simu || '',
-    m.namba_muumini || '',
-    m.jinsia || '',
-    m.hali === 'hai' ? 'Hai' : m.hali === 'si_hai' ? 'Si Hai' : 'Pending',
-    m.tarehe_kujiunga || ''
-  ]);
-  const csv = '﻿' + [headers, ...rows].map(r => r.join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `waumini_${role}_${leo()}.csv`; a.click();
-  URL.revokeObjectURL(url);
-  toast('✅ Orodha imepakiwa!');
+  openModal('⬇ Pakua Orodha ya Waumini', `
+    <div style="font-size:14px;color:#4A5568;margin-bottom:14px;">Chagua muundo wa faili:</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-green" style="flex:1;min-width:130px;" onclick="closeModal();xlExport(wauminiSpec('${role}'))">📊 Excel</button>
+      <button class="btn btn-primary" style="flex:1;min-width:130px;" onclick="closeModal();pdfExport(wauminiSpec('${role}'))">📄 PDF</button>
+    </div>`);
 }
 
 // ==================== MESSAGING FUNCTIONS ====================
@@ -4645,6 +4653,7 @@ function initRipotiTab() {
   const fromEl = el('ripoti-from'), toEl = el('ripoti-to');
   if (fromEl && !fromEl.value) fromEl.value = `${y}-${m}-01`;
   if (toEl && !toEl.value) toEl.value = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+  ahrInit();
 }
 
 function setRipotiPeriod(preset) {
@@ -4933,48 +4942,31 @@ function _ripotiPrint(d, generatedOn) {
   </div>`;
 }
 
-function downloadRipotiCSV() {
+function ripotiBuildSpec() {
   const from = el('ripoti-from').value, to = el('ripoti-to').value;
   if (!from || !to) { toast('⚠️ Chagua kipindi cha ripoti'); return; }
   const d = _getRipotiData(from, to);
-  const fmtPeriod = `${d.from} - ${d.to}`;
-
-  const rows = [
-    ['RIPOTI YA FEDHA - MUHIMBILI ANGLICAN CHAPLAINCY'],
-    [`Kipindi: ${fmtPeriod}`],
-    [],
-    ['=== MUHTASARI ==='],
-    ['Aina', 'Kiasi (TZS)'],
-    ['Sadaka (baada ya makato)', d.sadakaTotal],
-    ['Zaka', d.zakaTotal],
-    ['Shukrani', d.shukraniTotal],
-    ['Watoto', d.watotoTotal],
-    ['Nyingine', d.nyingineTotal],
+  const summary = [
+    ['Sadaka (baada ya makato)', d.sadakaTotal], ['Zaka', d.zakaTotal], ['Shukrani', d.shukraniTotal], ['Watoto', d.watotoTotal], ['Nyingine', d.nyingineTotal],
     ['Jumla Mapato Ibada', d.mapatoTotal],
     ...(d.michangoTotal ? [['Michango Waumini', d.michangoTotal], ['Jumla Mapato (Yote)', d.mapatoJumla]] : []),
-    ['Jumla Matumizi', d.matumiziTotal],
-    ['Baki (Salio)', d.bakiJumla],
-    ['Mapato Ujenzi', d.ujenziMapato],
-    ['Matumizi Ujenzi', d.ujenziMatumizi],
-    ['Baki Ujenzi', d.ujenziMapato - d.ujenziMatumizi],
-    [],
-    ['=== REKODI ZA IBADA ==='],
-    ['Tarehe', 'Aina ya Ibada', 'Sadaka', 'Zaka', 'Shukrani', 'Watoto', 'Nyingine', 'Ujenzi', 'Jumla'],
-    ...d.ibadaRows.map(r => [r.tarehe, `"${r.aina.replace(/"/g,'""')}"`, r.sadaka, r.zaka, r.shukrani, r.watoto, r.nyingine, r.ujenzi, r.jumla]),
-    [],
-    ['=== REKODI ZA MATUMIZI ==='],
-    ['Tarehe', 'Kichwa', 'Aina', 'Kiasi'],
-    ...d.matumiziRows.map(r => [r.tarehe, `"${r.kichwa.replace(/"/g,'""')}"`, r.aina, r.kiasi])
+    ['Jumla Matumizi', d.matumiziTotal], ['Baki (Salio)', d.bakiJumla],
+    ['Mapato Ujenzi', d.ujenziMapato], ['Matumizi Ujenzi', d.ujenziMatumizi], ['Baki Ujenzi', d.ujenziMapato - d.ujenziMatumizi]
   ];
-
-  const csv = '﻿' + rows.map(r => r.join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url;
-  a.download = `ripoti_fedha_${d.from}_${d.to}.csv`; a.click();
-  URL.revokeObjectURL(url);
-  toast('✅ Ripoti imepakiwa!');
+  return {
+    fname: `ripoti_fedha_${d.from}_${d.to}`, title: 'RIPOTI YA FEDHA', subtitle: `Kipindi: ${formatDate(d.from)} — ${formatDate(d.to)}`,
+    sections: [
+      { heading: 'MUHTASARI', head: ['Aina', 'Kiasi (TZS)'], rows: summary, numCols: [1] },
+      { heading: 'REKODI ZA IBADA', head: ['Tarehe', 'Aina ya Ibada', 'Sadaka', 'Zaka', 'Shukrani', 'Watoto', 'Nyingine', 'Ujenzi', 'Jumla'],
+        rows: d.ibadaRows.map(r => [r.tarehe, r.aina, r.sadaka, r.zaka, r.shukrani, r.watoto, r.nyingine, r.ujenzi, r.jumla]), numCols: [2, 3, 4, 5, 6, 7, 8] },
+      { heading: 'REKODI ZA MATUMIZI', head: ['Tarehe', 'Kichwa', 'Aina', 'Kiasi (TZS)'],
+        rows: d.matumiziRows.map(r => [r.tarehe, r.kichwa, r.aina, r.kiasi]), numCols: [3] }
+    ]
+  };
 }
+function ripotiSpec() { return ripotiBuildSpec(); }
+async function downloadRipotiExcel() { const sp = ripotiSpec(); if (sp) await xlExport(sp); }
+async function downloadRipotiPDF() { const sp = ripotiSpec(); if (sp) await pdfExport(sp); }
 
 // ==================== AHADI (PLEDGES) ====================
 function onAhadiActionChange() {
@@ -5277,6 +5269,7 @@ function renderTreasurerAhadi() {
   renderTreasurerAhadiPending();
   renderTreasurerAhadiMalipoPending();
   renderAhadiRecords();
+  ahrInit();
 }
 
 function onTreasAhadiActionChange() {
@@ -5548,40 +5541,283 @@ function viewAhadiDoc(malipoId) {
   } catch(e) { toast('Imeshindwa kufungua hati: ' + e.message); }
 }
 
-function downloadAhadiCSV(aina) {
-  const filtered = allAhadi.filter(a => a.hali === 'approved' && (!aina || a.aina_ahadi === aina));
-  if (!filtered.length) { toast(`Hakuna rekodi za ${aina || 'ahadi'}`); return; }
-  const ahadiIcons = { 'Mavuno': '🌾', 'Fungu la Kumi': '💰', 'Ujenzi': '🏗', 'Ahadi': '🤝' };
-  const rows = [
-    [`MUHIMBILI ANGLICAN CHAPLAINCY — Ripoti ya Ahadi${aina ? ': ' + aina : ' Zote'}`],
-    [`Tarehe ya Ripoti: ${new Date().toLocaleDateString('sw')}`],
-    [],
-    ['Jina la Muumini', 'Simu', 'Aina ya Ahadi', 'Tarehe ya Ahadi', 'Kiasi cha Ahadi (TZS)', 'Kiasi Kilicholipwa (TZS)', 'Kiasi Kinachobaki (TZS)', 'Hali'],
-    ...filtered.map(a => {
-      const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + m.kiasi_lipa, 0);
-      const baki = a.kiasi_ahadi - kulipwa;
-      const hali = baki <= 0 ? 'Imetimizwa' : kulipwa > 0 ? 'Inaendelea' : 'Haijaanza';
-      return [`"${a.muumini_jina}"`, a.muumini_simu || '', a.aina_ahadi, a.tarehe_ahadi || '', a.kiasi_ahadi, kulipwa, baki, hali];
-    }),
-    [],
-    ['JUMLA', '', '', '',
-      filtered.reduce((s, a) => s + a.kiasi_ahadi, 0),
-      filtered.reduce((s, a) => { const k = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((ss, m) => ss + m.kiasi_lipa, 0); return s + k; }, 0),
-      filtered.reduce((s, a) => { const k = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((ss, m) => ss + m.kiasi_lipa, 0); return s + (a.kiasi_ahadi - k); }, 0),
-      ''
-    ]
-  ];
-  const csv = '﻿' + rows.map(r => r.join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  const filename = aina ? `ahadi_${aina.replace(/\s/g,'_').toLowerCase()}_${leo()}.csv` : `ahadi_zote_${leo()}.csv`;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-  toast(`✅ Ripoti ya ${aina || 'Ahadi Zote'} imepakiwa!`);
+// ==================== RIPOTI YA AINA YA SADAKA (Mweka Hazina) ====================
+// Ripoti ya ahadi kwa aina moja (mfano Mavuno) au zote: Ahadi / Kilicholipwa / Kilichobaki kwa kila muumini,
+// pamoja na jumla. Inapakuliwa kama PDF au Excel (CSV), au kuchapishwa.
+function ahrAinaList() {
+  const list = ['Mavuno', 'Fungu la Kumi', 'Ujenzi', 'Ahadi'];
+  allContributionTypes.forEach(t => { const n = t.name || t.jina; if (n && !list.includes(n)) list.push(n); });
+  allAhadi.forEach(a => { if (a.aina_ahadi && !list.includes(a.aina_ahadi)) list.push(a.aina_ahadi); });
+  return list;
 }
+function ahrInit() {
+  const sel = el('ahr-aina'); if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">📚 Aina Zote</option>' + ahrAinaList().map(n => `<option value="${String(n).replace(/"/g, '&quot;')}">${n}</option>`).join('');
+  sel.value = prev || (ahrAinaList().includes('Mavuno') ? 'Mavuno' : '');
+  ahrRender();
+}
+function ahrSum(arr, key) { return arr.reduce((s, r) => s + (r[key] || 0), 0); }
+function ahrData() {
+  const aina = el('ahr-aina') ? el('ahr-aina').value : '';
+  const bakiTu = !!(el('ahr-baki-tu') && el('ahr-baki-tu').checked);
+  let rows = allAhadi.filter(a => a.hali === 'approved' && (!aina || a.aina_ahadi === aina)).map(a => {
+    const kulipwa = allAhadiMalipo.filter(m => m.ahadi_id === a.id && m.hali === 'approved').reduce((s, m) => s + (m.kiasi_lipa || 0), 0);
+    const ahadi = a.kiasi_ahadi || 0;
+    const baki = Math.max(0, ahadi - kulipwa);
+    const hali = baki <= 0 ? 'Imetimizwa' : kulipwa > 0 ? 'Inaendelea' : 'Haijaanza';
+    return { jina: a.muumini_jina || '', simu: a.muumini_simu || '', aina: a.aina_ahadi || '', tarehe: a.tarehe_ahadi || '', ahadi, kulipwa, baki, hali };
+  });
+  // Aina nyingine (Sunday school, Shukrani n.k.): ahadi = ombi la muumini, kilicholipwa = michango iliyoidhinishwa
+  const haveAhadi = new Set(allAhadi.filter(x => x.hali === 'approved').map(x => x.muumini_id + '|' + x.aina_ahadi));
+  const grp = {};
+  const gget = (id, jina, simu, an) => { const k = id + '|' + an; return grp[k] || (grp[k] = { id, jina, simu, aina: an, ahadi: 0, kulipwa: 0, tarehe: '' }); };
+  allRequests.filter(q => q.aina === 'contribution' && q.hali !== 'rejected' && q.aina_jina && (!aina || q.aina_jina === aina)).forEach(q => {
+    const m = allMembers.find(x => x.id == q.muumini_id);
+    const g = gget(q.muumini_id, q.muumini_jina || (m ? m.jina_kamili : ''), (m && m.namba_simu) || q.muumini_simu || '', q.aina_jina);
+    g.ahadi += q.kiasi || 0;
+    const t = (q.created_at || '').slice(0, 10); if (t > g.tarehe) g.tarehe = t;
+  });
+  allContributions.filter(c => c.hali === 'approved' && c.aina_jina && (!aina || c.aina_jina === aina)).forEach(c => {
+    const m = allMembers.find(x => x.id == c.muumini_id);
+    const g = gget(c.muumini_id, m ? m.jina_kamili : '—', (m && m.namba_simu) || '', c.aina_jina);
+    g.kulipwa += c.kiasi || 0;
+    if ((c.tarehe_mchango || '') > g.tarehe) g.tarehe = c.tarehe_mchango;
+  });
+  Object.values(grp).forEach(g => {
+    if (haveAhadi.has(g.id + '|' + g.aina)) return;
+    const ahadi = Math.max(g.ahadi, g.kulipwa), baki = Math.max(0, ahadi - g.kulipwa);
+    rows.push({ jina: g.jina, simu: g.simu, aina: g.aina, tarehe: g.tarehe, ahadi, kulipwa: g.kulipwa, baki, hali: baki <= 0 ? 'Imetimizwa' : g.kulipwa > 0 ? 'Inaendelea' : 'Haijaanza' });
+  });
+  const from = el('ahr-from') ? el('ahr-from').value : '', to = el('ahr-to') ? el('ahr-to').value : '';
+  if (from || to) rows = rows.filter(r => (!from || (r.tarehe || '') >= from) && (!to || (r.tarehe || '') <= to));
+  if (bakiTu) rows = rows.filter(r => r.baki > 0);
+  const mich = [], jumlaMich = 0;
+  rows.sort((x, y) => (y.tarehe || '').localeCompare(x.tarehe || '') || x.jina.localeCompare(y.jina));
+  return { aina, bakiTu, from, to, mich, jumlaMich, rows, jumla: { ahadi: ahrSum(rows, 'ahadi'), kulipwa: ahrSum(rows, 'kulipwa'), baki: ahrSum(rows, 'baki') } };
+}
+function ahrTitle(aina) { return 'RIPOTI YA ' + (aina ? aina.toUpperCase() : 'AHADI ZOTE'); }
+function ahrNum(n) { return (n || 0).toLocaleString('en-US'); }
+function ahrEsc(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function ahrRender() {
+  const box = el('ahr-preview'); if (!box) return;
+  const d = ahrData();
+  if (!d.rows.length && !d.mich.length) { box.innerHTML = `<div style="text-align:center;padding:16px;color:#B83B3B;font-weight:700;font-size:14px;">Hakuna rekodi za kupakua</div>`; return; }
+  const michHtml = d.mich.length ? `<div style="font-size:12px;font-weight:700;color:#6B7280;text-transform:uppercase;margin:14px 0 8px;">Michango iliyopokelewa · ${d.mich.length} · Jumla ${ahrNum(d.jumlaMich)}</div>
+    <div class="table-wrapper"><table><thead><tr><th>Tarehe</th><th>Muumini</th><th>Kiasi</th></tr></thead><tbody>${d.mich.map(r => `<tr><td>${ahrEsc(formatDate(r.tarehe))}</td><td>${ahrEsc(r.jina)}</td><td><strong>${ahrNum(r.kiasi)}</strong></td></tr>`).join('')}
+    <tr style="background:#F7FAFC;font-weight:800;"><td></td><td>JUMLA</td><td>${ahrNum(d.jumlaMich)}</td></tr></tbody></table></div>` : '';
+  if (!d.rows.length) { box.innerHTML = michHtml; return; }
+  const pct = d.jumla.ahadi ? Math.round(d.jumla.kulipwa * 100 / d.jumla.ahadi) : 0;
+  const tile = (lbl, val, bg, fg) => `<div style="background:${bg};border-radius:10px;padding:10px;text-align:center;"><div style="font-size:11px;font-weight:700;color:${fg};text-transform:uppercase;">${lbl}</div><div style="font-weight:800;font-size:15px;color:${fg};margin-top:2px;">${ahrNum(val)}</div></div>`;
+  box.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:#6B7280;text-transform:uppercase;margin-bottom:8px;">${ahrEsc(d.aina || 'Aina Zote')} · Rekodi ${d.rows.length} · Imelipwa ${pct}%</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+      ${tile('Ahadi', d.jumla.ahadi, '#E6F7EC', '#2F855A')}${tile('Kilicholipwa', d.jumla.kulipwa, '#E0F2FE', '#2C5282')}${tile('Kilichobaki', d.jumla.baki, d.jumla.baki > 0 ? '#FEE2E2' : '#E6F7EC', d.jumla.baki > 0 ? '#B83B3B' : '#2F855A')}
+    </div>
+    <div class="table-wrapper"><table>
+      <thead><tr><th>Tarehe</th><th>Muumini</th>${d.aina ? '' : '<th>Aina</th>'}<th>Ahadi</th><th>Kilicholipwa</th><th>Kilichobaki</th></tr></thead>
+      <tbody>${d.rows.map((r, i) => `<tr><td style="white-space:nowrap;">${ahrEsc(r.tarehe ? formatDate(r.tarehe) : '—')}</td><td><strong>${ahrEsc(r.jina)}</strong></td>${d.aina ? '' : `<td>${ahrEsc(r.aina)}</td>`}<td>${ahrNum(r.ahadi)}</td><td style="color:#2F855A;font-weight:700;">${ahrNum(r.kulipwa)}</td><td style="color:${r.baki > 0 ? '#B83B3B' : '#2F855A'};font-weight:700;">${ahrNum(r.baki)}</td></tr>`).join('')}
+      <tr style="background:#F7FAFC;font-weight:800;"><td></td><td>JUMLA</td>${d.aina ? '' : '<td></td>'}<td>${ahrNum(d.jumla.ahadi)}</td><td>${ahrNum(d.jumla.kulipwa)}</td><td>${ahrNum(d.jumla.baki)}</td></tr></tbody>
+    </table></div>` + michHtml;
+}
+function ahrFileName(ext) {
+  const d = el('ahr-aina') ? el('ahr-aina').value : '';
+  return 'Ripoti-' + (d ? d.replace(/[^\w]+/g, '-') : 'Ahadi-Zote') + '-' + leo() + '.' + ext;
+}
+function ahrSaveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.style.display = 'none';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 15000);
+}
+// ---------- Excel (.xlsx) na PDF za jumla: zinatumika na ripoti zote zinazopakuliwa ----------
+// spec = { fname, title, subtitle, sections: [{ heading, head:[], rows:[[]], foot:[[]], numCols:[idx] }] }
+function xlLoadLib() { return ahrLoadScript('https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js'); }
+function xlBuild(spec) {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Muhimbili Anglican Chaplaincy';
+  const ws = wb.addWorksheet('Ripoti', { pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
+  const GREEN = 'FF1B4D3E', LIGHT = 'FFE6F7EC', GREY = 'FFF7FAFC';
+  const thin = { style: 'thin', color: { argb: 'FF9CA3AF' } };
+  const border = { top: thin, left: thin, bottom: thin, right: thin };
+  const ncols = Math.max(...spec.sections.map(sc => (sc.head || []).length), 3);
+  const widths = new Array(ncols).fill(10);
+  const track = (row) => row.forEach((v, i) => { const l = String(v == null ? '' : (typeof v === 'number' ? v.toLocaleString('en-US') : v)).length + 3; if (l > widths[i]) widths[i] = Math.min(l, 45); });
+  const bigRow = (text, size, bold, color) => {
+    const r = ws.addRow([text]); ws.mergeCells(r.number, 1, r.number, ncols);
+    r.getCell(1).font = { size, bold, color: { argb: color } }; r.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' }; r.height = size + 8;
+  };
+  bigRow(spec.org || 'MUHIMBILI ANGLICAN CHAPLAINCY', 14, true, 'FF1B4D3E');
+  bigRow(spec.title, 16, true, 'FF111111');
+  if (spec.subtitle) bigRow(spec.subtitle, 11, false, 'FF555555');
+  spec.sections.forEach(sc => {
+    ws.addRow([]);
+    if (sc.heading) { const r = ws.addRow([sc.heading]); r.getCell(1).font = { bold: true, size: 12, color: { argb: GREEN } }; }
+    const num = new Set(sc.numCols || []);
+    const hr = ws.addRow(sc.head); track(sc.head);
+    hr.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: GREEN } }; c.border = border; c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; });
+    hr.height = 22;
+    (sc.rows || []).forEach((row, ri) => {
+      const r = ws.addRow(row); track(row);
+      r.eachCell({ includeEmpty: true }, (c, ci) => {
+        if (ci > sc.head.length) return;
+        c.border = border; c.alignment = { vertical: 'middle', horizontal: num.has(ci - 1) ? 'right' : 'left' };
+        if (num.has(ci - 1)) c.numFmt = '#,##0';
+        if (ri % 2) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: GREY } };
+      });
+    });
+    (sc.foot || []).forEach(row => {
+      const r = ws.addRow(row); track(row);
+      r.eachCell({ includeEmpty: true }, (c, ci) => {
+        if (ci > sc.head.length) return;
+        c.font = { bold: true }; c.border = border; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: LIGHT } };
+        c.alignment = { horizontal: num.has(ci - 1) ? 'right' : 'left' }; if (num.has(ci - 1)) c.numFmt = '#,##0';
+      });
+    });
+  });
+  widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+  return wb;
+}
+async function xlExport(spec) {
+  try { await xlLoadLib(); } catch (e) { toast('❌ Imeshindwa kupakia zana ya Excel — hakikisha una intaneti'); return; }
+  try {
+    const buf = await xlBuild(spec).xlsx.writeBuffer();
+    ahrSaveBlob(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), spec.fname + '.xlsx');
+    toast('✅ Excel imepakuliwa');
+  } catch (e) { console.error(e); toast('❌ Imeshindwa kutengeneza Excel'); }
+}
+function pdfBuild(spec) {
+  const { jsPDF } = window.jspdf;
+  const wide = Math.max(...spec.sections.map(sc => sc.head.length)) > 6;
+  const doc = new jsPDF({ orientation: wide ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+  const w = doc.internal.pageSize.getWidth(), h = doc.internal.pageSize.getHeight();
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.text(spec.org || 'MUHIMBILI ANGLICAN CHAPLAINCY', w / 2, 14, { align: 'center' });
+  doc.setFontSize(16); doc.text(spec.title, w / 2, 22, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(90);
+  if (spec.subtitle) doc.text(spec.subtitle, w / 2, 28, { align: 'center' });
+  let y = 33;
+  spec.sections.forEach(sc => {
+    if (sc.heading) { if (y > h - 30) { doc.addPage(); y = 15; } doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(27, 77, 62); doc.text(sc.heading, 10, y); y += 3; }
+    const cs = {}; (sc.numCols || []).forEach(c => { cs[c] = { halign: 'right' }; });
+    doc.autoTable({
+      startY: y, head: [sc.head], body: (sc.rows || []).map(r => r.map(v => typeof v === 'number' ? v.toLocaleString('en-US') : (v == null ? '' : v))),
+      foot: (sc.foot || []).map(r => r.map(v => typeof v === 'number' ? v.toLocaleString('en-US') : v)),
+      styles: { fontSize: 10, cellPadding: 2.2, lineColor: [60, 60, 60], lineWidth: 0.2 },
+      headStyles: { fillColor: [27, 77, 62], textColor: 255 }, footStyles: { fillColor: [230, 247, 236], textColor: 20, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [247, 250, 252] }, columnStyles: cs, showFoot: 'lastPage', rowPageBreak: 'avoid', margin: { left: 10, right: 10 }
+    });
+    y = doc.lastAutoTable.finalY + 9;
+  });
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) { doc.setPage(p); doc.setFontSize(9); doc.setTextColor(120); doc.setFont('helvetica', 'normal'); doc.text('Ukurasa ' + p + ' / ' + pages, w / 2, h - 6, { align: 'center' }); }
+  return doc;
+}
+async function pdfExport(spec) {
+  try { await ahrEnsurePdfLib(); } catch (e) { toast('❌ Imeshindwa kupakia zana ya PDF — hakikisha una intaneti'); return; }
+  ahrSaveBlob(pdfBuild(spec).output('blob'), spec.fname + '.pdf');
+  toast('✅ PDF imepakuliwa');
+}
+function ahrSpec() {
+  const d = ahrData();
+  const showAina = !d.aina;
+  const head = ['Tarehe', 'Jina la Muumini', ...(showAina ? ['Aina'] : []), 'Ahadi (TZS)', 'Kilicholipwa (TZS)', 'Kilichobaki (TZS)'];
+  const n0 = showAina ? 3 : 2;
+  return {
+    d, fname: ahrFileName('').slice(0, -1), title: ahrTitle(d.aina) + (d.bakiTu ? ' (WENYE KILICHOBAKI)' : ''),
+    subtitle: 'Tarehe ya ripoti: ' + formatDate(leo()),
+    sections: [{ head, numCols: [n0, n0 + 1, n0 + 2],
+      rows: d.rows.map(r => [r.tarehe || '—', r.jina, ...(showAina ? [r.aina] : []), r.ahadi, r.kulipwa, r.baki]),
+      foot: [['', 'JUMLA', ...(showAina ? [''] : []), d.jumla.ahadi, d.jumla.kulipwa, d.jumla.baki]] }]
+  };
+}
+function ahrDownloadCSV() {
+  const sp = ahrSpec();
+  if (!sp.d.rows.length) { toast('Hakuna rekodi za kupakua'); return; }
+  xlExport(sp);
+}
+function ahrLoadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector('script[data-ahr-src="' + src + '"]')) { res(); return; }
+    const sc = document.createElement('script'); sc.src = src; sc.dataset.ahrSrc = src;
+    sc.onload = () => res(); sc.onerror = () => rej(new Error('script')); document.head.appendChild(sc);
+  });
+}
+async function ahrEnsurePdfLib() {
+  if (window.jspdf && window.jspdf.jsPDF && (new window.jspdf.jsPDF()).autoTable) return;
+  await ahrLoadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+  await ahrLoadScript('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js');
+}
+function ahrBuildPdf(d) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const w = doc.internal.pageSize.getWidth();
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text(kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY', w / 2, 14, { align: 'center' });
+  doc.setFontSize(16); doc.text(ahrTitle(d.aina) + (d.bakiTu ? ' (WENYE KILICHOBAKI)' : ''), w / 2, 22, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(90);
+  const pct = d.jumla.ahadi ? Math.round(d.jumla.kulipwa * 100 / d.jumla.ahadi) : 0;
+  doc.text('Tarehe ya ripoti: ' + formatDate(leo()) + (d.rows.length ? '   |   Ahadi: ' + d.rows.length + '   |   Imelipwa: ' + pct + '%' : ''), w / 2, 28, { align: 'center' });
+  const showAina = !d.aina;
+  const head = ['Tarehe', 'Jina la Muumini', ...(showAina ? ['Aina'] : []), 'Ahadi (TZS)', 'Kilicholipwa (TZS)', 'Kilichobaki (TZS)'];
+  const body = d.rows.map((r) => [r.tarehe || '—', r.jina, ...(showAina ? [r.aina] : []), ahrNum(r.ahadi), ahrNum(r.kulipwa), ahrNum(r.baki)]);
+  const foot = [['', 'JUMLA', ...(showAina ? [''] : []), ahrNum(d.jumla.ahadi), ahrNum(d.jumla.kulipwa), ahrNum(d.jumla.baki)]];
+  const numStart = showAina ? 3 : 2;
+  const colStyles = { 0: { cellWidth: 24 } };
+  [numStart, numStart + 1, numStart + 2].forEach(c => { colStyles[c] = { halign: 'right', cellWidth: 29 }; });
+  let nextY = 33;
+  if (d.rows.length) doc.autoTable({
+    startY: 33, head: [head], body, foot,
+    styles: { fontSize: 10.5, cellPadding: 2.6, lineColor: [60, 60, 60], lineWidth: 0.2 },
+    headStyles: { fillColor: [27, 77, 62], textColor: 255 },
+    footStyles: { fillColor: [230, 247, 236], textColor: 20, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [247, 250, 252] },
+    columnStyles: colStyles, showFoot: 'lastPage', rowPageBreak: 'avoid', margin: { left: 10, right: 10 }
+  });
+  if (d.rows.length) nextY = doc.lastAutoTable.finalY + 10;
+  if (d.mich.length) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(30);
+    if (nextY > 265) { doc.addPage(); nextY = 15; }
+    doc.text('MICHANGO ILIYOPOKELEWA', 10, nextY);
+    doc.autoTable({
+      startY: nextY + 3, head: [['Tarehe', 'Jina la Muumini', 'Kiasi (TZS)']],
+      body: d.mich.map(r => [r.tarehe, r.jina, ahrNum(r.kiasi)]), foot: [['', 'JUMLA', ahrNum(d.jumlaMich)]],
+      styles: { fontSize: 11, cellPadding: 2.6, lineColor: [60, 60, 60], lineWidth: 0.2 },
+      headStyles: { fillColor: [27, 77, 62], textColor: 255 }, footStyles: { fillColor: [230, 247, 236], textColor: 20, fontStyle: 'bold' },
+      columnStyles: { 2: { halign: 'right', cellWidth: 40 } }, showFoot: 'lastPage', rowPageBreak: 'avoid', margin: { left: 10, right: 10 }
+    });
+  }
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) { doc.setPage(p); doc.setFontSize(9); doc.setTextColor(120); doc.text('Ukurasa ' + p + ' / ' + pages, w / 2, 290, { align: 'center' }); }
+  return doc;
+}
+async function ahrDownloadPDF() {
+  const d = ahrData();
+  if (!d.rows.length && !d.mich.length) { toast('Hakuna rekodi za kupakua'); return; }
+  try { await ahrEnsurePdfLib(); } catch (e) { toast('❌ Imeshindwa kupakia zana ya PDF — hakikisha una intaneti'); return; }
+  ahrSaveBlob(ahrBuildPdf(d).output('blob'), ahrFileName('pdf'));
+  toast('✅ Ripoti imepakuliwa (PDF)');
+}
+function ahrPrint() {
+  const d = ahrData();
+  if (!d.rows.length && !d.mich.length) { toast('Hakuna rekodi za kupakua'); return; }
+  const showAina = !d.aina;
+  const html = `<html><head><meta charset="utf-8"><title>${ahrEsc(ahrTitle(d.aina))}</title><style>
+    body{font-family:Arial,sans-serif;padding:20px;color:#111}h2,h3{text-align:center;margin:0 0 4px}p{text-align:center;margin:0 0 14px;color:#555}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #333;padding:7px 9px;text-align:left}th{background:#eee}td.n,th.n{text-align:right}
+    tfoot td{font-weight:bold;background:#f0f7f3}</style></head><body>
+    <h3>${ahrEsc(kanisaSettings.jina_kanisa || 'MUHIMBILI ANGLICAN CHAPLAINCY')}</h3><h2>${ahrEsc(ahrTitle(d.aina))}${d.bakiTu ? ' (WENYE KILICHOBAKI)' : ''}</h2>
+    <p>Tarehe ya ripoti: ${formatDate(leo())}</p>
+    ${d.rows.length ? `<table><thead><tr><th>Tarehe</th><th>Jina la Muumini</th>${showAina ? '<th>Aina</th>' : ''}<th class="n">Ahadi (TZS)</th><th class="n">Kilicholipwa (TZS)</th><th class="n">Kilichobaki (TZS)</th></tr></thead>
+    <tbody>${d.rows.map((r) => `<tr><td>${ahrEsc(r.tarehe || '—')}</td><td>${ahrEsc(r.jina)}</td>${showAina ? `<td>${ahrEsc(r.aina)}</td>` : ''}<td class="n">${ahrNum(r.ahadi)}</td><td class="n">${ahrNum(r.kulipwa)}</td><td class="n">${ahrNum(r.baki)}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td></td><td>JUMLA</td>${showAina ? '<td></td>' : ''}<td class="n">${ahrNum(d.jumla.ahadi)}</td><td class="n">${ahrNum(d.jumla.kulipwa)}</td><td class="n">${ahrNum(d.jumla.baki)}</td></tr></tfoot></table>` : ''}
+    ${d.mich.length ? `<h3 style="text-align:left;margin:18px 0 6px;">MICHANGO ILIYOPOKELEWA</h3><table><thead><tr><th>Tarehe</th><th>Jina la Muumini</th><th class="n">Kiasi (TZS)</th></tr></thead><tbody>${d.mich.map(r => `<tr><td>${ahrEsc(r.tarehe)}</td><td>${ahrEsc(r.jina)}</td><td class="n">${ahrNum(r.kiasi)}</td></tr>`).join('')}</tbody><tfoot><tr><td></td><td>JUMLA</td><td class="n">${ahrNum(d.jumlaMich)}</td></tr></tfoot></table>` : ''}
+    <script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const win = window.open('', '_blank');
+  if (!win) { toast('⚠️ Ruhusu popup ili kuchapisha'); return; }
+  win.document.write(html); win.document.close();
+}
+
 
 // ==================== VIONGOZI WA KANISA ====================
 function renderViongoziMuumini() {
